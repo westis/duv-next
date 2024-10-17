@@ -622,6 +622,114 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Structured Data**:
   - Implement JSON-LD structured data where applicable.
 
+### 7. Component Design and State Management
+
+#### 7.1. Consistent Component Hierarchy
+
+- **Guideline**: Ensure that the server components wrapping client components remain consistent between page navigations to prevent unnecessary remounting and re-rendering.
+- **Implementation**:
+
+  - Create a consistent client component wrapper (e.g., a `Providers` component) that includes persistent client components like `ThemeProvider` and `TheNavbar`.
+  - Include this `Providers` component in the root layout (`app/layout.tsx`) so that it wraps all page content consistently.
+  - Avoid changing the server component hierarchy around client components between pages.
+
+- **Rationale**: In Next.js with the App Router, when navigating between pages, if the server components wrapping a client component change, the client component will unmount and remount. This can cause flickering effects and performance issues. By maintaining a consistent component hierarchy, we prevent unnecessary remounting.
+
+#### 7.2. Handling Theme-Based Assets
+
+- **Logo and Asset Switching**:
+
+  - **Guideline**: Use CSS to control the visibility of theme-based assets (e.g., logos for dark mode and light mode) instead of dynamically changing the `src` attribute of image components.
+  - **Implementation**:
+
+    - Render both the light and dark versions of the logo simultaneously within the component.
+    - Use CSS classes to show or hide the appropriate logo based on the current theme.
+    - Ensure that both logos are preloaded and cached by the browser to prevent re-fetching and flickering.
+    - Example CSS:
+
+      ```css
+      .logo-light {
+        display: block;
+      }
+
+      .logo-dark {
+        display: none;
+      }
+
+      html.dark .logo-light {
+        display: none;
+      }
+
+      html.dark .logo-dark {
+        display: block;
+      }
+      ```
+
+  - **Rationale**: Dynamically changing the `src` attribute based on the theme can cause the image to be re-fetched, leading to flickering. Using CSS to control visibility ensures smooth transitions and better performance.
+
+#### 7.3. Preventing Content Shift Due to Scrollbar
+
+- **Scrollbar Handling**:
+
+  - **Guideline**: Prevent layout shifts caused by the appearance or disappearance of the scrollbar when content overflows the viewport height.
+  - **Implementation**:
+
+    - Reserve scrollbar space by adding `overflow-y: scroll;` to the `html` element in the global CSS.
+    - Alternatively, use `scrollbar-gutter: stable;` if browser support is sufficient.
+    - Example CSS:
+
+      ```css
+      html {
+        overflow-y: scroll; /* Ensures scrollbar space is always reserved */
+      }
+      ```
+
+  - **Rationale**: Reserving the scrollbar space prevents the content from shifting when navigating between pages with different content heights, providing a consistent and stable layout.
+
+#### 7.4. Moving Client-Side Scripts into Components
+
+- **Global Client-Side Logic**:
+
+  - **Guideline**: Encapsulate client-side scripts and logic within client components instead of using raw `<script>` tags.
+  - **Implementation**:
+
+    - Create a `GlobalKeyboardShortcuts` component to handle global keyboard shortcuts.
+    - Place this component within the `Providers` component or another appropriate location.
+    - Ensure that all client-side behavior is managed within React's component structure.
+    - Example:
+
+      ```tsx
+      // components/GlobalKeyboardShortcuts.tsx
+      "use client";
+
+      import { useEffect } from "react";
+
+      export function GlobalKeyboardShortcuts() {
+        useEffect(() => {
+          const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+              e.preventDefault();
+              const button = document.querySelector(
+                'button[aria-haspopup="dialog"]'
+              ) as HTMLElement;
+              if (button) {
+                button.click();
+              }
+            }
+          };
+
+          document.addEventListener("keydown", handleKeyDown);
+          return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+          };
+        }, []);
+
+        return null;
+      }
+      ```
+
+  - **Rationale**: Keeping client-side logic within components improves code organization, maintainability, and adheres to React best practices.
+
 ---
 
 ## Naming Conventions and Style Guide
@@ -664,6 +772,35 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Vue.js Style Guide Compliance**:
   - Although this is a React project, the naming conventions inspired by the Vue.js Style Guide can still be applied where appropriate.
 
+#### Component Naming and Structure
+
+- **Consistent Component Hierarchy**:
+
+  - **Guideline**: Maintain a consistent component hierarchy, especially for components that are shared across pages (e.g., navbar, footer).
+  - **Implementation**:
+    - Shared components should be included in a way that does not change between pages.
+    - Avoid wrapping shared client components with different server components on different pages.
+
+- **Theme-Based Styling**:
+  - **Guideline**: Use CSS classes and the `ThemeProvider`'s theming capabilities to manage theme-specific styles and assets.
+  - **Implementation**:
+    - Use Tailwind CSS's dark mode variants (e.g., `dark:`) to define styles that change based on the theme.
+    - Control asset visibility (like logos) using CSS classes that respond to the `dark` class on the `<html>` element.
+
+#### CSS Practices
+
+- **Scrollbar Handling**:
+
+  - **Guideline**: Include CSS rules to prevent layout shifts due to scrollbar appearance.
+  - **Implementation**:
+    - As mentioned earlier, add `overflow-y: scroll;` to the `html` element in global styles.
+
+- **Class Naming Conventions**:
+  - **Guideline**: Use clear and descriptive class names for elements that require special handling (e.g., `.logo-light`, `.logo-dark`).
+  - **Implementation**:
+    - Follow BEM (Block Element Modifier) naming conventions if appropriate.
+    - Ensure that class names are intuitive and reflect their purpose.
+
 ---
 
 ## Accessibility, Localization, and SEO
@@ -680,6 +817,14 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
   - Use semantic HTML tags to improve accessibility.
 - **Testing**:
   - Use accessibility testing tools like Lighthouse or axe to validate compliance.
+- **Focus Management**:
+  - Ensure that focus states are managed appropriately when components are re-rendered or updated.
+  - Use `aria-live` regions if content updates dynamically.
+  - Maintain focus on interactive elements during navigation.
+- **Avoiding Flickering**:
+  - Prevent flickering of content to avoid disorienting users, especially those with motion sensitivities.
+  - Address issues like unnecessary component remounting that can cause visual flickering.
+  - Ensure that theme transitions are smooth and do not cause abrupt changes.
 
 ### Localization
 
@@ -751,3 +896,21 @@ By following this PRD, the development team can effectively build the DUV Ultram
    - Default to the yyyy-mm-dd format for all date displays and inputs.
    - Consider implementing a user setting to allow users to choose their preferred date format.
    - Update the DateRangePicker and DateInput components to use the chosen format consistently.
+
+### Performance Optimization
+
+#### Preventing Unnecessary Re-renders and Re-fetching
+
+- **Component Rendering**:
+
+  - **Guideline**: Optimize components to prevent unnecessary re-renders and re-fetching of assets.
+  - **Implementation**:
+    - Use `React.memo` to memoize functional components that do not need to re-render on every state or prop change.
+    - Ensure that dependencies in hooks like `useEffect` are correctly specified to avoid infinite loops or unnecessary re-fetches.
+    - Avoid anonymous functions and objects in dependencies that can cause re-renders.
+
+- **Asset Caching and Preloading**:
+  - **Guideline**: Ensure that assets like images are cached and preloaded to improve performance.
+  - **Implementation**:
+    - Use the `<Image>` component from `next/image` to leverage built-in optimizations.
+    - Preload critical assets when appropriate.

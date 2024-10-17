@@ -155,9 +155,16 @@ export default function EventList() {
             <div className="flex flex-col sm:flex-row">
               <div className="sm:w-40 p-4 bg-primary/10 flex flex-col justify-center items-start dark:text-foreground">
                 <div className="text-base font-semibold">{event.Startdate}</div>
-                <div className="flex items-center text-sm mt-1 opacity-80">
-                  <MapPinIcon className="h-4 w-4 mr-1" />
-                  {event.City}, {event.Country}
+                <div className="flex items-center text-sm mt-2">
+                  <MapPinIcon className="h-5 w-5 mr-2 text-accent" />
+                  <div>
+                    <div className="font-medium text-xs sm:text-sm ">
+                      {event.City}
+                    </div>
+                    <div className="text-xs  sm:text-sm opacity-80">
+                      {event.Country}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="flex-grow p-4">
