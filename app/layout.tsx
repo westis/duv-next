@@ -1,8 +1,8 @@
+// app/layout.tsx
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { TheNavbar } from "@/components/the-navbar";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 import "../styles/date-range-picker.css";
 
@@ -21,17 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TheNavbar />
+        <Providers>
           <Suspense fallback={<div>Loading...</div>}>
             <main>{children}</main>
           </Suspense>
-        </ThemeProvider>
+        </Providers>
         <script
           dangerouslySetInnerHTML={{
             __html: `
