@@ -12,6 +12,11 @@ import {
   TimerIcon,
   InfoIcon,
   BarChartIcon,
+  CircleIcon,
+  HomeIcon,
+  TreePineIcon,
+  RouteIcon,
+  FootprintsIcon,
 } from "lucide-react";
 import {
   Event,
@@ -191,34 +196,33 @@ export default function EventList() {
                       event
                     )} text-xs px-2 py-1 rounded-full`}
                   >
-                    {mapEventType(event).type === "Backyard Ultra" ||
-                    mapEventType(event).type === "Elimination Race" ? (
-                      <>
-                        <TimerIcon className="h-3 w-3 mr-1 inline" />
-                        <span>{mapEventType(event).type}</span>
-                      </>
+                    {event.Length ? (
+                      <RulerIcon className="h-3 w-3 mr-1 inline" />
                     ) : (
-                      <>
-                        {event.Length ? (
-                          <RulerIcon className="h-3 w-3 mr-1 inline" />
-                        ) : (
-                          <ClockIcon className="h-3 w-3 mr-1 inline" />
-                        )}
-                        <span>{event.Length || event.Duration}</span>
-                      </>
+                      <ClockIcon className="h-3 w-3 mr-1 inline" />
                     )}
+                    <span>{event.Length || event.Duration}</span>
                   </Badge>
-                  {(mapEventType(event).type === "Stage Race" ||
-                    mapEventType(event).surface !== "Unknown") && (
+                  {getEventTypeLabel(mapEventType(event)) && (
                     <Badge
                       variant="secondary"
                       className={`${getTypeColor(
                         event.EventType
                       )} text-xs px-2 py-1 rounded-full`}
                     >
-                      {mapEventType(event).type === "Stage Race"
-                        ? "Stage Race"
-                        : mapEventType(event).surface}
+                      {getEventTypeIcon(mapEventType(event))}
+                      <span>{getEventTypeLabel(mapEventType(event))}</span>
+                    </Badge>
+                  )}
+                  {mapEventType(event).surface !== "Unknown" && (
+                    <Badge
+                      variant="secondary"
+                      className={`${getSurfaceColor(
+                        mapEventType(event).surface
+                      )} text-xs px-2 py-1 rounded-full`}
+                    >
+                      {getSurfaceIcon(mapEventType(event).surface)}
+                      <span>{mapEventType(event).surface}</span>
                     </Badge>
                   )}
                 </div>
@@ -239,4 +243,53 @@ export default function EventList() {
       ))}
     </div>
   );
+}
+
+function getEventTypeIcon(eventType: { type: string; surface: string }) {
+  switch (eventType.type) {
+    case "Backyard Ultra":
+      return <TimerIcon className="h-3 w-3 mr-1 inline" />;
+    case "Stage Race":
+      return <RouteIcon className="h-3 w-3 mr-1 inline" />;
+    case "Walking":
+      return <FootprintsIcon className="h-3 w-3 mr-1 inline" />;
+    default:
+      return null;
+  }
+}
+
+function getEventTypeLabel(eventType: { type: string; surface: string }) {
+  return ["Backyard Ultra", "Stage Race", "Walking"].includes(eventType.type)
+    ? eventType.type
+    : "";
+}
+
+function getSurfaceIcon(surface: string) {
+  switch (surface) {
+    case "Road":
+      return <RouteIcon className="h-3 w-3 mr-1 inline" />;
+    case "Trail":
+      return <TreePineIcon className="h-3 w-3 mr-1 inline" />;
+    case "Track":
+      return <CircleIcon className="h-3 w-3 mr-1 inline" />;
+    case "Indoor":
+      return <HomeIcon className="h-3 w-3 mr-1 inline" />;
+    default:
+      return null;
+  }
+}
+
+function getSurfaceColor(surface: string) {
+  switch (surface) {
+    case "Road":
+      return "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+    case "Trail":
+      return "bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200";
+    case "Track":
+      return "bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200";
+    case "Indoor":
+      return "bg-purple-200 text-purple-800 dark:bg-purple-800 dark:text-purple-200";
+    default:
+      return "bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200";
+  }
 }

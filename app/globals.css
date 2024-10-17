@@ -34,6 +34,9 @@ body {
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+    --color-gray-200: 229 231 235;
+    --color-green-200: 187 247 208;
+    /* ... other light mode colors ... */
   }
 
   .dark {
@@ -56,6 +59,17 @@ body {
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    --color-gray-700: 55 65 81;
+    --color-green-800: 22 101 52;
+    /* ... other dark mode colors ... */
+  }
+
+  /* Add this to ensure light mode styles are applied */
+  :root:not(.dark) {
+    /* Explicitly set light mode styles */
+    --background: 47 43% 96%;
+    --foreground: 48 43% 9%;
+    /* ... other light mode variables ... */
   }
 }
 
@@ -127,3 +141,91 @@ html {
 .date-input-no-icon {
   -moz-appearance: textfield;
 }
+
+/* Add these utility classes to ensure background colors are applied */
+@layer utilities {
+  .bg-gray-200 {
+    background-color: rgb(229 231 235);
+  }
+  .bg-green-200 {
+    background-color: rgb(187 247 208);
+  }
+  .bg-rose-200 {
+    background-color: rgb(254 205 211);
+  }
+  .bg-red-200 {
+    background-color: rgb(254 202 202);
+  }
+  .bg-purple-200 {
+    background-color: rgb(233 213 255);
+  }
+  .bg-violet-200 {
+    background-color: rgb(221 214 254);
+  }
+  .bg-emerald-200 {
+    background-color: rgb(167 243 208);
+  }
+  .bg-neutral-200 {
+    background-color: rgb(229 229 229);
+  }
+  .bg-blue-200 {
+    background-color: rgb(191 219 254);
+  }
+  .bg-yellow-200 {
+    background-color: rgb(254 240 138);
+  }
+  .bg-amber-200 {
+    background-color: rgb(253 230 138);
+  }
+
+  .dark .bg-gray-700 {
+    background-color: rgb(55 65 81);
+  }
+  .dark .bg-green-800 {
+    background-color: rgb(22 101 52);
+  }
+  .dark .bg-rose-800 {
+    background-color: rgb(159 18 57);
+  }
+  .dark .bg-red-800 {
+    background-color: rgb(153 27 27);
+  }
+  .dark .bg-purple-800 {
+    background-color: rgb(107 33 168);
+  }
+  .dark .bg-violet-800 {
+    background-color: rgb(91 33 182);
+  }
+  .dark .bg-emerald-800 {
+    background-color: rgb(6 95 70);
+  }
+  .dark .bg-neutral-800 {
+    background-color: rgb(38 38 38);
+  }
+  .dark .bg-blue-800 {
+    background-color: rgb(30 64 175);
+  }
+  .dark .bg-yellow-800 {
+    background-color: rgb(133 77 14);
+  }
+  .dark .bg-amber-800 {
+    background-color: rgb(146 64 14);
+  }
+}
+
+/* Use CSS variables for background colors */
+.bg-gray-200 {
+  background-color: rgb(var(--color-gray-200));
+}
+.bg-green-200 {
+  background-color: rgb(var(--color-green-200));
+}
+/* ... (add other background color classes) */
+
+.dark .bg-gray-700 {
+  background-color: rgb(var(--color-gray-700));
+}
+.dark .bg-green-800 {
+  background-color: rgb(var(--color-green-800));
+}
+/* ... (add other dark mode background color classes) */
