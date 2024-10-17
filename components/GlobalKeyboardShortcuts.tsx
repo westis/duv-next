@@ -8,11 +8,11 @@ export function GlobalKeyboardShortcuts() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        const button = document.querySelector(
-          'button[aria-haspopup="dialog"]'
+        const searchButton = document.querySelector(
+          'button[aria-label="Open search"]'
         ) as HTMLElement;
-        if (button) {
-          button.click();
+        if (searchButton) {
+          searchButton.click();
         }
       }
     };

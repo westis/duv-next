@@ -13,7 +13,7 @@ import { Menu } from "lucide-react";
 interface MobileNavProps {
   items: {
     title: string;
-    items: { title: string; href: string; description: string }[];
+    items: { title: string; href: string }[];
   }[];
 }
 
@@ -45,10 +45,7 @@ export function MobileNav({ items }: MobileNavProps) {
                   setOpen={setOpen}
                   className="text-muted-foreground text-base md:text-lg"
                 >
-                  <div>{subItem.title}</div>
-                  <p className="text-sm text-muted-foreground">
-                    {subItem.description}
-                  </p>
+                  {subItem.title}
                 </MobileLink>
               ))}
             </div>
