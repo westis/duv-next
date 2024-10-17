@@ -35,13 +35,15 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            "block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group",
             className
           )}
           {...props}
         >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <div className="text-sm font-medium mb-1 md:text-base lg:text-lg">
+            {title}
+          </div>
+          <p className="line-clamp-2 text-xs text-muted-foreground group-hover:text-accent-foreground md:text-sm">
             {children}
           </p>
         </a>
@@ -55,27 +57,71 @@ const navigationItems = [
   {
     title: "Events",
     items: [
-      { title: "Calendar", href: "/events?year=futur" },
-      { title: "Results", href: "/events?year=past" },
-      { title: "Championships", href: "/championships" },
+      {
+        title: "Calendar",
+        href: "/events?year=futur",
+        description: "View upcoming ultramarathon events",
+      },
+      {
+        title: "Results",
+        href: "/events?year=past",
+        description: "Check results from past events",
+      },
+      {
+        title: "Championships",
+        href: "/championships",
+        description: "Explore major championship events",
+      },
     ],
   },
   {
     title: "Statistics",
     items: [
-      { title: "Toplists", href: "/toplists" },
-      { title: "Records", href: "/records" },
-      { title: "Country Stats", href: "/countrystats" },
+      {
+        title: "Toplists",
+        href: "/toplists",
+        description: "View rankings for various distances and categories",
+      },
+      {
+        title: "Records",
+        href: "/records",
+        description: "Explore world and national records in ultrarunning",
+      },
+      {
+        title: "Country Stats",
+        href: "/countrystats",
+        description: "Analyze ultrarunning statistics by country",
+      },
     ],
   },
   {
     title: "About",
     items: [
-      { title: "About DUV", href: "/about" },
-      { title: "What's New", href: "/whatsnew" },
-      { title: "FAQ", href: "/faq" },
-      { title: "Credits", href: "/credits" },
-      { title: "Contact", href: "/contact" },
+      {
+        title: "About DUV",
+        href: "/about",
+        description: "Learn about DUV and our mission",
+      },
+      {
+        title: "What's New",
+        href: "/whatsnew",
+        description: "Check out the latest updates and features",
+      },
+      {
+        title: "FAQ",
+        href: "/faq",
+        description: "Find answers to frequently asked questions",
+      },
+      {
+        title: "Credits",
+        href: "/credits",
+        description: "See who contributes to DUV",
+      },
+      {
+        title: "Contact",
+        href: "/contact",
+        description: "Get in touch with us",
+      },
     ],
   },
 ];
@@ -95,7 +141,7 @@ export function TheNavbar() {
 
   return (
     <nav className="border-b">
-      <div className="container mx-auto flex items-center justify-between py-4">
+      <div className="container mx-auto flex items-center justify-between py-2 md:py-4">
         <Link href="/" className="flex items-center">
           <Image
             src={
@@ -106,25 +152,27 @@ export function TheNavbar() {
             alt="DUV Logo"
             width={100}
             height={40}
-            className="mr-2"
+            className="mr-2 md:w-[120px] md:h-[48px]"
           />
         </Link>
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList className="space-x-1 md:space-x-2">
               {navigationItems.map((item) => (
                 <NavigationMenuItem key={item.title}>
-                  <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className="text-sm font-medium md:text-base lg:text-lg">
+                    {item.title}
+                  </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                    <ul className="grid w-[300px] gap-2 p-2 md:w-[400px] md:gap-3 md:p-4 lg:w-[500px] lg:grid-cols-2">
                       {item.items.map((subItem) => (
                         <ListItem
                           key={subItem.href}
                           title={subItem.title}
                           href={subItem.href}
                         >
-                          {subItem.title}
+                          {subItem.description}
                         </ListItem>
                       ))}
                     </ul>
@@ -135,15 +183,15 @@ export function TheNavbar() {
           </NavigationMenu>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 md:space-x-4">
           <div className="relative">
             <Button
               variant="outline"
-              className="w-64 justify-start text-left font-normal"
+              className="w-48 md:w-64 justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
               onClick={() => setOpen(true)}
             >
-              <span>Search runner, event, club...</span>
-              <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <span className="">Search runner, event or club...</span>
+              <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent">
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
@@ -152,9 +200,10 @@ export function TheNavbar() {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="text-base md:text-lg"
           >
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-[1.5rem] w-[1.5rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
           <MobileNav items={navigationItems} />

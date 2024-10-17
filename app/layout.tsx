@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TheNavbar } from "@/components/the-navbar";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "DUV Ultramarathon Statistics",
@@ -27,13 +18,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TheNavbar />
           {children}
         </ThemeProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            document.addEventListener('keydown', function(e) {
+              if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.querySelector('button[aria-haspopup="dialog"]').click();
+              }
+            });
+          `,
+          }}
+        />
       </body>
     </html>
   );

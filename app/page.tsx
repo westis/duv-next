@@ -5,7 +5,7 @@ export default function Home() {
     <div>
       <Hero />
       <main className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-semibold mb-4">
+        <h2 className="text-2xl font-bold mb-4">
           Welcome to DUV Ultramarathon Statistics
         </h2>
         <p className="mb-4">
