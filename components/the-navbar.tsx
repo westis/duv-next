@@ -13,7 +13,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { Search, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import {
   CommandDialog,
   CommandInput,
@@ -22,6 +22,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
+import { MobileNav } from "@/components/mobile-nav";
 import { cn } from "@/lib/utils";
 
 const ListItem = React.forwardRef<
@@ -50,12 +51,40 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
+const navigationItems = [
+  {
+    title: "Events",
+    items: [
+      { title: "Calendar", href: "/events?year=futur" },
+      { title: "Results", href: "/events?year=past" },
+      { title: "Championships", href: "/championships" },
+    ],
+  },
+  {
+    title: "Statistics",
+    items: [
+      { title: "Toplists", href: "/toplists" },
+      { title: "Records", href: "/records" },
+      { title: "Country Stats", href: "/countrystats" },
+    ],
+  },
+  {
+    title: "About",
+    items: [
+      { title: "About DUV", href: "/about" },
+      { title: "What's New", href: "/whatsnew" },
+      { title: "FAQ", href: "/faq" },
+      { title: "Credits", href: "/credits" },
+      { title: "Contact", href: "/contact" },
+    ],
+  },
+];
+
 export function TheNavbar() {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // useEffect to avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -81,79 +110,30 @@ export function TheNavbar() {
           />
         </Link>
 
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Events</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                  <li className="row-span-3">
-                    <NavigationMenuLink asChild>
-                      <a
-                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        href="/"
-                      >
-                        <div className="mb-2 mt-4 text-lg font-medium">
-                          Ultramarathon Events
-                        </div>
-                        <p className="text-sm leading-tight text-muted-foreground">
-                          Discover and explore ultramarathon events worldwide.
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                  <ListItem href="/events?year=futur" title="Calendar">
-                    View upcoming ultramarathon events.
-                  </ListItem>
-                  <ListItem href="/events?year=past" title="Results">
-                    Check results from past events.
-                  </ListItem>
-                  <ListItem href="/championships" title="Championships">
-                    Explore major championship events.
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Statistics</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                  <ListItem href="/toplists" title="Toplists">
-                    View rankings for various distances and categories.
-                  </ListItem>
-                  <ListItem href="/records" title="Records">
-                    Explore world and national records in ultrarunning.
-                  </ListItem>
-                  <ListItem href="/countrystats" title="Country Stats">
-                    Analyze ultrarunning statistics by country.
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>About</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                  <ListItem href="/about" title="About DUV">
-                    Learn about DUV and our mission.
-                  </ListItem>
-                  <ListItem href="/whatsnew" title="What's New">
-                    Check out the latest updates and features.
-                  </ListItem>
-                  <ListItem href="/faq" title="FAQ">
-                    Find answers to frequently asked questions.
-                  </ListItem>
-                  <ListItem href="/credits" title="Credits">
-                    See who contributes to DUV.
-                  </ListItem>
-                  <ListItem href="/contact" title="Contact">
-                    Get in touch with us.
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+        <div className="hidden md:block">
+          <NavigationMenu>
+            <NavigationMenuList>
+              {navigationItems.map((item) => (
+                <NavigationMenuItem key={item.title}>
+                  <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                      {item.items.map((subItem) => (
+                        <ListItem
+                          key={subItem.href}
+                          title={subItem.title}
+                          href={subItem.href}
+                        >
+                          {subItem.title}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
 
         <div className="flex items-center space-x-4">
           <div className="relative">
@@ -162,7 +142,6 @@ export function TheNavbar() {
               className="w-64 justify-start text-left font-normal"
               onClick={() => setOpen(true)}
             >
-              <Search className="mr-2 h-4 w-4" />
               <span>Search runner, event, club...</span>
               <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>K
@@ -178,6 +157,7 @@ export function TheNavbar() {
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
           </Button>
+          <MobileNav items={navigationItems} />
         </div>
       </div>
 
