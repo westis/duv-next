@@ -127,120 +127,125 @@ export default function EventList() {
       handleDateRangeChange;
   }, [handleEventTypeChange, handleDateRangeChange]);
 
-  if (loading)
-    return (
-      <div className="min-h-[200px] flex items-center justify-center">
-        Loading events...
-      </div>
-    );
-  if (error)
-    return (
-      <div className="min-h-[200px] flex items-center justify-center">
-        Error: {error}
-      </div>
-    );
-  if (events.length === 0)
-    return (
-      <div className="min-h-[200px] flex items-center justify-center">
-        No events found.
-      </div>
-    );
-
   return (
-    <div className="space-y-4 min-h-[200px]">
+    <div className="space-y-4">
       <EventFilter
         eventType={eventType}
         onEventTypeChange="handleEventTypeChange"
         dateRange={dateRange}
         onDateRangeChange="handleDateRangeChange"
       />
-      {events.map((event) => (
-        <Card key={event.EventID} className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className="flex flex-col sm:flex-row">
-              <div className="sm:w-40 p-4 bg-primary/10 flex flex-col justify-center items-start dark:text-foreground">
-                <div className="text-base font-semibold">{event.Startdate}</div>
-                <div className="flex items-center text-sm mt-2">
-                  <MapPinIcon className="h-5 w-5 mr-2 text-accent" />
-                  <div>
-                    <div className="font-medium text-xs sm:text-sm ">
-                      {event.City}
+
+      {loading ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          Loading events...
+        </div>
+      ) : error ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          Error: {error}
+        </div>
+      ) : events.length === 0 ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          No events found.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {events.map((event) => (
+            <Card key={event.EventID} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div className="flex flex-col sm:flex-row">
+                  <div className="sm:w-40 p-4 bg-primary/10 flex flex-col justify-center items-start dark:text-foreground">
+                    <div className="text-base font-semibold">
+                      {event.Startdate}
                     </div>
-                    <div className="text-xs  sm:text-sm opacity-80">
-                      {event.Country}
+                    <div className="flex items-center text-sm mt-2">
+                      <MapPinIcon className="h-5 w-5 mr-2 text-accent" />
+                      <div>
+                        <div className="font-medium text-xs sm:text-sm ">
+                          {event.City}
+                        </div>
+                        <div className="text-xs  sm:text-sm opacity-80">
+                          {event.Country}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-              <div className="flex-grow p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <h3 className="text-lg font-semibold text-foreground mr-2">
-                      {event.EventName}
-                    </h3>
-                    {["G", "S", "B"].includes(event.IAULabel) && (
-                      <Badge
-                        className={`${
-                          iauLabelColors[event.IAULabel]
-                        } text-xs px-2 py-1 rounded-full`}
-                      >
-                        IAU {event.IAULabel}
-                      </Badge>
-                    )}
+                  <div className="flex-grow p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <h3 className="text-lg font-semibold text-foreground mr-2">
+                          {event.EventName}
+                        </h3>
+                        {["G", "S", "B"].includes(event.IAULabel) && (
+                          <Badge
+                            className={`${iauLabelColors[
+                              event.IAULabel
+                            ].replace(
+                              "bg-",
+                              "bg-opacity-80 bg-"
+                            )} text-xs px-2 py-1 rounded-full`}
+                          >
+                            IAU {event.IAULabel}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {mapEventType(event).type !== "Backyard Ultra" && (
+                        <Badge
+                          variant="secondary"
+                          className={`${getDurationLengthColor(
+                            event
+                          )} text-xs px-2 py-1 rounded-full`}
+                        >
+                          {event.Length ? (
+                            <RulerIcon className="h-3 w-3 mr-1 inline" />
+                          ) : (
+                            <ClockIcon className="h-3 w-3 mr-1 inline" />
+                          )}
+                          <span>{event.Length || event.Duration}</span>
+                        </Badge>
+                      )}
+                      {getEventTypeLabel(mapEventType(event)) && (
+                        <Badge
+                          variant="secondary"
+                          className={`${getTypeColor(
+                            event.EventType
+                          )} text-xs px-2 py-1 rounded-full`}
+                        >
+                          {getEventTypeIcon(mapEventType(event))}
+                          <span>{getEventTypeLabel(mapEventType(event))}</span>
+                        </Badge>
+                      )}
+                      {mapEventType(event).surface !== "Unknown" && (
+                        <Badge
+                          variant="secondary"
+                          className={`${getSurfaceColor(
+                            mapEventType(event).surface
+                          )} text-xs px-2 py-1 rounded-full`}
+                        >
+                          {getSurfaceIcon(mapEventType(event).surface)}
+                          <span>{mapEventType(event).surface}</span>
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex sm:flex-col justify-end p-4 space-y-2 space-x-2 sm:space-x-0">
+                    <Button className="flex-1 sm:w-full" variant="outline">
+                      <InfoIcon className="h-4 w-4 mr-2" />
+                      Details
+                    </Button>
+                    <Button className="flex-1 sm:w-full">
+                      <BarChartIcon className="h-4 w-4 mr-2" />
+                      Results
+                    </Button>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <Badge
-                    variant="secondary"
-                    className={`${getDurationLengthColor(
-                      event
-                    )} text-xs px-2 py-1 rounded-full`}
-                  >
-                    {event.Length ? (
-                      <RulerIcon className="h-3 w-3 mr-1 inline" />
-                    ) : (
-                      <ClockIcon className="h-3 w-3 mr-1 inline" />
-                    )}
-                    <span>{event.Length || event.Duration}</span>
-                  </Badge>
-                  {getEventTypeLabel(mapEventType(event)) && (
-                    <Badge
-                      variant="secondary"
-                      className={`${getTypeColor(
-                        event.EventType
-                      )} text-xs px-2 py-1 rounded-full`}
-                    >
-                      {getEventTypeIcon(mapEventType(event))}
-                      <span>{getEventTypeLabel(mapEventType(event))}</span>
-                    </Badge>
-                  )}
-                  {mapEventType(event).surface !== "Unknown" && (
-                    <Badge
-                      variant="secondary"
-                      className={`${getSurfaceColor(
-                        mapEventType(event).surface
-                      )} text-xs px-2 py-1 rounded-full`}
-                    >
-                      {getSurfaceIcon(mapEventType(event).surface)}
-                      <span>{mapEventType(event).surface}</span>
-                    </Badge>
-                  )}
-                </div>
-              </div>
-              <div className="flex sm:flex-col justify-end p-4 space-y-2 space-x-2 sm:space-x-0">
-                <Button className="flex-1 sm:w-full" variant="outline">
-                  <InfoIcon className="h-4 w-4 mr-2" />
-                  Details
-                </Button>
-                <Button className="flex-1 sm:w-full">
-                  <BarChartIcon className="h-4 w-4 mr-2" />
-                  Results
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -282,14 +287,14 @@ function getSurfaceIcon(surface: string) {
 function getSurfaceColor(surface: string) {
   switch (surface) {
     case "Road":
-      return "bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
+      return "bg-gray-200/50 text-gray-800 dark:bg-gray-700/50 dark:text-gray-200";
     case "Trail":
-      return "bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200";
+      return "bg-green-200/50 text-green-800 dark:bg-green-800/50 dark:text-green-200";
     case "Track":
-      return "bg-red-200 text-red-800 dark:bg-red-800 dark:text-red-200";
+      return "bg-red-200/50 text-red-800 dark:bg-red-800/50 dark:text-red-200";
     case "Indoor":
-      return "bg-purple-200 text-purple-800 dark:bg-purple-800 dark:text-purple-200";
+      return "bg-purple-200/50 text-purple-800 dark:bg-purple-800/50 dark:text-purple-200";
     default:
-      return "bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200";
+      return "bg-neutral-200/50 text-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-200";
   }
 }
