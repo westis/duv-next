@@ -22,7 +22,11 @@ import {
 } from "@/lib/event-utils";
 import { EventFilter } from "@/components/event-filter";
 import { DateRange } from "react-day-picker";
-import { DateRangePicker } from "@/components/date-range-picker";
+
+interface WindowWithHandlers extends Window {
+  handleEventTypeChange: (value: string) => void;
+  handleDateRangeChange: (range: DateRange | undefined) => void;
+}
 
 export default function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -111,6 +115,13 @@ export default function EventList() {
     router.push(`/events?${params.toString()}`, { scroll: false });
   }, [eventType, dateRange, router, searchParams]);
 
+  useEffect(() => {
+    (window as unknown as WindowWithHandlers).handleEventTypeChange =
+      handleEventTypeChange;
+    (window as unknown as WindowWithHandlers).handleDateRangeChange =
+      handleDateRangeChange;
+  }, [handleEventTypeChange, handleDateRangeChange]);
+
   if (loading) return <div>Loading events...</div>;
   if (error) return <div>Error: {error}</div>;
   if (events.length === 0) return <div>No events found.</div>;
@@ -119,9 +130,9 @@ export default function EventList() {
     <>
       <EventFilter
         eventType={eventType}
-        onEventTypeChange={handleEventTypeChange}
+        onEventTypeChange="handleEventTypeChange"
         dateRange={dateRange}
-        onDateRangeChange={handleDateRangeChange}
+        onDateRangeChange="handleDateRangeChange"
       />
       <div className="space-y-4">
         {events.map((event) => (

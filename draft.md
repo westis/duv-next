@@ -744,3 +744,10 @@ By following this PRD, the development team can effectively build the DUV Ultram
 1. **Single filter for 'dist' parameter**: Update the event filter component to use a single filter that combines distance, duration, and type/surface options, reflecting the current capabilities of the 'dist' parameter in the API.
 
 2. **Handling incorrect JSON responses**: Continue to handle cases where the API returns incorrectly formatted JSON responses when there are no events meeting the specified criteria.
+
+### UI Improvements
+
+1. **Consistent Date Formats**: Ensure all date formats are consistent across the application, particularly in the DateRangePicker component used in event-filter.tsx.
+   - Default to the yyyy-mm-dd format for all date displays and inputs.
+   - Consider implementing a user setting to allow users to choose their preferred date format.
+   - Update the DateRangePicker and DateInput components to use the chosen format consistently.

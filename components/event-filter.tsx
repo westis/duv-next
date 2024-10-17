@@ -12,15 +12,20 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { addDays } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 interface EventFilterProps {
   eventType: string;
-  onEventTypeChange: (value: string) => void;
-  dateRange: { from: Date | undefined; to: Date | undefined } | undefined;
-  onDateRangeChange: (
-    range: { from: Date | undefined; to: Date | undefined } | undefined
-  ) => void;
+  onEventTypeChange: string;
+  dateRange: DateRange | undefined;
+  onDateRangeChange: string;
+}
+
+interface WindowWithHandlers extends Window {
+  [key: string]:
+    | ((value: string) => void)
+    | ((range: DateRange | undefined) => void)
+    | Window[keyof Window];
 }
 
 export function EventFilter({
@@ -29,11 +34,23 @@ export function EventFilter({
   dateRange,
   onDateRangeChange,
 }: EventFilterProps) {
+  const handleEventTypeChange = (value: string) => {
+    if (typeof window !== "undefined") {
+      (window as unknown as WindowWithHandlers)[onEventTypeChange](value);
+    }
+  };
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    if (typeof window !== "undefined") {
+      (window as unknown as WindowWithHandlers)[onDateRangeChange](range);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="event-type">Event Type</Label>
-        <Select value={eventType} onValueChange={onEventTypeChange}>
+        <Select value={eventType} onValueChange={handleEventTypeChange}>
           <SelectTrigger id="event-type" className="w-full sm:w-[180px]">
             <SelectValue placeholder="Event Type" />
           </SelectTrigger>
@@ -80,9 +97,7 @@ export function EventFilter({
         <DateRangePicker
           initialDateFrom={dateRange?.from}
           initialDateTo={dateRange?.to}
-          onUpdate={(newDateRange) => {
-            onDateRangeChange(newDateRange);
-          }}
+          onUpdate={handleDateRangeChange}
         />
       </div>
     </div>
