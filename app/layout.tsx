@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
-import "../styles/date-range-picker.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,18 +25,6 @@ export default function RootLayout({
             <main>{children}</main>
           </Suspense>
         </Providers>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            document.addEventListener('keydown', function(e) {
-              if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                e.preventDefault();
-                document.querySelector('button[aria-haspopup="dialog"]').click();
-              }
-            });
-          `,
-          }}
-        />
       </body>
     </html>
   );

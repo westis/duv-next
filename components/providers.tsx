@@ -3,6 +3,7 @@
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { TheNavbar } from "@/components/the-navbar";
+import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
+      <GlobalKeyboardShortcuts />
       <TheNavbar />
       {children}
     </ThemeProvider>

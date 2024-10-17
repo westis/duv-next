@@ -89,3 +89,41 @@ body {
       linear-gradient(315deg, hsl(var(--primary) / 0.02) 25%, transparent 25%);
   }
 }
+
+/* Logo theme switching */
+.logo-light {
+  display: block;
+}
+
+.logo-dark {
+  display: none;
+}
+
+html.dark .logo-light {
+  display: none;
+}
+
+html.dark .logo-dark {
+  display: block;
+}
+
+/* Fix for content shift when scrollbar appears */
+html {
+  overflow-y: scroll; /* Ensures scrollbar space is always reserved */
+}
+
+/* Date Range Picker styles */
+.date-input-no-icon::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.date-input-no-icon::-webkit-inner-spin-button,
+.date-input-no-icon::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.date-input-no-icon {
+  -moz-appearance: textfield;
+}

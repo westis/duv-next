@@ -127,34 +127,27 @@ const navigationItems = [
 ];
 
 const TheNavbar = memo(function TheNavbar() {
-  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Use a default theme for the initial render
-  const currentTheme = mounted ? theme : "light";
-
-  const logoSrc =
-    currentTheme === "dark"
-      ? "/duv_logo_with_name_white.png"
-      : "/duv_logo_with_name.png";
 
   return (
     <nav className="border-b bg-background">
       <div className="container mx-auto flex items-center justify-between py-2 md:py-4">
         <Link href="/" className="flex items-center">
-          <Image
-            key={logoSrc}
-            src={logoSrc}
-            alt="DUV Logo"
-            width={100}
-            height={40}
-            className="mr-2 md:w-[120px] md:h-[48px] transition-opacity duration-300"
-          />
+          <div className="relative w-[100px] h-[40px] md:w-[120px] md:h-[48px]">
+            <Image
+              src="/duv_logo_with_name.png"
+              alt="DUV Logo Light"
+              fill
+              className="logo-light object-contain"
+            />
+            <Image
+              src="/duv_logo_with_name_white.png"
+              alt="DUV Logo Dark"
+              fill
+              className="logo-dark object-contain"
+            />
+          </div>
         </Link>
 
         <div className="hidden lg:block">
@@ -200,7 +193,7 @@ const TheNavbar = memo(function TheNavbar() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="text-base md:text-lg"
           >
             <Sun className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
