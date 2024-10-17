@@ -140,7 +140,7 @@ export function TheNavbar() {
   }
 
   return (
-    <nav className="border-b">
+    <nav className="border-b bg-background">
       <div className="container mx-auto flex items-center justify-between py-2 md:py-4">
         <Link href="/" className="flex items-center">
           <Image

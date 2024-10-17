@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export function Hero() {
   return (
-    <div className="bg-background py-8 px-4 sm:py-12 sm:px-6 lg:py-16 lg:px-8">
+    <div className="py-8 px-4 sm:py-12 sm:px-6 lg:py-16 lg:px-8">
       <div className="container mx-auto text-center">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
           DUV Ultramarathon Statistics
