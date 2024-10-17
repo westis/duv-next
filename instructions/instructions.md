@@ -884,6 +884,19 @@ By following this PRD, the development team can effectively build the DUV Ultram
 
 5. **Documentation Updates**: Once the API improvements are implemented, update the API documentation in this PRD to reflect the changes in parameters and response format.
 
+6. **Add total events count to API response**: Request the API developer to include the total number of events matching the current query as a separate numeric field in the response. This will allow for accurate pagination on the client side. For example:
+
+   ```json
+   {
+     "totalEvents": 7757,
+     "Races": [
+       // ... event objects
+     ]
+   }
+   ```
+
+   This change will replace the current format where the total is included in the `nlsCalendarFoundEvents` text string.
+
 ### Temporary Workarounds
 
 1. **Single filter for 'dist' parameter**: Update the event filter component to use a single filter that combines distance, duration, and type/surface options, reflecting the current capabilities of the 'dist' parameter in the API.
