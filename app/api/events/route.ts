@@ -1,59 +1,71 @@
 import { NextResponse } from "next/server";
 
+const eventTypes = {
+  "Fixed-Distance": ["1", "2", "4", "8"],
+  "Fixed-Time": ["6h", "12h", "24h", "48h", "72h", "6d", "10d"],
+  "Backyard Ultra": ["Backy"],
+  "Elimination Race": ["Elim"],
+  "Stage Race": ["Stage"],
+  Walking: ["Walk"],
+  Other: ["Other"],
+};
+
+async function fetchEvents(baseUrl: string, dist: string) {
+  const url = `${baseUrl}&dist=${dist}`;
+  console.log("Fetching from URL:", url);
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const text = await response.text();
+  console.log("Raw response:", text.slice(0, 200) + "...");
+  try {
+    if (!text.trim() || text.trim() === "null") {
+      return [];
+    }
+    const data = JSON.parse(text);
+    return data.Races || [];
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return [];
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const year = searchParams.get("year");
+  const year = searchParams.get("year") || "futur";
   const from = searchParams.get("from");
   const to = searchParams.get("to");
-  const order = searchParams.get("order");
-  const eventType = searchParams.get("eventType");
+  const order =
+    searchParams.get("order") || (year === "futur" ? "asc" : "desc");
+  const dist = searchParams.get("dist"); // Changed from 'type' to 'dist'
   const country = searchParams.get("country");
   const rproof = searchParams.get("rproof");
   const norslt = searchParams.get("norslt");
+  const perpage = searchParams.get("perpage") || "20";
 
-  // Construct the URL for the DUV API
-  let apiUrl = "https://statistik.d-u-v.org/json/mcalendar.php?";
+  let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?year=${year}&plain=1&perpage=${perpage}&Language=EN`;
+  if (from && to) baseUrl += `&from=${from}&to=${to}`;
+  if (country) baseUrl += `&country=${country}`;
+  if (rproof) baseUrl += `&rproof=${rproof}`;
+  if (norslt) baseUrl += `&norslt=${norslt}`;
 
-  if (year) apiUrl += `year=${year}&`;
-  if (from && to) apiUrl += `from=${from}&to=${to}&`;
-  if (order) apiUrl += `order=${order}&`;
-  if (eventType) apiUrl += `dist=${eventType}&`;
-  if (country) apiUrl += `country=${country}&`;
-  if (rproof) apiUrl += `rproof=${rproof}&`;
-  if (norslt) apiUrl += `norslt=${norslt}&`;
-
-  // Add default parameters
-  apiUrl += "plain=1&perpage=20&Language=EN";
-
-  console.log("Fetching from URL:", apiUrl);
+  let distValues: string[] = dist && dist !== "all" ? [dist] : ["all"];
 
   try {
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const text = await response.text();
-    console.log("Received raw data:", text.slice(0, 500) + "...");
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (parseError) {
-      console.error("Error parsing JSON:", parseError);
-      return NextResponse.json(
-        { error: "Invalid JSON response from API", rawData: text },
-        { status: 500 }
-      );
-    }
-
-    console.log(
-      "Parsed data structure:",
-      JSON.stringify(data, null, 2).slice(0, 500) + "..."
+    const allEvents = await Promise.all(
+      distValues.map((dist) => fetchEvents(baseUrl, dist))
     );
 
-    // Check if data is an object with a Races property
-    const events =
-      data && data.Races && Array.isArray(data.Races) ? data.Races : [];
+    const events = allEvents.flat();
+
+    // Sort all events by date
+    events.sort((a, b) => {
+      return order === "asc"
+        ? new Date(a.Startdate).getTime() - new Date(b.Startdate).getTime()
+        : new Date(b.Startdate).getTime() - new Date(a.Startdate).getTime();
+    });
+
     console.log(`Processed ${events.length} events`);
     return NextResponse.json(events);
   } catch (error: unknown) {

@@ -11,6 +11,7 @@
 7. [Naming Conventions and Style Guide](#naming-conventions-and-style-guide)
 8. [Accessibility, Localization, and SEO](#accessibility-localization-and-seo)
 9. [Conclusion](#conclusion)
+10. [TODO](#todo)
 
 ---
 
@@ -54,7 +55,18 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 #### 1.2. Event Filters
 
 - **Filters at the Top**:
-  - **Event Type**: Let the user select event type (Fixed Distance, Fixed Time, Backyard Ultra, Stage Race, Walking, Other, with All being the default). If other than All, other filters below may be shown conditionally.
+  - **Event Type**: Let the user select event type with the following options:
+    - All (default)
+    - Fixed Distance (special handling required)
+    - Fixed Time (special handling required)
+    - Backyard Ultra (dist=Backy)
+    - Stage Race (dist=Stage)
+    - Road Race (dist=Road)
+    - Trail Race (dist=Trail)
+    - Track Race (dist=Track)
+    - Indoor Race (dist=Indoor)
+    - Elimination Race (dist=Elim)
+    - Walking Race (dist=Walk)
   - **Date Range**: `from` and `to` parameters.
   - **Distance Slider**: For fixed-distance events only, with a range for distance.
   - **Duration**: Applicable for fixed-time events only.
@@ -205,7 +217,22 @@ The DUV Ultramarathon Statistics website uses several API endpoints to fetch dat
 - **order**:
   - `"asc"`: Ascending order (default for future events).
   - `"desc"`: Descending order (default for past events).
-- **dist**: Event distance (default is `all`).
+- **dist**: Event type or distance filter. Values include:
+  - `Backy`: Backyard Ultra
+  - `Stage`: Stage Race
+  - `Road`: Road Race
+  - `Trail`: Trail Race
+  - `Track`: Track Race
+  - `Indoor`: Indoor Race
+  - `Elim`: Elimination Race
+  - `Walk`: Walking Race
+  - For Fixed Distance events:
+    - `1`: 45-79km
+    - `2`: 80-119km
+    - `4`: 120-179km
+    - `8`: 180km and above
+  - For Fixed Time events:
+    - `6h`, `12h`, `24h`, `48h`, `72h`, `6d`, `10d`
 - **country**: Country code (e.g., `GER` for Germany).
 - **cups**: Cup events (`all` by default).
 - **rproof**:
@@ -685,3 +712,30 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 This Product Requirements Document (PRD) provides a comprehensive overview of the DUV Ultramarathon Statistics website project using Next.js 14. It includes detailed descriptions of core functionalities, API endpoints, file structure, additional requirements, and guidelines for naming conventions, style, accessibility, localization, and SEO. The aim is to ensure clear alignment among developers and stakeholders to facilitate efficient development and implementation of the project.
 
 By following this PRD, the development team can effectively build the DUV Ultramarathon Statistics website using Next.js 14, ensuring that all functionalities are implemented according to the specified requirements and the latest best practices.
+
+---
+
+## TODO
+
+### API Improvements
+
+1. **Split 'dist' parameter**: Contact the API developer about splitting the current 'dist' parameter into separate 'type' and 'surface' parameters. This will allow for more precise filtering of events.
+
+2. **Add distance/duration range parameters**: Request the addition of two new parameters that can be used for filtering events by distance or duration range (e.g., from 45km to 100km, or from 6h to 24h).
+
+3. **Consistent Error Handling**: Work with the API developer to implement consistent error responses across all endpoints. This will allow for better error handling and user feedback in the front-end application.
+
+4. **Fix JSON response error**: Address the issue where the API returns an incorrectly formatted JSON response when there are no events meeting the specified criteria. The current response looks like: `Warning: Undefined variable $arrHits in <b>/var/customers/webs/duv2/statistik/json/mcalendar.php</b> on line <b>370</b>
+"Races":null  `
+   It should return a valid JSON response, even when there are no results, such as: `json
+{
+  "Races": []
+}   `
+
+5. **Documentation Updates**: Once the API improvements are implemented, update the API documentation in this PRD to reflect the changes in parameters and response format.
+
+### Temporary Workarounds
+
+1. **Single filter for 'dist' parameter**: Update the event filter component to use a single filter that combines distance, duration, and type/surface options, reflecting the current capabilities of the 'dist' parameter in the API.
+
+2. **Handling incorrect JSON responses**: Continue to handle cases where the API returns incorrectly formatted JSON responses when there are no events meeting the specified criteria.
