@@ -22,6 +22,7 @@ import {
 } from "@/lib/event-utils";
 import { EventFilter } from "@/components/event-filter";
 import { DateRange } from "react-day-picker";
+import { DateRangePicker } from "@/components/date-range-picker";
 
 export default function EventList() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -51,40 +52,47 @@ export default function EventList() {
     setDateRange(range);
   }, []);
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setLoading(true);
-      try {
-        const year = searchParams.get("year") || "futur";
-        let url = `/api/events?year=${year}`;
-        if (eventType !== "all") {
-          url += `&dist=${eventType}`;
-        }
-        if (dateRange?.from && dateRange?.to) {
-          url += `&from=${dateRange.from.toISOString().split("T")[0]}&to=${
-            dateRange.to.toISOString().split("T")[0]
-          }`;
-        }
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          throw new Error("Received data is not an array");
-        }
-        setEvents(data);
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        setError(`Failed to load events: ${errorMessage}`);
-        console.error("Error details:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchEvents = useCallback(async () => {
+    setLoading(true);
+    try {
+      let url = `/api/events?`;
+      const params = new URLSearchParams();
 
-    fetchEvents();
+      if (dateRange?.from && dateRange?.to) {
+        params.set("from", dateRange.from.toISOString().split("T")[0]);
+        params.set("to", dateRange.to.toISOString().split("T")[0]);
+        params.set("order", "asc"); // You can change this to 'desc' if needed
+      } else {
+        params.set("year", searchParams.get("year") || "futur");
+      }
+
+      if (eventType !== "all") {
+        params.set("dist", eventType);
+      }
+
+      url += params.toString();
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Received data is not an array");
+      }
+      setEvents(data);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(`Failed to load events: ${errorMessage}`);
+      console.error("Error details:", err);
+    } finally {
+      setLoading(false);
+    }
   }, [searchParams, eventType, dateRange]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
@@ -100,7 +108,7 @@ export default function EventList() {
       params.delete("from");
       params.delete("to");
     }
-    router.push(`/events?${params.toString()}`);
+    router.push(`/events?${params.toString()}`, { scroll: false });
   }, [eventType, dateRange, router, searchParams]);
 
   if (loading) return <div>Loading events...</div>;
@@ -117,14 +125,14 @@ export default function EventList() {
       />
       <div className="space-y-4">
         {events.map((event) => (
-          <Card key={event.EventID}>
+          <Card key={event.EventID} className="overflow-hidden">
             <CardContent className="p-0">
               <div className="flex flex-col sm:flex-row">
-                <div className="sm:w-40 p-4 bg-gray-50 flex flex-col justify-center items-start">
-                  <div className="text-base font-semibold text-gray-800">
+                <div className="sm:w-40 p-4 bg-primary/10 flex flex-col justify-center items-start dark:text-foreground">
+                  <div className="text-base font-semibold">
                     {event.Startdate}
                   </div>
-                  <div className="flex items-center text-sm text-gray-600 mt-1">
+                  <div className="flex items-center text-sm mt-1 opacity-80">
                     <MapPinIcon className="h-4 w-4 mr-1" />
                     {event.City}, {event.Country}
                   </div>
@@ -132,7 +140,7 @@ export default function EventList() {
                 <div className="flex-grow p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center">
-                      <h3 className="text-lg font-semibold text-gray-800 mr-2">
+                      <h3 className="text-lg font-semibold text-foreground mr-2">
                         {event.EventName}
                       </h3>
                       {["G", "S", "B"].includes(event.IAULabel) && (

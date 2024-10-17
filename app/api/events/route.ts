@@ -33,19 +33,53 @@ async function fetchEvents(baseUrl: string, dist: string) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const year = searchParams.get("year") || "futur";
   const from = searchParams.get("from");
   const to = searchParams.get("to");
-  const order =
-    searchParams.get("order") || (year === "futur" ? "asc" : "desc");
-  const dist = searchParams.get("dist"); // Changed from 'type' to 'dist'
+  const year = searchParams.get("year");
+  const dist = searchParams.get("dist");
   const country = searchParams.get("country");
   const rproof = searchParams.get("rproof");
   const norslt = searchParams.get("norslt");
   const perpage = searchParams.get("perpage") || "20";
 
-  let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?year=${year}&plain=1&perpage=${perpage}&Language=EN`;
-  if (from && to) baseUrl += `&from=${from}&to=${to}`;
+  // Validate parameters
+  if ((from && !to) || (!from && to)) {
+    return NextResponse.json(
+      {
+        error:
+          "Both 'from' and 'to' must be provided for date range filtering.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (from && to && year) {
+    return NextResponse.json(
+      { error: "'year' cannot be used with 'from' and 'to'." },
+      { status: 400 }
+    );
+  }
+
+  let order = searchParams.get("order");
+  if (from && to && !order) {
+    return NextResponse.json(
+      { error: "'order' must be specified when using 'from' and 'to'." },
+      { status: 400 }
+    );
+  }
+
+  if (!order) {
+    order = year === "futur" ? "asc" : "desc";
+  }
+
+  let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?plain=1&perpage=${perpage}&Language=EN`;
+
+  if (from && to) {
+    baseUrl += `&from=${from}&to=${to}&order=${order}`;
+  } else {
+    baseUrl += `&year=${year || "futur"}`;
+  }
+
   if (country) baseUrl += `&country=${country}`;
   if (rproof) baseUrl += `&rproof=${rproof}`;
   if (norslt) baseUrl += `&norslt=${norslt}`;

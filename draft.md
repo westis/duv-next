@@ -46,11 +46,16 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 - **Description**: Display a table of all ultramarathon events, filtered by parameters such as future or past events.
 - **Endpoint**: `/api/events`
 - **Parameters**:
-  - `year` (optional): `"futur"` for future events, `"past1"` (default) for past one year. `year` and `from`/`to` cannot be used simultaneously.
-  - `from` and `to` (optional): Date range for events. Must be used together and cannot be used with `year`.
-  - `order` (optional): `"asc"` for ascending order (default for future events), `"desc"` for descending order (default for past events).
-    - If `from` and `to` span both past and future events, `order` defaults to `"desc"`.
-  - Other optional filters: `eventType`, `country`, `rproof`, `norslt`.
+  - `year` (optional): `"futur"` for future events, `"past1"` (default) for past one year.
+    - Note: `year` cannot be used simultaneously with `from` and `to`.
+  - `from` and `to` (required if not using `year`): Date range for events.
+    - Note: Both `from` and `to` must be provided when using date range filtering.
+    - When using `from` and `to`, the `order` parameter must also be specified.
+  - `order` (required when using `from` and `to`, optional otherwise):
+    - `"asc"` for ascending order (default for future events)
+    - `"desc"` for descending order (default for past events)
+    - When using `from` and `to`, you must specify the `order`.
+  - Other optional filters: `dist`, `country`, `rproof`, `norslt`.
 
 #### 1.2. Event Filters
 

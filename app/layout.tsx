@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TheNavbar } from "@/components/the-navbar";
 import "./globals.css";
+import "../styles/date-range-picker.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
