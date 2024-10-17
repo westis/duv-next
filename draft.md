@@ -6,22 +6,23 @@
 2. [Technologies Used](#technologies-used)
 3. [Core Functionalities](#core-functionalities)
 4. [API Documentation](#api-documentation)
-5. [Current File Structure](#current-file-structure)
+5. [File Structure](#file-structure)
 6. [Additional Requirements](#additional-requirements)
 7. [Naming Conventions and Style Guide](#naming-conventions-and-style-guide)
 8. [Accessibility, Localization, and SEO](#accessibility-localization-and-seo)
+9. [Conclusion](#conclusion)
 
 ---
 
 ## Project Overview
 
-The DUV Ultramarathon Statistics website aims to present events, results, and statistics about ultramarathon events. The website will provide users with comprehensive data on ultramarathon events worldwide, including event listings, detailed results, athlete profiles, and statistical toplists.
+The DUV Ultramarathon Statistics website aims to present events, results, and statistics about ultramarathon events worldwide. The website will provide users with comprehensive data on ultramarathon events, including event listings, detailed results, athlete profiles, and statistical toplists.
 
 ---
 
 ## Technologies Used
 
-- **Framework**: Next.js 14+ (using the App Router)
+- **Framework**: Next.js 14 (using the App Router)
 - **Language**: TypeScript (`.ts` and `.tsx` files)
 - **UI Libraries**: Tailwind CSS, shadcn/ui (React components)
 - **Icons**: React Icons with Heroicons
@@ -44,7 +45,7 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 - **Description**: Display a table of all ultramarathon events, filtered by parameters such as future or past events.
 - **Endpoint**: `/api/events`
 - **Parameters**:
-  - `year` (optional): `"futur"` for future events, `"past"` (default) for past events. `year` and `from`/`to` cannot be used simultaneously.
+  - `year` (optional): `"futur"` for future events, `"past1"` (default) for past one year. `year` and `from`/`to` cannot be used simultaneously.
   - `from` and `to` (optional): Date range for events. Must be used together and cannot be used with `year`.
   - `order` (optional): `"asc"` for ascending order (default for future events), `"desc"` for descending order (default for past events).
     - If `from` and `to` span both past and future events, `order` defaults to `"desc"`.
@@ -90,20 +91,21 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
   1. URL parameters
   2. Filter components on the page
   3. Navigation menu links (Calendar and Results)
-- When a user navigates to the events page:
-  - If URL parameters are present, they should be used to set the initial filter states.
-  - If no URL parameters are present, default filters should be applied (e.g., upcoming year for Calendar, past year for Results).
-- When filters are changed on the page:
-  - The URL should be updated to reflect the new filter states.
-  - The filter components should update accordingly.
-- When Calendar or Results are clicked in the navigation menu:
-  - The URL should be updated with the appropriate parameters.
-  - The page should reload with the new filters applied.
-  - The filter components should reflect the new filter states.
-- The sort order (ascending or descending) should be consistent with the selected date range:
-  - Ascending for future events (Calendar)
-  - Descending for past events (Results)
-- Any manual changes to the URL parameters should trigger a re-fetch of data and update of filter components.
+- **Behavior**:
+  - When a user navigates to the events page:
+    - If URL parameters are present, they should be used to set the initial filter states.
+    - If no URL parameters are present, default filters should be applied (e.g., upcoming year for Calendar, past year for Results).
+  - When filters are changed on the page:
+    - The URL should be updated to reflect the new filter states.
+    - The filter components should update accordingly.
+  - When Calendar or Results are clicked in the navigation menu:
+    - The URL should be updated with the appropriate parameters.
+    - The page should reload with the new filters applied.
+    - The filter components should reflect the new filter states.
+  - The sort order (ascending or descending) should be consistent with the selected date range:
+    - Ascending for future events (Calendar)
+    - Descending for past events (Results)
+  - Any manual changes to the URL parameters should trigger a re-fetch of data and update of filter components.
 
 #### 1.6. API Call Notes
 
@@ -148,7 +150,7 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 
 - **Events**
   - **Calendar**: `/events?year=futur`
-  - **Results**: `/events?year=past`
+  - **Results**: `/events?year=past1`
   - **Championships**: `/championships`
 - **Statistics**
   - **Toplists**: `/toplists`
@@ -185,11 +187,215 @@ The DUV Ultramarathon Statistics website uses several API endpoints to fetch dat
 
 **Base URL**: `https://statistik.d-u-v.org/`
 
-The API endpoints and their parameters remain the same as described in the original PRD.
+### 1. Calendar Endpoint
+
+- **HTML**: `calendar.php`
+- **JSON**: `json/mcalendar.php`
+
+#### 1.1. Parameters
+
+- **year**:
+  - `"futur"`: Future events.
+  - `"past1"`: Past one year of events.
+  - `"all"`: All events.
+  - Specific year (e.g., `"2024"`).
+  - Empty: Use `from` and `to` parameters instead.
+- **from**: Start date for race filtering (format: `yyyy-mm-dd`).
+- **to**: End date for race filtering (format: `yyyy-mm-dd`).
+- **order**:
+  - `"asc"`: Ascending order (default for future events).
+  - `"desc"`: Descending order (default for past events).
+- **dist**: Event distance (default is `all`).
+- **country**: Country code (e.g., `GER` for Germany).
+- **cups**: Cup events (`all` by default).
+- **rproof**:
+  - `1`: Record-eligible events only.
+  - `0`: All events (default).
+- **mode**: Display mode (`list` by default).
+- **radius**: Search radius.
+- **norslt**:
+  - `1`: Return only events with no results.
+  - `0`: Return all events (default).
+
+#### 1.2. Additional JSON Parameters
+
+- **plain**: Returns only the pure page content without filter lists and language-specific labels (`0` by default).
+- **page**: Specific page of a longer list (`1` by default).
+- **perpage**: Number of records per page (`400` by default).
+- **splits**: Excludes splits/stages from the calendar list (`0` by default).
+- **Language**: Language for GUI labels and filter lists (`EN` by default).
+- **label**:
+  - `"IAU"`: Return only IAU Label events.
+  - Empty: All events.
+
+#### 1.3. Usage Notes
+
+- The `year` parameter cannot be used simultaneously with `from` and `to`.
+- If `from` and `to` are used, both must be provided.
+- The `order` parameter is automatically set based on the `year` parameter:
+  - For `year="futur"`, `order` defaults to `"asc"`.
+  - For `year="past1"`, `order` defaults to `"desc"`.
+- When using `from` and `to`:
+  - If not specified, `order` defaults to `"desc"`.
+  - You can explicitly set `order` to `"asc"` or `"desc"` as needed.
+- If neither `year` nor `from`/`to` are provided, the API defaults to past events with descending order.
+
+#### 1.4. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/mcalendar.php?year=futur&country=GER&plain=1&perpage=50&Language=EN
+```
+
+#### 1.5. Example Response
+
+- The response will be a JSON array of event objects containing details such as event ID, name, date, country, and more.
+
+### 2. Event Detail Endpoint
+
+- **HTML**: `eventdetail.php`
+- **JSON**: `json/meventdetail.php`
+
+#### 2.1. Parameters
+
+- **event**: Event ID (e.g., `101140`).
+- **Language**: Language parameter.
+
+#### 2.2. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/meventdetail.php?event=101140&Language=EN
+```
+
+#### 2.3. Example Response
+
+- The response will include detailed information about the specified event, such as the event name, date, location, participating athletes, and results.
+
+### 3. International Rankings Endpoint
+
+- **HTML**: `getintbestlist.php`
+- **JSON**: `json/mgetintbestlist.php`
+
+#### 3.1. Parameters
+
+- **year**: Specific year (e.g., `2024`).
+- **dist**: Discipline distance (e.g., `6h`).
+- **gender**: Gender (`W` for women, `M` for men).
+- **cat**: Category (`all` by default).
+- **nat**: Nationality (`all` by default).
+- **label**: Event label (`IAU` for IAU label events).
+- **hili**: Highlight option (`none` by default).
+- **tt**: Time type (`netto` for net time).
+
+#### 3.2. Additional JSON Parameters
+
+- **plain**, **page**, **perpage**, **Language**
+
+#### 3.3. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/mgetintbestlist.php?dist=6h&year=2024&gender=W&plain=1&perpage=100&Language=EN
+```
+
+#### 3.4. Example Response
+
+- The response will include a list of top performances in the specified discipline and year, filtered by gender.
+
+### 4. Results of Single Race Endpoint
+
+- **HTML**: `getresultevent.php`
+- **JSON**: `json/mgetresultevent.php`
+
+#### 4.1. Parameters
+
+- **event**: Event ID (e.g., `101140`).
+- **cat**: Category (`all` by default).
+- **country**: Country code (e.g., `GER`).
+- **speed**: Speed display option (`1` by default).
+- **aktype**: Age group type (`2` by default).
+
+#### 4.2. Additional JSON Parameters
+
+- **plain**, **page**, **perpage**, **jsonescape**, **Language**
+
+#### 4.3. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/mgetresultevent.php?event=101140&plain=1&perpage=100&Language=EN
+```
+
+#### 4.4. Example Response
+
+- The response will include the results of the specified event, including rankings, athlete names, performances, and categories.
+
+### 5. Athlete's Profile Endpoint
+
+- **HTML**: `getresultperson.php`
+- **JSON**: `json/mgetresultperson.php`
+
+#### 5.1. Parameters
+
+- **runner**: Runner ID (e.g., `2302`).
+- **plain**, **label**, **Language**
+
+#### 5.2. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/mgetresultperson.php?runner=2302&plain=1&Language=EN
+```
+
+#### 5.3. Example Response
+
+- The response will include the athlete's profile, including personal information and race history.
+
+### 6. Event Search Endpoint
+
+- **HTML**: `search_event.php`
+- **JSON**: `json/msearch_event.php`
+
+#### 6.1. Parameters
+
+- **sname**: Search term (must be at least 3 characters).
+- **dist**: Distance filter (e.g., `50`).
+- **nat**: Country code (e.g., `RUS`).
+- **jsonescape**, **Language**
+
+#### 6.2. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/msearch_event.php?sname=mors&plain=1&Language=EN
+```
+
+#### 6.3. Example Response
+
+- The response will include a list of events matching the search criteria.
+
+### 7. Top Rankings Abroad Endpoint
+
+- **HTML**: `toprankabroad.php`
+- **JSON**: `json/mtoprankabroad.php`
+
+#### 7.1. Parameters
+
+- **year**: Specific year (e.g., `2024`).
+- **dist**: Distance (`all` by default).
+- **country**: Country code (e.g., `GER`).
+- **cnt**: Number of top rankings to return (`N` for top N, `10000` for all).
+- **gender**: Gender (`all` by default).
+- **Language**
+
+#### 7.2. Example Request
+
+```http
+GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Language=EN
+```
+
+#### 7.3. Example Response
+
+- The response will include the top rankings for athletes from the specified country competing abroad.
 
 ---
 
-## Current File Structure
+## File Structure
 
 ```
 |-- app
@@ -198,6 +404,24 @@ The API endpoints and their parameters remain the same as described in the origi
 |   |-- events
 |       |-- page.tsx
 |       |-- loading.tsx
+|   |-- championships
+|       |-- page.tsx
+|   |-- toplists
+|       |-- page.tsx
+|   |-- records
+|       |-- page.tsx
+|   |-- countrystats
+|       |-- page.tsx
+|   |-- about
+|       |-- page.tsx
+|   |-- whatsnew
+|       |-- page.tsx
+|   |-- faq
+|       |-- page.tsx
+|   |-- credits
+|       |-- page.tsx
+|   |-- contact
+|       |-- page.tsx
 |   |-- api
 |       |-- events
 |           |-- route.ts
@@ -252,8 +476,6 @@ The API endpoints and their parameters remain the same as described in the origi
 |-- tsconfig.json
 |
 |-- package.json
-|
-|-- tailwind.config.ts
 ```
 
 ---
@@ -269,7 +491,7 @@ The API endpoints and their parameters remain the same as described in the origi
     - Use `useEffect` for client-side data fetching if necessary.
 - **API Routes**:
   - Create API routes in the `/app/api` directory using Next.js App Router conventions.
-  - Use `route.ts` or `route.js` files to define API endpoints.
+  - Use `route.ts` files to define API endpoints.
   - API routes can be used to fetch data from external APIs if needed.
 - **Avoid External Libraries for Fetching**:
   - Use the built-in Fetch API for data fetching.
@@ -279,7 +501,7 @@ The API endpoints and their parameters remain the same as described in the origi
   - Ensure that the application is optimized for Vercel's serverless environment.
 - **Routing**:
   - Use the new App Router structure in the `/app` directory.
-  - Utilize dynamic segments and layouts as per Next.js 14+ conventions.
+  - Utilize dynamic segments and layouts as per Next.js 14 conventions.
 
 ### 2. Environment Variables
 
@@ -291,7 +513,7 @@ The API endpoints and their parameters remain the same as described in the origi
   - Set environment variables in the Vercel dashboard under the project settings.
 - **Next.js Configuration**:
   - Utilize `next.config.ts` for environment-specific configuration.
-  - Use the `process.env` directly in Server Components without additional configuration.
+  - Use `process.env` directly in Server Components without additional configuration.
     - Environment variables can be accessed in both Server and Client Components, but sensitive variables should only be used on the server.
 - **TypeScript Configuration**:
   - Use `.ts` and `.tsx` file extensions for all TypeScript files, including `next.config.ts`.
@@ -327,6 +549,10 @@ The API endpoints and their parameters remain the same as described in the origi
   - Ensure the website meets at least Level AA criteria for other accessibility considerations.
 - **Semantic HTML**:
   - Use semantic HTML tags to improve accessibility.
+- **Keyboard Navigation**:
+  - All interactive elements should be accessible via keyboard.
+- **ARIA Labels**:
+  - Use appropriate ARIA labels and roles for UI components.
 - **Testing**:
   - Use accessibility testing tools like Lighthouse or axe to validate compliance.
 
@@ -381,9 +607,9 @@ The API endpoints and their parameters remain the same as described in the origi
 - **Base Components**:
   - Components that apply app-specific styling and conventions should begin with a specific prefix, such as `Base`, `App`, or `V` (e.g., `BaseButton.tsx`).
 - **Singleton Components**:
-  - Components that should only ever have a single active instance should begin with the `The` prefix (e.g., `TheNavbar.tsx`).
+  - Components that should only ever have a single active instance should begin with the `The` prefix (e.g., `the-navbar.tsx`).
 - **Child Components**:
-  - Components tightly coupled with their parent should include the parent component name as a prefix (e.g., `EventFilter.tsx` as a child of `EventList.tsx`).
+  - Components tightly coupled with their parent should include the parent component name as a prefix (e.g., `event-filter.tsx` as a child of `event-list.tsx`).
 - **Name Structure**:
   - Start component names with the highest-level (most general) words and end with descriptive modifying words.
 - **Full Words Over Abbreviations**:
@@ -403,6 +629,8 @@ The API endpoints and their parameters remain the same as described in the origi
   - Follow TypeScript best practices, including proper typing and avoiding the use of `any`.
 - **Next.js Conventions**:
   - Utilize Next.js features like dynamic routes, layouts, and the new App Router structure.
+- **Vue.js Style Guide Compliance**:
+  - Although this is a React project, the naming conventions inspired by the Vue.js Style Guide can still be applied where appropriate.
 
 ---
 
@@ -454,4 +682,6 @@ The API endpoints and their parameters remain the same as described in the origi
 
 ## Conclusion
 
-This PRD provides a comprehensive overview of the DUV Ultramarathon Statistics website project using Next.js, incorporating the latest Next.js 14+ features and best practices. It includes detailed descriptions of core functionalities, API endpoints, current file structure, additional requirements, and guidelines for naming conventions, style, accessibility, localization, and SEO. The aim is to ensure clear alignment among developers and stakeholders to facilitate efficient development and implementation of the project.
+This Product Requirements Document (PRD) provides a comprehensive overview of the DUV Ultramarathon Statistics website project using Next.js 14. It includes detailed descriptions of core functionalities, API endpoints, file structure, additional requirements, and guidelines for naming conventions, style, accessibility, localization, and SEO. The aim is to ensure clear alignment among developers and stakeholders to facilitate efficient development and implementation of the project.
+
+By following this PRD, the development team can effectively build the DUV Ultramarathon Statistics website using Next.js 14, ensuring that all functionalities are implemented according to the specified requirements and the latest best practices.

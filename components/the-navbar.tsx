@@ -64,7 +64,7 @@ const navigationItems = [
       },
       {
         title: "Results",
-        href: "/events?year=past",
+        href: "/events?year=past1",
         description: "Check results from past events",
       },
       {

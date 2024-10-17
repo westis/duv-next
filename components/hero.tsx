@@ -25,7 +25,7 @@ export function Hero() {
               asChild
               className="text-sm sm:text-base md:text-lg py-4 sm:py-6"
             >
-              <Link href="/events?year=past">Results</Link>
+              <Link href="/events?year=past1">Results</Link>
             </Button>
             <Button
               asChild
