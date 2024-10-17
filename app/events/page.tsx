@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import EventList from "@/components/event-list";
 
 export default function EventsPage({
@@ -11,7 +12,9 @@ export default function EventsPage({
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">{title}</h1>
-      <EventList />
+      <Suspense fallback={<div>Loading events...</div>}>
+        <EventList />
+      </Suspense>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -126,33 +126,34 @@ const navigationItems = [
   },
 ];
 
-export function TheNavbar() {
-  const [open, setOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
+const TheNavbar = memo(function TheNavbar() {
   const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  // Use a default theme for the initial render
+  const currentTheme = mounted ? theme : "light";
+
+  const logoSrc =
+    currentTheme === "dark"
+      ? "/duv_logo_with_name_white.png"
+      : "/duv_logo_with_name.png";
 
   return (
     <nav className="border-b bg-background">
       <div className="container mx-auto flex items-center justify-between py-2 md:py-4">
         <Link href="/" className="flex items-center">
           <Image
-            src={
-              theme === "dark"
-                ? "/duv_logo_with_name_white.png"
-                : "/duv_logo_with_name.png"
-            }
+            key={logoSrc}
+            src={logoSrc}
             alt="DUV Logo"
             width={100}
             height={40}
-            className="mr-2 md:w-[120px] md:h-[48px]"
+            className="mr-2 md:w-[120px] md:h-[48px] transition-opacity duration-300"
           />
         </Link>
 
@@ -199,7 +200,7 @@ export function TheNavbar() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
             className="text-base md:text-lg"
           >
             <Sun className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -223,4 +224,8 @@ export function TheNavbar() {
       </CommandDialog>
     </nav>
   );
-}
+});
+
+TheNavbar.displayName = "TheNavbar";
+
+export { TheNavbar };
