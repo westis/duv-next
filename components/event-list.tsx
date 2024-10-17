@@ -154,17 +154,17 @@ export default function EventList() {
             <Card key={event.EventID} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-40 p-4 bg-primary/10 flex flex-col justify-center items-start dark:text-foreground">
-                    <div className="text-base font-semibold">
+                  <div className="sm:w-48 p-4 bg-primary/10 flex flex-col items-center justify-center text-center dark:text-foreground">
+                    <div className="text-base font-semibold mb-3">
                       {event.Startdate}
                     </div>
-                    <div className="flex items-center text-sm mt-2">
-                      <MapPinIcon className="h-5 w-5 mr-2 text-accent" />
+                    <div className="flex items-center text-sm">
+                      {/* <MapPinIcon className="h-4 w-4 mr-2 text-accent flex-shrink-0" /> */}
                       <div>
-                        <div className="font-medium text-xs sm:text-sm ">
+                        <div className="font-medium text-xs sm:text-sm mb-1">
                           {event.City}
                         </div>
-                        <div className="text-xs  sm:text-sm opacity-80">
+                        <div className="text-xs sm:text-sm opacity-80">
                           {event.Country}
                         </div>
                       </div>
@@ -172,18 +172,15 @@ export default function EventList() {
                   </div>
                   <div className="flex-grow p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <h3 className="text-lg font-semibold text-foreground mr-2">
+                      <div className="flex items-center flex-wrap">
+                        <h3 className="text-lg font-semibold text-foreground mr-2 mb-1">
                           {event.EventName}
                         </h3>
                         {["G", "S", "B"].includes(event.IAULabel) && (
                           <Badge
-                            className={`${iauLabelColors[
-                              event.IAULabel
-                            ].replace(
-                              "bg-",
-                              "bg-opacity-80 bg-"
-                            )} text-xs px-2 py-1 rounded-full`}
+                            className={`${
+                              iauLabelColors[event.IAULabel]
+                            } text-xs px-2 py-1 rounded-full mb-1`}
                           >
                             IAU {event.IAULabel}
                           </Badge>
