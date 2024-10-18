@@ -24,7 +24,12 @@ async function fetchEvents(baseUrl: string, dist: string) {
       return [];
     }
     const data = JSON.parse(text);
-    return data.Races || [];
+    return data.Races
+      ? data.Races.map((race: any) => ({
+          ...race,
+          Results: race.Results || "N", // Ensure Results field is always present
+        }))
+      : [];
   } catch (error) {
     console.error("Error parsing JSON:", error);
     return [];
@@ -60,24 +65,14 @@ export async function GET(request: Request) {
     );
   }
 
-  let order = searchParams.get("order");
-  if (from && to && !order) {
-    return NextResponse.json(
-      { error: "'order' must be specified when using 'from' and 'to'." },
-      { status: 400 }
-    );
-  }
-
-  if (!order) {
-    order = year === "futur" ? "asc" : "desc";
-  }
+  const order = searchParams.get("order") || "asc";
 
   let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?plain=1&perpage=${perpage}&Language=EN`;
 
   if (from && to) {
     baseUrl += `&from=${from}&to=${to}&order=${order}`;
   } else {
-    baseUrl += `&year=${year || "futur"}`;
+    baseUrl += `&year=${year || "futur"}&order=${order}`;
   }
 
   if (country) baseUrl += `&country=${country}`;

@@ -59,13 +59,30 @@ const navigationItems = [
     items: [
       {
         title: "Calendar",
-        href: "/events?year=futur",
+        href: "/events",
         description: "View upcoming ultramarathon events",
+        onClick: () => {
+          const today = new Date();
+          const oneYearLater = new Date(today);
+          oneYearLater.setFullYear(today.getFullYear() + 1);
+          return `/events?from=${today.toISOString().split("T")[0]}&to=${
+            oneYearLater.toISOString().split("T")[0]
+          }&order=asc`;
+        },
       },
       {
         title: "Results",
-        href: "/events?year=past1",
+        href: "/events",
         description: "Check results from past events",
+        onClick: () => {
+          const today = new Date();
+          const oneYearAgo = new Date(today);
+          oneYearAgo.setFullYear(today.getFullYear() - 1);
+          today.setDate(today.getDate() - 1); // yesterday
+          return `/events?from=${oneYearAgo.toISOString().split("T")[0]}&to=${
+            today.toISOString().split("T")[0]
+          }&order=desc`;
+        },
       },
       {
         title: "Championships",
@@ -164,7 +181,9 @@ const TheNavbar = memo(function TheNavbar() {
                         <ListItem
                           key={subItem.href}
                           title={subItem.title}
-                          href={subItem.href}
+                          href={
+                            subItem.onClick ? subItem.onClick() : subItem.href
+                          }
                         >
                           {subItem.description}
                         </ListItem>

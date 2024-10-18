@@ -48,6 +48,9 @@ interface WindowWithHandlers extends Window {
   handleEventTypeChange: (value: string) => void;
   handleDateRangeChange: (range: DateRange | undefined) => void;
   handleCountryChange: (value: string) => void;
+  handleRecordEligibleChange: (checked: boolean) => void;
+  handleWithoutResultsChange: (checked: boolean) => void;
+  handleSortOrderChange: (value: string) => void;
 }
 
 export default function EventList() {
@@ -78,6 +81,11 @@ export default function EventList() {
     return Number(searchParams.get("perpage")) || 20;
   });
   const [totalPages, setTotalPages] = useState(1);
+  const [recordEligible, setRecordEligible] = useState(false);
+  const [withoutResults, setWithoutResults] = useState(false);
+  const [sortOrder, setSortOrder] = useState(() => {
+    return searchParams.get("order") || "asc";
+  });
 
   const handleEventTypeChange = useCallback((value: string) => {
     setEventType(value);
@@ -92,6 +100,19 @@ export default function EventList() {
     setCurrentPage(1); // Reset to first page when changing filters
   }, []);
 
+  const handleRecordEligibleChange = useCallback((checked: boolean) => {
+    setRecordEligible(checked);
+  }, []);
+
+  const handleWithoutResultsChange = useCallback((checked: boolean) => {
+    setWithoutResults(checked);
+  }, []);
+
+  const handleSortOrderChange = useCallback((value: string) => {
+    setSortOrder(value);
+    setCurrentPage(1); // Reset to first page when changing sort order
+  }, []);
+
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
@@ -101,10 +122,17 @@ export default function EventList() {
       if (dateRange?.from && dateRange?.to) {
         params.set("from", dateRange.from.toISOString().split("T")[0]);
         params.set("to", dateRange.to.toISOString().split("T")[0]);
-        params.set("order", "asc"); // You can change this to 'desc' if needed
-      } else if (!params.has("year")) {
-        params.set("year", "futur");
+      } else {
+        // Default to showing future events for one year
+        const today = new Date();
+        const oneYearLater = new Date(today);
+        oneYearLater.setFullYear(today.getFullYear() + 1);
+        params.set("from", today.toISOString().split("T")[0]);
+        params.set("to", oneYearLater.toISOString().split("T")[0]);
       }
+
+      // Use the sortOrder state instead of always setting to "asc"
+      params.set("order", sortOrder);
 
       if (eventType !== "all") {
         params.set("dist", eventType);
@@ -116,6 +144,18 @@ export default function EventList() {
         params.set("country", country);
       } else {
         params.delete("country");
+      }
+
+      if (recordEligible) {
+        params.set("rproof", "1");
+      } else {
+        params.delete("rproof");
+      }
+
+      if (withoutResults) {
+        params.set("norslt", "1");
+      } else {
+        params.delete("norslt");
       }
 
       params.set("page", currentPage.toString());
@@ -142,7 +182,17 @@ export default function EventList() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, eventType, dateRange, currentPage, eventsPerPage, country]);
+  }, [
+    searchParams,
+    eventType,
+    dateRange,
+    currentPage,
+    eventsPerPage,
+    country,
+    recordEligible,
+    withoutResults,
+    sortOrder,
+  ]);
 
   useEffect(() => {
     fetchEvents();
@@ -167,8 +217,19 @@ export default function EventList() {
     } else {
       params.delete("country");
     }
+    if (recordEligible) {
+      params.set("rproof", "1");
+    } else {
+      params.delete("rproof");
+    }
+    if (withoutResults) {
+      params.set("norslt", "1");
+    } else {
+      params.delete("norslt");
+    }
     params.set("page", currentPage.toString());
     params.set("perpage", eventsPerPage.toString());
+    params.set("order", sortOrder);
     router.push(`/events?${params.toString()}`, { scroll: false });
   }, [
     eventType,
@@ -178,6 +239,9 @@ export default function EventList() {
     currentPage,
     eventsPerPage,
     country,
+    recordEligible,
+    withoutResults,
+    sortOrder,
   ]);
 
   // Register handlers
@@ -188,7 +252,20 @@ export default function EventList() {
       handleDateRangeChange;
     (window as unknown as WindowWithHandlers).handleCountryChange =
       handleCountryChange;
-  }, [handleEventTypeChange, handleDateRangeChange, handleCountryChange]);
+    (window as unknown as WindowWithHandlers).handleRecordEligibleChange =
+      handleRecordEligibleChange;
+    (window as unknown as WindowWithHandlers).handleWithoutResultsChange =
+      handleWithoutResultsChange;
+    (window as unknown as WindowWithHandlers).handleSortOrderChange =
+      handleSortOrderChange;
+  }, [
+    handleEventTypeChange,
+    handleDateRangeChange,
+    handleCountryChange,
+    handleRecordEligibleChange,
+    handleWithoutResultsChange,
+    handleSortOrderChange,
+  ]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -208,6 +285,12 @@ export default function EventList() {
         onDateRangeChange="handleDateRangeChange"
         country={country}
         onCountryChange="handleCountryChange"
+        recordEligible={recordEligible}
+        onRecordEligibleChange="handleRecordEligibleChange"
+        withoutResults={withoutResults}
+        onWithoutResultsChange="handleWithoutResultsChange"
+        sortOrder={sortOrder}
+        onSortOrderChange="handleSortOrderChange"
       />
 
       {loading ? (
@@ -233,7 +316,6 @@ export default function EventList() {
                       {event.Startdate}
                     </div>
                     <div className="flex items-center text-sm">
-                      {/* <MapPinIcon className="h-4 w-4 mr-2 text-accent flex-shrink-0" /> */}
                       <div>
                         <div className="font-medium text-xs sm:text-sm mb-1">
                           {event.City}
@@ -257,6 +339,22 @@ export default function EventList() {
                             } text-xs px-2 py-1 rounded-full mb-1`}
                           >
                             IAU {event.IAULabel}
+                          </Badge>
+                        )}
+                        {event.Results === "O" && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-yellow-200 text-yellow-800 ml-2"
+                          >
+                            Postponed
+                          </Badge>
+                        )}
+                        {event.Results === "R" && (
+                          <Badge
+                            variant="secondary"
+                            className="bg-red-200 text-red-800 ml-2"
+                          >
+                            Cancelled
                           </Badge>
                         )}
                       </div>
@@ -306,10 +404,12 @@ export default function EventList() {
                       <InfoIcon className="h-4 w-4 mr-2" />
                       Details
                     </Button>
-                    <Button className="flex-1 sm:w-full">
-                      <BarChartIcon className="h-4 w-4 mr-2" />
-                      Results
-                    </Button>
+                    {["C", "P", "S"].includes(event.Results) && (
+                      <Button className="flex-1 sm:w-full">
+                        <BarChartIcon className="h-4 w-4 mr-2" />
+                        Results
+                      </Button>
+                    )}
                   </div>
                 </div>
               </CardContent>

@@ -1,6 +1,6 @@
 // components/country-filter.tsx
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Globe } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 
 interface Country {
   value: string;
@@ -28,11 +27,13 @@ interface Country {
 interface CountryFilterProps {
   country: string;
   onCountryChange: (value: string) => void;
+  placeholder?: string;
 }
 
 export function CountryFilter({
   country,
   onCountryChange,
+  placeholder,
 }: CountryFilterProps) {
   const [open, setOpen] = React.useState(false);
   const [countries, setCountries] = React.useState<Country[]>([]);
@@ -45,7 +46,14 @@ export function CountryFilter({
           throw new Error(`Failed to fetch countries: ${response.status}`);
         }
         const data = await response.json();
-        setCountries(data);
+        setCountries(
+          data
+            .filter((c: any) => c.value !== "all") // Remove "all" from the fetched options
+            .map((c: any) => ({
+              ...c,
+              searchTerms: `${c.label} ${c.value}`.toLowerCase(),
+            }))
+        );
       } catch (err) {
         console.error(err);
         setCountries([]);
@@ -56,51 +64,69 @@ export function CountryFilter({
   }, []);
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor="country">Country</Label>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full sm:w-[180px] justify-between"
-          >
-            {country
-              ? countries.find((c) => c.value === country)?.label
-              : "Select country..."}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
-          <Command>
-            <CommandInput placeholder="Search country..." />
-            <CommandList>
-              <CommandEmpty>No country found.</CommandEmpty>
-              <CommandGroup>
-                {countries.map((c) => (
-                  <CommandItem
-                    key={c.value}
-                    value={c.searchTerms}
-                    onSelect={() => {
-                      onCountryChange(c.value === country ? "" : c.value);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        country === c.value ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {c.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-[180px] justify-between h-10"
+        >
+          <div className="flex items-center">
+            <Globe className="mr-2 h-4 w-4" />
+            <span className="font-medium">
+              {!country || country === "all"
+                ? placeholder || "All Countries"
+                : countries.find((c) => c.value === country)?.label ||
+                  "All Countries"}
+            </span>
+          </div>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[180px] p-0">
+        <Command>
+          <CommandInput placeholder="Search country..." />
+          <CommandList>
+            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandGroup>
+              <CommandItem
+                value="all"
+                onSelect={() => {
+                  onCountryChange("all");
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    country === "all" ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                All Countries
+              </CommandItem>
+              {countries.map((c) => (
+                <CommandItem
+                  key={c.value}
+                  value={c.searchTerms}
+                  onSelect={() => {
+                    onCountryChange(c.value);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      country === c.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {c.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
