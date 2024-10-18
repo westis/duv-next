@@ -1,3 +1,4 @@
+// components/event-filter.tsx
 "use client";
 
 import React from "react";
@@ -13,12 +14,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { DateRange } from "react-day-picker";
+import { CountryFilter } from "@/components/country-filter";
 
 interface EventFilterProps {
   eventType: string;
   onEventTypeChange: string;
   dateRange: DateRange | undefined;
   onDateRangeChange: string;
+  country: string;
+  onCountryChange: string;
 }
 
 interface WindowWithHandlers extends Window {
@@ -33,6 +37,8 @@ export function EventFilter({
   onEventTypeChange,
   dateRange,
   onDateRangeChange,
+  country,
+  onCountryChange,
 }: EventFilterProps) {
   const handleEventTypeChange = (value: string) => {
     if (typeof window !== "undefined") {
@@ -46,8 +52,15 @@ export function EventFilter({
     }
   };
 
+  const handleCountryChange = (value: string) => {
+    if (typeof window !== "undefined") {
+      (window as unknown as WindowWithHandlers)[onCountryChange](value);
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      {/* Event Type Filter */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="event-type">Event Type</Label>
         <Select value={eventType} onValueChange={handleEventTypeChange}>
@@ -92,6 +105,7 @@ export function EventFilter({
         </Select>
       </div>
 
+      {/* Date Range Filter */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="date-range">Date Range</Label>
         <DateRangePicker
@@ -100,6 +114,9 @@ export function EventFilter({
           onUpdate={handleDateRangeChange}
         />
       </div>
+
+      {/* Country Filter */}
+      <CountryFilter country={country} onCountryChange={handleCountryChange} />
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// components/event-list.tsx
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
@@ -46,6 +47,7 @@ import {
 interface WindowWithHandlers extends Window {
   handleEventTypeChange: (value: string) => void;
   handleDateRangeChange: (range: DateRange | undefined) => void;
+  handleCountryChange: (value: string) => void;
 }
 
 export default function EventList() {
@@ -54,6 +56,7 @@ export default function EventList() {
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [country, setCountry] = useState(searchParams.get("country") || "");
 
   const [eventType, setEventType] = useState(searchParams.get("dist") || "all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
@@ -84,6 +87,11 @@ export default function EventList() {
     setDateRange(range);
   }, []);
 
+  const handleCountryChange = useCallback((value: string) => {
+    setCountry(value);
+    setCurrentPage(1); // Reset to first page when changing filters
+  }, []);
+
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
@@ -102,6 +110,12 @@ export default function EventList() {
         params.set("dist", eventType);
       } else {
         params.delete("dist");
+      }
+
+      if (country) {
+        params.set("country", country);
+      } else {
+        params.delete("country");
       }
 
       params.set("page", currentPage.toString());
@@ -128,7 +142,7 @@ export default function EventList() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, eventType, dateRange, currentPage, eventsPerPage]);
+  }, [searchParams, eventType, dateRange, currentPage, eventsPerPage, country]);
 
   useEffect(() => {
     fetchEvents();
@@ -148,17 +162,33 @@ export default function EventList() {
       params.delete("from");
       params.delete("to");
     }
+    if (country) {
+      params.set("country", country);
+    } else {
+      params.delete("country");
+    }
     params.set("page", currentPage.toString());
     params.set("perpage", eventsPerPage.toString());
     router.push(`/events?${params.toString()}`, { scroll: false });
-  }, [eventType, dateRange, router, searchParams, currentPage, eventsPerPage]);
+  }, [
+    eventType,
+    dateRange,
+    router,
+    searchParams,
+    currentPage,
+    eventsPerPage,
+    country,
+  ]);
 
+  // Register handlers
   useEffect(() => {
     (window as unknown as WindowWithHandlers).handleEventTypeChange =
       handleEventTypeChange;
     (window as unknown as WindowWithHandlers).handleDateRangeChange =
       handleDateRangeChange;
-  }, [handleEventTypeChange, handleDateRangeChange]);
+    (window as unknown as WindowWithHandlers).handleCountryChange =
+      handleCountryChange;
+  }, [handleEventTypeChange, handleDateRangeChange, handleCountryChange]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -176,6 +206,8 @@ export default function EventList() {
         onEventTypeChange="handleEventTypeChange"
         dateRange={dateRange}
         onDateRangeChange="handleDateRangeChange"
+        country={country}
+        onCountryChange="handleCountryChange"
       />
 
       {loading ? (
