@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  MapPinIcon,
   RulerIcon,
   ClockIcon,
   TimerIcon,
@@ -27,6 +26,22 @@ import {
 } from "@/lib/event-utils";
 import { EventFilter } from "@/components/event-filter";
 import { DateRange } from "react-day-picker";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface WindowWithHandlers extends Window {
   handleEventTypeChange: (value: string) => void;
@@ -53,6 +68,14 @@ export default function EventList() {
     return undefined;
   });
 
+  const [currentPage, setCurrentPage] = useState(() => {
+    return Number(searchParams.get("page")) || 1;
+  });
+  const [eventsPerPage, setEventsPerPage] = useState(() => {
+    return Number(searchParams.get("perpage")) || 20;
+  });
+  const [totalPages, setTotalPages] = useState(1);
+
   const handleEventTypeChange = useCallback((value: string) => {
     setEventType(value);
   }, []);
@@ -65,19 +88,24 @@ export default function EventList() {
     setLoading(true);
     try {
       let url = `/api/events?`;
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParams);
 
       if (dateRange?.from && dateRange?.to) {
         params.set("from", dateRange.from.toISOString().split("T")[0]);
         params.set("to", dateRange.to.toISOString().split("T")[0]);
         params.set("order", "asc"); // You can change this to 'desc' if needed
-      } else {
-        params.set("year", searchParams.get("year") || "futur");
+      } else if (!params.has("year")) {
+        params.set("year", "futur");
       }
 
       if (eventType !== "all") {
         params.set("dist", eventType);
+      } else {
+        params.delete("dist");
       }
+
+      params.set("page", currentPage.toString());
+      params.set("perpage", eventsPerPage.toString());
 
       url += params.toString();
 
@@ -90,6 +118,9 @@ export default function EventList() {
         throw new Error("Received data is not an array");
       }
       setEvents(data);
+      // For now, we'll set a placeholder value for totalEvents
+      const estimatedTotalEvents = data.length * 10; // Assuming there are 10 times more events than what's returned
+      setTotalPages(Math.ceil(estimatedTotalEvents / eventsPerPage));
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       setError(`Failed to load events: ${errorMessage}`);
@@ -97,7 +128,7 @@ export default function EventList() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, eventType, dateRange]);
+  }, [searchParams, eventType, dateRange, currentPage, eventsPerPage]);
 
   useEffect(() => {
     fetchEvents();
@@ -117,8 +148,10 @@ export default function EventList() {
       params.delete("from");
       params.delete("to");
     }
+    params.set("page", currentPage.toString());
+    params.set("perpage", eventsPerPage.toString());
     router.push(`/events?${params.toString()}`, { scroll: false });
-  }, [eventType, dateRange, router, searchParams]);
+  }, [eventType, dateRange, router, searchParams, currentPage, eventsPerPage]);
 
   useEffect(() => {
     (window as unknown as WindowWithHandlers).handleEventTypeChange =
@@ -126,6 +159,15 @@ export default function EventList() {
     (window as unknown as WindowWithHandlers).handleDateRangeChange =
       handleDateRangeChange;
   }, [handleEventTypeChange, handleDateRangeChange]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleEventsPerPageChange = (value: string) => {
+    setEventsPerPage(Number(value));
+    setCurrentPage(1); // Reset to first page when changing events per page
+  };
 
   return (
     <div className="space-y-4">
@@ -243,6 +285,160 @@ export default function EventList() {
           ))}
         </div>
       )}
+
+      <div className="flex justify-between items-center">
+        <Select
+          value={eventsPerPage.toString()}
+          onValueChange={handleEventsPerPageChange}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Events per page" />
+          </SelectTrigger>
+          <SelectContent>
+            {[10, 20, 50, 100].map((value) => (
+              <SelectItem key={value} value={value.toString()}>
+                {value} per page
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(Math.max(1, currentPage - 1));
+                }}
+                aria-disabled={currentPage === 1}
+              />
+            </PaginationItem>
+            {totalPages <= 7 ? (
+              [...Array(totalPages)].map((_, index) => (
+                <PaginationItem key={index + 1}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(index + 1);
+                    }}
+                    isActive={currentPage === index + 1}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))
+            ) : (
+              <>
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(1);
+                    }}
+                    isActive={currentPage === 1}
+                  >
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+                {currentPage > 3 && <PaginationEllipsis />}
+                {currentPage === totalPages && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(totalPages - 2);
+                      }}
+                    >
+                      {totalPages - 2}
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                {currentPage > 2 && currentPage < totalPages && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage - 1);
+                      }}
+                    >
+                      {currentPage - 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                {currentPage !== 1 && currentPage !== totalPages && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage);
+                      }}
+                      isActive
+                    >
+                      {currentPage}
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                {currentPage < totalPages - 1 && currentPage > 1 && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage + 1);
+                      }}
+                    >
+                      {currentPage + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                {currentPage === 1 && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(3);
+                      }}
+                    >
+                      3
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                {currentPage < totalPages - 2 && <PaginationEllipsis />}
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePageChange(totalPages);
+                    }}
+                    isActive={currentPage === totalPages}
+                  >
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              </>
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(Math.min(totalPages, currentPage + 1));
+                }}
+                aria-disabled={currentPage === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      </div>
     </div>
   );
 }
