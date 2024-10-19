@@ -13,15 +13,15 @@ export function SortOrderFilter({
   return (
     <Button
       variant="outline"
-      size="icon"
-      className="h-10 w-10"
+      className="h-10 px-3 flex items-center"
       onClick={() => onSortOrderChange(sortOrder === "asc" ? "desc" : "asc")}
     >
       {sortOrder === "asc" ? (
-        <SortAsc className="h-4 w-4" />
+        <SortAsc className="h-4 w-4 mr-2" />
       ) : (
-        <SortDesc className="h-4 w-4" />
+        <SortDesc className="h-4 w-4 mr-2" />
       )}
+      <span>Sort</span>
     </Button>
   );
 }
