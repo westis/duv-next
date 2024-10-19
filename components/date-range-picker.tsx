@@ -1,13 +1,6 @@
 import * as React from "react";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import {
-  addDays,
-  addMonths,
-  addYears,
-  format,
-  subMonths,
-  subYears,
-} from "date-fns";
+import { CalendarIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { addMonths, addYears, format, subMonths, subYears } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,6 +11,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function DateRangePicker({
   className,
@@ -62,8 +62,30 @@ export function DateRangePicker({
     setIsOpen(false);
   };
 
-  const handleQuickSelect = (range: DateRange) => {
-    setTempDateRange(range);
+  const handleQuickSelect = (value: string) => {
+    const now = new Date();
+    let from: Date, to: Date;
+    switch (value) {
+      case "lastYear":
+        from = subYears(now, 1);
+        to = now;
+        break;
+      case "nextYear":
+        from = now;
+        to = addYears(now, 1);
+        break;
+      case "lastMonth":
+        from = subMonths(now, 1);
+        to = now;
+        break;
+      case "nextMonth":
+        from = now;
+        to = addMonths(now, 1);
+        break;
+      default:
+        return;
+    }
+    setTempDateRange({ from, to });
   };
 
   return (
@@ -94,31 +116,40 @@ export function DateRangePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align={align}>
-          <div className="flex flex-col sm:flex-row">
-            <div>
-              <div className="flex items-center justify-between p-3 border-b">
-                <Input
-                  type="date"
-                  value={
-                    tempDateRange?.from
-                      ? format(tempDateRange.from, "yyyy-MM-dd")
-                      : ""
-                  }
-                  onChange={(e) => handleInputChange("from", e.target.value)}
-                  className="w-[130px] date-input-no-icon"
-                />
-                <span className="mx-2">to</span>
-                <Input
-                  type="date"
-                  value={
-                    tempDateRange?.to
-                      ? format(tempDateRange.to, "yyyy-MM-dd")
-                      : ""
-                  }
-                  onChange={(e) => handleInputChange("to", e.target.value)}
-                  className="w-[130px] date-input-no-icon"
-                />
-              </div>
+          <div className="flex flex-col max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between p-3 border-b">
+              <Input
+                type="date"
+                value={
+                  tempDateRange?.from
+                    ? format(tempDateRange.from, "yyyy-MM-dd")
+                    : ""
+                }
+                onChange={(e) => handleInputChange("from", e.target.value)}
+                className="w-[130px] date-input-no-icon"
+              />
+              <span className="mx-2">to</span>
+              <Input
+                type="date"
+                value={
+                  tempDateRange?.to
+                    ? format(tempDateRange.to, "yyyy-MM-dd")
+                    : ""
+                }
+                onChange={(e) => handleInputChange("to", e.target.value)}
+                className="w-[130px] date-input-no-icon"
+              />
+            </div>
+            <div className="p-3">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={tempDateRange?.from}
+                selected={tempDateRange}
+                onSelect={handleDateChange}
+                numberOfMonths={1}
+                className="sm:hidden"
+              />
               <Calendar
                 initialFocus
                 mode="range"
@@ -126,60 +157,24 @@ export function DateRangePicker({
                 selected={tempDateRange}
                 onSelect={handleDateChange}
                 numberOfMonths={2}
+                className="hidden sm:block"
               />
             </div>
-            <div className="p-3 border-l sm:border-t-0 border-t flex flex-col gap-2">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() =>
-                  handleQuickSelect({
-                    from: subYears(new Date(), 1),
-                    to: new Date(),
-                  })
-                }
-              >
-                Last Year
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() =>
-                  handleQuickSelect({
-                    from: new Date(),
-                    to: addYears(new Date(), 1),
-                  })
-                }
-              >
-                Next Year
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() =>
-                  handleQuickSelect({
-                    from: subMonths(new Date(), 1),
-                    to: new Date(),
-                  })
-                }
-              >
-                Last Month
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() =>
-                  handleQuickSelect({
-                    from: new Date(),
-                    to: addMonths(new Date(), 1),
-                  })
-                }
-              >
-                Next Month
-              </Button>
+            <div className="p-3 border-t flex flex-col gap-2">
+              <Select onValueChange={handleQuickSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Quick select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="lastYear">Last Year</SelectItem>
+                  <SelectItem value="nextYear">Next Year</SelectItem>
+                  <SelectItem value="lastMonth">Last Month</SelectItem>
+                  <SelectItem value="nextMonth">Next Month</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div className="flex items-center justify-end p-3 border-t">
+          <div className="flex items-center justify-end p-3 border-t sticky bottom-0 bg-background">
             <Button variant="outline" onClick={handleCancel} className="mr-2">
               Cancel
             </Button>
