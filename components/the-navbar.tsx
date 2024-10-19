@@ -197,14 +197,14 @@ const TheNavbar = memo(function TheNavbar() {
         </div>
 
         <div className="flex items-center space-x-2 md:space-x-4">
-          <div className="relative">
+          <div className="relative w-full max-w-[200px] sm:max-w-none">
             <Button
               variant="outline"
-              className="w-64 sm:w:72 md:w-80 justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
+              className="w-full lg:w-80 justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
               onClick={() => setOpen(true)}
               aria-label="Open search"
             >
-              <span className="">Search runner, event or club...</span>
+              <span className="truncate">Search runner, event or club...</span>
               <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent">
                 <span className="text-xs">⌘</span>K
               </kbd>

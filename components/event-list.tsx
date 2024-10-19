@@ -311,16 +311,19 @@ export default function EventList() {
             <Card key={event.EventID} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-48 p-4 bg-primary/10 flex flex-col items-center justify-center text-center dark:text-foreground">
-                    <div className="text-base font-semibold mb-3">
+                  <div className="sm:w-48 p-4 bg-primary/10 flex flex-row sm:flex-col items-center justify-between sm:justify-center text-center dark:text-foreground">
+                    <div className="w-1/3 sm:w-full text-base font-semibold sm:mb-3">
                       {event.Startdate}
                     </div>
-                    <div className="flex items-center text-sm">
-                      <div>
-                        <div className="font-medium text-xs sm:text-sm mb-1">
-                          {event.City}
+                    <div className="w-2/3 sm:w-full flex items-center text-sm">
+                      <div className="w-full">
+                        <div className="font-medium text-xs sm:text-sm sm:mb-1">
+                          <span className="sm:hidden">
+                            {event.City}, {event.Country}
+                          </span>
+                          <span className="hidden sm:inline">{event.City}</span>
                         </div>
-                        <div className="text-xs sm:text-sm opacity-80">
+                        <div className="text-xs sm:text-sm opacity-80 hidden sm:block">
                           {event.Country}
                         </div>
                       </div>
@@ -359,7 +362,7 @@ export default function EventList() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2 ">
                       {mapEventType(event).type !== "Backyard Ultra" && (
                         <Badge
                           variant="secondary"
@@ -399,7 +402,7 @@ export default function EventList() {
                       )}
                     </div>
                   </div>
-                  <div className="flex sm:flex-col justify-end p-4 space-y-2 space-x-2 sm:space-x-0">
+                  <div className="flex sm:flex-col justify-end p-4 space-x-2 sm:space-x-0 sm:space-y-2">
                     <Button className="flex-1 sm:w-full" variant="outline">
                       <InfoIcon className="h-4 w-4 mr-2" />
                       Details
