@@ -87,87 +87,12 @@ export default function EventList() {
     return searchParams.get("order") || "asc";
   });
 
-  const handleEventTypeChange = useCallback((value: string) => {
-    setEventType(value);
-  }, []);
-
-  const handleDateRangeChange = useCallback((range: DateRange | undefined) => {
-    setDateRange(range);
-  }, []);
-
-  const handleCountryChange = useCallback((value: string) => {
-    setCountry(value);
-    setCurrentPage(1); // Reset to first page when changing filters
-  }, []);
-
-  const handleRecordEligibleChange = useCallback((checked: boolean) => {
-    setRecordEligible(checked);
-  }, []);
-
-  const handleWithoutResultsChange = useCallback((checked: boolean) => {
-    setWithoutResults(checked);
-  }, []);
-
-  const handleSortOrderChange = useCallback((value: string) => {
-    setSortOrder(value);
-    setCurrentPage(1); // Reset to first page when changing sort order
-  }, []);
-
   const fetchEvents = useCallback(async () => {
+    console.log("fetchEvents called");
     setLoading(true);
     try {
-      let url = `/api/events?`;
-      const params = new URLSearchParams(searchParams);
-
-      // Handle year parameter
-      const yearParam = params.get("year");
-      if (yearParam) {
-        params.set("year", yearParam);
-        params.delete("from");
-        params.delete("to");
-      } else if (dateRange?.from && dateRange?.to) {
-        params.set("from", dateRange.from.toISOString().split("T")[0]);
-        params.set("to", dateRange.to.toISOString().split("T")[0]);
-      } else {
-        // Default to showing future events for one year
-        const today = new Date();
-        const oneYearLater = new Date(today);
-        oneYearLater.setFullYear(today.getFullYear() + 1);
-        params.set("from", today.toISOString().split("T")[0]);
-        params.set("to", oneYearLater.toISOString().split("T")[0]);
-      }
-
-      // Use the sortOrder state
-      params.set("order", sortOrder);
-
-      if (eventType !== "all") {
-        params.set("dist", eventType);
-      } else {
-        params.delete("dist");
-      }
-
-      if (country) {
-        params.set("country", country);
-      } else {
-        params.delete("country");
-      }
-
-      if (recordEligible) {
-        params.set("rproof", "1");
-      } else {
-        params.delete("rproof");
-      }
-
-      if (withoutResults) {
-        params.set("norslt", "1");
-      } else {
-        params.delete("norslt");
-      }
-
-      params.set("page", currentPage.toString());
-      params.set("perpage", eventsPerPage.toString());
-
-      url += params.toString();
+      const currentParams = new URLSearchParams(window.location.search);
+      const url = `/api/events?${currentParams.toString()}`;
 
       const response = await fetch(url);
       if (!response.ok) {
@@ -188,40 +113,91 @@ export default function EventList() {
     } finally {
       setLoading(false);
     }
-  }, [
-    searchParams,
-    eventType,
-    dateRange,
-    currentPage,
-    eventsPerPage,
-    country,
-    recordEligible,
-    withoutResults,
-    sortOrder,
-  ]);
+  }, [eventsPerPage]);
+
+  const handleEventTypeChange = useCallback((value: string) => {
+    setEventType(value);
+  }, []);
+
+  const handleDateRangeChange = useCallback(
+    (range: DateRange | undefined) => {
+      console.log("handleDateRangeChange called", range);
+      setDateRange(range);
+      const params = new URLSearchParams(searchParams);
+
+      console.log("Before changes:", params.toString());
+
+      // Always remove the 'year' parameter when a date range is selected
+      params.delete("year");
+
+      if (range?.from && range?.to) {
+        params.set("from", range.from.toISOString().split("T")[0]);
+        params.set("to", range.to.toISOString().split("T")[0]);
+      } else {
+        params.delete("from");
+        params.delete("to");
+      }
+
+      console.log("After changes:", params.toString());
+
+      // Update the URL immediately
+      router.push(`/events?${params.toString()}`, { scroll: false });
+
+      // Trigger a fetch with the new parameters
+      fetchEvents();
+    },
+    [searchParams, router, fetchEvents]
+  );
+
+  const handleCountryChange = useCallback((value: string) => {
+    setCountry(value);
+    setCurrentPage(1); // Reset to first page when changing filters
+  }, []);
+
+  const handleRecordEligibleChange = useCallback((checked: boolean) => {
+    setRecordEligible(checked);
+  }, []);
+
+  const handleWithoutResultsChange = useCallback((checked: boolean) => {
+    setWithoutResults(checked);
+  }, []);
+
+  const handleSortOrderChange = useCallback((value: string) => {
+    setSortOrder(value);
+    setCurrentPage(1); // Reset to first page when changing sort order
+  }, []);
 
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]);
+  }, [fetchEvents, router]);
 
   useEffect(() => {
+    console.log("Main useEffect triggered");
     const params = new URLSearchParams(searchParams);
 
-    // Handle year parameter
-    const yearParam = params.get("year");
-    if (yearParam) {
-      params.set("year", yearParam);
-      params.delete("from");
-      params.delete("to");
-    } else if (eventType !== "all") {
+    console.log("Initial params:", params.toString());
+
+    // Prioritize dateRange over year parameter
+    if (dateRange?.from && dateRange.to) {
+      console.log("Date range found:", dateRange);
+      params.delete("year");
+      params.set("from", dateRange.from.toISOString().split("T")[0]);
+      params.set("to", dateRange.to.toISOString().split("T")[0]);
+    } else {
+      // Only use year if dateRange is not set
+      const yearParam = params.get("year");
+      if (yearParam) {
+        console.log("Year parameter found:", yearParam);
+        params.set("year", yearParam);
+        params.delete("from");
+        params.delete("to");
+      }
+    }
+
+    if (eventType !== "all") {
       params.set("dist", eventType);
     } else {
       params.delete("dist");
-    }
-
-    if (!yearParam && dateRange?.from && dateRange.to) {
-      params.set("from", dateRange.from.toISOString().split("T")[0]);
-      params.set("to", dateRange.to.toISOString().split("T")[0]);
     }
 
     if (country) {
@@ -242,6 +218,7 @@ export default function EventList() {
     params.set("page", currentPage.toString());
     params.set("perpage", eventsPerPage.toString());
     params.set("order", sortOrder);
+    console.log("Final params:", params.toString());
     router.push(`/events?${params.toString()}`, { scroll: false });
   }, [
     eventType,
@@ -258,10 +235,10 @@ export default function EventList() {
 
   // Register handlers
   useEffect(() => {
-    (window as unknown as WindowWithHandlers).handleEventTypeChange =
-      handleEventTypeChange;
     (window as unknown as WindowWithHandlers).handleDateRangeChange =
       handleDateRangeChange;
+    (window as unknown as WindowWithHandlers).handleEventTypeChange =
+      handleEventTypeChange;
     (window as unknown as WindowWithHandlers).handleCountryChange =
       handleCountryChange;
     (window as unknown as WindowWithHandlers).handleRecordEligibleChange =

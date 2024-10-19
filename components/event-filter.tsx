@@ -65,12 +65,6 @@ export function EventFilter({
     }
   };
 
-  const handleDateRangeChange = (range: DateRange | undefined) => {
-    if (typeof window !== "undefined") {
-      (window as unknown as WindowWithHandlers)[onDateRangeChange](range);
-    }
-  };
-
   const handleCountryChange = (value: string) => {
     if (typeof window !== "undefined") {
       (window as unknown as WindowWithHandlers)[onCountryChange](value);
@@ -145,7 +139,13 @@ export function EventFilter({
         <DateRangePicker
           initialDateFrom={dateRange?.from}
           initialDateTo={dateRange?.to}
-          onUpdate={handleDateRangeChange}
+          onUpdate={(range: DateRange | undefined) => {
+            if (typeof window !== "undefined") {
+              (window as unknown as WindowWithHandlers)[onDateRangeChange](
+                range
+              );
+            }
+          }}
         />
       </div>
 
