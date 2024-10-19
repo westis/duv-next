@@ -13,7 +13,7 @@ import { Menu } from "lucide-react";
 interface MobileNavProps {
   items: {
     title: string;
-    items: { title: string; href: string }[];
+    items: { title: string; href: string; onClick?: () => string }[];
   }[];
 }
 
@@ -40,7 +40,7 @@ export function MobileNav({ items }: MobileNavProps) {
               {item.items.map((subItem) => (
                 <MobileLink
                   key={subItem.href}
-                  href={subItem.href}
+                  href={subItem.onClick ? subItem.onClick() : subItem.href}
                   pathname={pathname}
                   setOpen={setOpen}
                   className="text-muted-foreground text-base md:text-lg"
