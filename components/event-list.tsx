@@ -318,10 +318,8 @@ export default function EventList() {
                     <div className="w-2/3 sm:w-full flex items-center text-sm">
                       <div className="w-full">
                         <div className="font-medium text-xs sm:text-sm sm:mb-1">
-                          <span className="sm:hidden">
-                            {event.City}, {event.Country}
-                          </span>
-                          <span className="hidden sm:inline">{event.City}</span>
+                          {event.City}
+                          <span className="sm:hidden">, {event.Country}</span>
                         </div>
                         <div className="text-xs sm:text-sm opacity-80 hidden sm:block">
                           {event.Country}
