@@ -119,7 +119,13 @@ export default function EventList() {
       let url = `/api/events?`;
       const params = new URLSearchParams(searchParams);
 
-      if (dateRange?.from && dateRange?.to) {
+      // Handle year parameter
+      const yearParam = params.get("year");
+      if (yearParam) {
+        params.set("year", yearParam);
+        params.delete("from");
+        params.delete("to");
+      } else if (dateRange?.from && dateRange?.to) {
         params.set("from", dateRange.from.toISOString().split("T")[0]);
         params.set("to", dateRange.to.toISOString().split("T")[0]);
       } else {
@@ -131,7 +137,7 @@ export default function EventList() {
         params.set("to", oneYearLater.toISOString().split("T")[0]);
       }
 
-      // Use the sortOrder state instead of always setting to "asc"
+      // Use the sortOrder state
       params.set("order", sortOrder);
 
       if (eventType !== "all") {
@@ -200,18 +206,24 @@ export default function EventList() {
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
-    if (eventType !== "all") {
+
+    // Handle year parameter
+    const yearParam = params.get("year");
+    if (yearParam) {
+      params.set("year", yearParam);
+      params.delete("from");
+      params.delete("to");
+    } else if (eventType !== "all") {
       params.set("dist", eventType);
     } else {
       params.delete("dist");
     }
-    if (dateRange?.from && dateRange.to) {
+
+    if (!yearParam && dateRange?.from && dateRange.to) {
       params.set("from", dateRange.from.toISOString().split("T")[0]);
       params.set("to", dateRange.to.toISOString().split("T")[0]);
-    } else {
-      params.delete("from");
-      params.delete("to");
     }
+
     if (country) {
       params.set("country", country);
     } else {
