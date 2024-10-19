@@ -1,8 +1,8 @@
 // components/providers.tsx
 "use client";
 
-import { ThemeProvider } from "@/components/theme-provider";
-import { TheNavbar } from "@/components/the-navbar";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
+import { TheNavbar } from "@/components/layout/TheNavbar";
 import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 
 export function Providers({ children }: { children: React.ReactNode }) {

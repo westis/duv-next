@@ -1,14 +1,17 @@
+// File path: app/api/events/route.ts
+
 import { NextResponse } from "next/server";
 
-const eventTypes = {
-  "Fixed-Distance": ["1", "2", "4", "8"],
-  "Fixed-Time": ["6h", "12h", "24h", "48h", "72h", "6d", "10d"],
-  "Backyard Ultra": ["Backy"],
-  "Elimination Race": ["Elim"],
-  "Stage Race": ["Stage"],
-  Walking: ["Walk"],
-  Other: ["Other"],
-};
+// Remove or comment out the unused eventTypes object
+// const eventTypes = {
+//   "Fixed-Distance": ["1", "2", "4", "8"],
+//   "Fixed-Time": ["6h", "12h", "24h", "48h", "72h", "6d", "10d"],
+//   "Backyard Ultra": ["Backy"],
+//   "Elimination Race": ["Elim"],
+//   "Stage Race": ["Stage"],
+//   Walking: ["Walk"],
+//   Other: ["Other"],
+// };
 
 async function fetchEvents(baseUrl: string, dist: string) {
   const url = `${baseUrl}&dist=${dist}`;
@@ -25,7 +28,7 @@ async function fetchEvents(baseUrl: string, dist: string) {
     }
     const data = JSON.parse(text);
     return data.Races
-      ? data.Races.map((race: any) => ({
+      ? data.Races.map((race: Record<string, unknown>) => ({
           ...race,
           Results: race.Results || "N", // Ensure Results field is always present
         }))
@@ -79,7 +82,7 @@ export async function GET(request: Request) {
   if (rproof) baseUrl += `&rproof=${rproof}`;
   if (norslt) baseUrl += `&norslt=${norslt}`;
 
-  let distValues: string[] = dist && dist !== "all" ? [dist] : ["all"];
+  const distValues: string[] = dist && dist !== "all" ? [dist] : ["all"];
 
   try {
     const allEvents = await Promise.all(

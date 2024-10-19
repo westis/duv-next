@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import EventList from "@/components/event-list";
+import EventList from "@/components/EventList";
 
 export default function EventsPage({
   searchParams,

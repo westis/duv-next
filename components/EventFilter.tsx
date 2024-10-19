@@ -1,5 +1,4 @@
-// components/event-filter.tsx
-"use client";
+// components/EventFilter.tsx
 
 import React from "react";
 import {
@@ -10,9 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DateRangePicker } from "@/components/date-range-picker";
+import { DateRangePicker } from "@/components/DateRangePicker";
 import { DateRange } from "react-day-picker";
-import { CountryFilter } from "@/components/country-filter";
+import { CountrySelectFilter } from "@/components/filters/CountrySelectFilter";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { SortAsc, SortDesc, Filter } from "lucide-react";
@@ -24,25 +23,17 @@ import {
 
 interface EventFilterProps {
   eventType: string;
-  onEventTypeChange: string;
+  onEventTypeChange: (value: string) => void;
   dateRange: DateRange | undefined;
-  onDateRangeChange: string;
+  onDateRangeChange: (range: DateRange | undefined) => void;
   country: string;
-  onCountryChange: string;
+  onCountryChange: (value: string) => void;
   recordEligible: boolean;
-  onRecordEligibleChange: string;
+  onRecordEligibleChange: (checked: boolean) => void;
   withoutResults: boolean;
-  onWithoutResultsChange: string;
+  onWithoutResultsChange: (checked: boolean) => void;
   sortOrder: string;
-  onSortOrderChange: string;
-}
-
-interface WindowWithHandlers extends Window {
-  [key: string]:
-    | ((value: string) => void)
-    | ((range: DateRange | undefined) => void)
-    | ((checked: boolean) => void)
-    | Window[keyof Window];
+  onSortOrderChange: (value: string) => void;
 }
 
 export function EventFilter({
@@ -60,39 +51,23 @@ export function EventFilter({
   onSortOrderChange,
 }: EventFilterProps) {
   const handleEventTypeChange = (value: string) => {
-    if (typeof window !== "undefined") {
-      (window as unknown as WindowWithHandlers)[onEventTypeChange](value);
-    }
+    onEventTypeChange(value);
   };
 
   const handleCountryChange = (value: string) => {
-    if (typeof window !== "undefined") {
-      (window as unknown as WindowWithHandlers)[onCountryChange](value);
-    }
+    onCountryChange(value);
   };
 
   const handleRecordEligibleChange = (checked: boolean) => {
-    if (typeof window !== "undefined") {
-      (window as unknown as WindowWithHandlers)[onRecordEligibleChange](
-        checked
-      );
-    }
+    onRecordEligibleChange(checked);
   };
 
   const handleWithoutResultsChange = (checked: boolean) => {
-    if (typeof window !== "undefined") {
-      (window as unknown as WindowWithHandlers)[onWithoutResultsChange](
-        checked
-      );
-    }
+    onWithoutResultsChange(checked);
   };
 
   const handleSortOrderChange = () => {
-    if (typeof window !== "undefined") {
-      (window as unknown as WindowWithHandlers)[onSortOrderChange](
-        sortOrder === "asc" ? "desc" : "asc"
-      );
-    }
+    onSortOrderChange(sortOrder === "asc" ? "desc" : "asc");
   };
 
   return (
@@ -139,17 +114,11 @@ export function EventFilter({
         <DateRangePicker
           initialDateFrom={dateRange?.from}
           initialDateTo={dateRange?.to}
-          onUpdate={(range: DateRange | undefined) => {
-            if (typeof window !== "undefined") {
-              (window as unknown as WindowWithHandlers)[onDateRangeChange](
-                range
-              );
-            }
-          }}
+          onUpdate={onDateRangeChange}
         />
       </div>
 
-      <CountryFilter
+      <CountrySelectFilter
         country={country}
         onCountryChange={handleCountryChange}
         placeholder="All Countries"

@@ -22,7 +22,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { MobileNav } from "@/components/mobile-nav";
+import { MobileNav } from "@/components/layout/TheMobileNav";
 import { cn } from "@/lib/utils";
 
 const ListItem = React.forwardRef<

@@ -1,3 +1,16 @@
+// File path: lib/event-utils.ts
+
+import { IconType } from "react-icons";
+import {
+  FaStopwatch,
+  FaRoute,
+  FaWalking,
+  FaRoad,
+  FaTree,
+  FaCircle,
+  FaHome,
+} from "react-icons/fa";
+
 export interface Event {
   EventID: string;
   EventName: string;
@@ -72,3 +85,58 @@ export const mapEventType = (event: Event) => {
   }
   return mapped;
 };
+
+export function getEventTypeIcon(eventType: {
+  type: string;
+  surface: string;
+}): IconType | null {
+  switch (eventType.type) {
+    case "Backyard Ultra":
+      return FaStopwatch;
+    case "Stage Race":
+      return FaRoute;
+    case "Walking":
+      return FaWalking;
+    default:
+      return null;
+  }
+}
+
+export function getEventTypeLabel(eventType: {
+  type: string;
+  surface: string;
+}) {
+  return ["Backyard Ultra", "Stage Race", "Walking"].includes(eventType.type)
+    ? eventType.type
+    : "";
+}
+
+export function getSurfaceIcon(surface: string): IconType | null {
+  switch (surface) {
+    case "Road":
+      return FaRoad;
+    case "Trail":
+      return FaTree;
+    case "Track":
+      return FaCircle;
+    case "Indoor":
+      return FaHome;
+    default:
+      return null;
+  }
+}
+
+export function getSurfaceColor(surface: string) {
+  switch (surface) {
+    case "Road":
+      return "bg-gray-200/50 text-gray-800 dark:bg-gray-700/50 dark:text-gray-200";
+    case "Trail":
+      return "bg-green-200/50 text-green-800 dark:bg-green-800/50 dark:text-green-200";
+    case "Track":
+      return "bg-red-200/50 text-red-800 dark:bg-red-800/50 dark:text-red-200";
+    case "Indoor":
+      return "bg-purple-200/50 text-purple-800 dark:bg-purple-800/50 dark:text-purple-200";
+    default:
+      return "bg-neutral-200/50 text-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-200";
+  }
+}
