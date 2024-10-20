@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import { useEventsFetcher } from "@/hooks/useEventsFetcher";
 import { useUrlParamSync } from "@/hooks/useUrlParamSync";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { LayoutGrid, List, Rows } from "lucide-react";
 
 export default function EventList() {
   const searchParams = useSearchParams();
@@ -70,6 +72,9 @@ export default function EventList() {
   const [recordEligible, setRecordEligible] = useState(false);
   const [withoutResults, setWithoutResults] = useState(false);
   const [sortOrder, setSortOrder] = useState(initialSortOrder());
+  const [layout, setLayout] = useState<"large" | "normal" | "compact">(
+    "normal"
+  );
 
   const filters = {
     eventType,
@@ -127,20 +132,39 @@ export default function EventList() {
 
   return (
     <div className="space-y-4">
-      <EventFilter
-        eventType={eventType}
-        onEventTypeChange={handleEventTypeChange}
-        dateRange={dateRange}
-        onDateRangeChange={handleDateRangeChange}
-        country={country}
-        onCountryChange={handleCountryChange}
-        recordEligible={recordEligible}
-        onRecordEligibleChange={handleRecordEligibleChange}
-        withoutResults={withoutResults}
-        onWithoutResultsChange={handleWithoutResultsChange}
-        sortOrder={sortOrder}
-        onSortOrderChange={handleSortOrderChange}
-      />
+      <div className="flex justify-between items-center">
+        <EventFilter
+          eventType={eventType}
+          onEventTypeChange={handleEventTypeChange}
+          dateRange={dateRange}
+          onDateRangeChange={handleDateRangeChange}
+          country={country}
+          onCountryChange={handleCountryChange}
+          recordEligible={recordEligible}
+          onRecordEligibleChange={handleRecordEligibleChange}
+          withoutResults={withoutResults}
+          onWithoutResultsChange={handleWithoutResultsChange}
+          sortOrder={sortOrder}
+          onSortOrderChange={handleSortOrderChange}
+        />
+        <ToggleGroup
+          type="single"
+          value={layout}
+          onValueChange={(value) =>
+            setLayout(value as "large" | "normal" | "compact")
+          }
+        >
+          <ToggleGroupItem value="large" aria-label="Large layout">
+            <Rows className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="normal" aria-label="Normal layout">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="compact" aria-label="Compact layout">
+            <List className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
 
       {loading ? (
         <div className="min-h-[200px] flex items-center justify-center">
@@ -155,9 +179,13 @@ export default function EventList() {
           No events found.
         </div>
       ) : (
-        <div className="space-y-4">
+        <div
+          className={
+            layout === "compact" ? "border rounded-lg divide-y" : "space-y-4"
+          }
+        >
           {events.map((event) => (
-            <EventCard key={event.EventID} event={event} />
+            <EventCard key={event.EventID} event={event} variant={layout} />
           ))}
         </div>
       )}
