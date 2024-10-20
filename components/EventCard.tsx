@@ -13,7 +13,7 @@ import {
   getEventTypeLabel,
   getSurfaceIcon,
   getSurfaceColor,
-} from "@/lib/event-utils";
+} from "@/lib/eventUtils";
 
 interface EventCardProps {
   event: Event;

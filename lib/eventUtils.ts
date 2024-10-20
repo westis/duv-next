@@ -1,4 +1,4 @@
-// File path: lib/event-utils.ts
+// File path: lib/eventUtils.ts
 
 import { IconType } from "react-icons";
 import {

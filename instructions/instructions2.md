@@ -5,19 +5,44 @@
 1. [Project Overview](#project-overview)
 2. [Technologies Used](#technologies-used)
 3. [Core Functionalities](#core-functionalities)
+   - [1. Events Listing](#1-events-listing)
+   - [2. Event Results Table](#2-event-results-table)
+   - [3. Toplists](#3-toplists)
+   - [4. Runner Search](#4-runner-search)
+   - [5. Menu Structure](#5-menu-structure)
+   - [6. Navbar](#6-navbar)
+   - [7. Dark Mode Support](#7-dark-mode-support)
+   - [8. Responsiveness](#8-responsiveness)
 4. [API Documentation](#api-documentation)
+   - [1. Calendar Endpoint](#1-calendar-endpoint)
+   - [2. Event Detail Endpoint](#2-event-detail-endpoint)
+   - [3. International Rankings Endpoint](#3-international-rankings-endpoint)
+   - [4. Results of Single Race Endpoint](#4-results-of-single-race-endpoint)
+   - [5. Athlete's Profile Endpoint](#5-athletes-profile-endpoint)
+   - [6. Event Search Endpoint](#6-event-search-endpoint)
+   - [7. Top Rankings Abroad Endpoint](#7-top-rankings-abroad-endpoint)
+   - [8. Runner Search Endpoint](#8-runner-search-endpoint)
 5. [File Structure](#file-structure)
 6. [Additional Requirements](#additional-requirements)
+   - [1. Project Setup](#1-project-setup)
+   - [2. Data Fetching Optimization and State Synchronization](#2-data-fetching-optimization-and-state-synchronization)
+   - [3. Environment Variables](#3-environment-variables)
+   - [4. Error Handling and Logging](#4-error-handling-and-logging)
+   - [5. Type Safety](#5-type-safety)
+   - [6. Accessibility](#6-accessibility)
+   - [7. Localization](#7-localization)
+   - [8. SEO](#8-seo)
+   - [9. Component Design and State Management](#9-component-design-and-state-management)
 7. [Naming Conventions and Style Guide](#naming-conventions-and-style-guide)
 8. [Accessibility, Localization, and SEO](#accessibility-localization-and-seo)
 9. [Conclusion](#conclusion)
-10. [TODO](#todo)
+10. [Analysis and Suggestions](#analysis-and-suggestions)
 
 ---
 
 ## Project Overview
 
-The DUV Ultramarathon Statistics website aims to present events, results, and statistics about ultramarathon events worldwide. The website will provide users with comprehensive data on ultramarathon events, including event listings, detailed results, athlete profiles, and statistical toplists.
+The DUV Ultramarathon Statistics website aims to present events, results, and statistics about ultramarathon events worldwide. The website will provide users with comprehensive data on ultramarathon events, including event listings, detailed results, athlete profiles, and statistical toplists. With a database containing over 8,878,310 performances from 2,119,258 runners across 100,687 ultramarathon events, efficient data management and presentation are crucial.
 
 ---
 
@@ -29,7 +54,7 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 - **Icons**: React Icons with Heroicons
 - **Data Fetching**:
   - **Server Components**: Fetch API for data fetching in server components
-  - **Client Components**: `useEffect` for client-side data fetching
+  - **Client Components**: `useEffect` and custom hooks for client-side data fetching
 - **Routing**: Next.js App Router (`/app` directory)
 - **Deployment**: Vercel
 - **Version Control**: Git
@@ -49,29 +74,30 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
   - `year` (optional): `"futur"` for future events, `"past1"` (default) for past one year.
     - Note: `year` cannot be used simultaneously with `from` and `to`.
   - `from` and `to` (required if not using `year`): Date range for events.
-    - Note: Both `from` and `to` must be provided when using date range filtering.
+    - Both `from` and `to` must be provided when using date range filtering.
     - When using `from` and `to`, the `order` parameter must also be specified.
   - `order` (required when using `from` and `to`, optional otherwise):
     - `"asc"` for ascending order (default for future events)
     - `"desc"` for descending order (default for past events)
     - When using `from` and `to`, you must specify the `order`.
-  - Other optional filters: `dist`, `country`, `rproof`, `norslt`.
+  - Other optional filters: `dist`, `country`, `rproof`, `norslt`, `page`, `perpage`.
 
 #### 1.2. Event Filters
 
 - **Filters at the Top**:
+
   - **Event Type**: Let the user select event type with the following options:
     - All (default)
     - Fixed Distance (special handling required)
     - Fixed Time (special handling required)
-    - Backyard Ultra (dist=Backy)
-    - Stage Race (dist=Stage)
-    - Road Race (dist=Road)
-    - Trail Race (dist=Trail)
-    - Track Race (dist=Track)
-    - Indoor Race (dist=Indoor)
-    - Elimination Race (dist=Elim)
-    - Walking Race (dist=Walk)
+    - Backyard Ultra (`dist=Backy`)
+    - Stage Race (`dist=Stage`)
+    - Road Race (`dist=Road`)
+    - Trail Race (`dist=Trail`)
+    - Track Race (`dist=Track`)
+    - Indoor Race (`dist=Indoor`)
+    - Elimination Race (`dist=Elim`)
+    - Walking Race (`dist=Walk`)
   - **Date Range**: `from` and `to` parameters.
   - **Distance Slider**: For fixed-distance events only, with a range for distance.
   - **Duration**: Applicable for fixed-time events only.
@@ -79,7 +105,12 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
   - **Country**: Country selector.
   - **Checkboxes**:
     - **Record Eligible**: Filter events that are eligible for records (`rproof`).
-    - **With Results**: Filter events that have results available (`norslt`).
+    - **Without Results**: Filter events that have no results available (`norslt`).
+  - **Sort Order**: Ascending or descending.
+
+- **Synchronization**:
+  - All filters are synchronized with URL parameters and update the data accordingly.
+  - When filters are changed, the URL updates to reflect the current filter settings.
 
 #### 1.3. Events Table
 
@@ -94,13 +125,16 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
     - **Results**: Link to the results for that event.
 - **Features**:
   - **Tooltips**: For badges to provide additional information.
-  - **Pagination**: Located below the table with options to select the number of events per page.
+  - **Pagination**:
+    - Located below the table with options to select the number of events per page.
+    - Implement pagination controls to navigate between pages.
+    - Display total number of pages (requires API support for total items).
 
 #### 1.4. Menu Navigation
 
 - **Events Menu**:
-  - **Calendar**: Navigates to events page with `from` set to today's date and `to` set to one year from today.
-  - **Results**: Navigates to events page with `from` set to one year ago and `to` set to today's date.
+  - **Calendar**: Navigates to events page with `from` set to today's date and `to` set to one year from today (`/events?year=futur`).
+  - **Results**: Navigates to events page with `from` set to one year ago and `to` set to today's date (`/events?year=past1`).
 
 #### 1.5. URL Parameters and Filters Synchronization
 
@@ -111,7 +145,7 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 - **Behavior**:
   - When a user navigates to the events page:
     - If URL parameters are present, they should be used to set the initial filter states.
-    - If no URL parameters are present, default filters should be applied (e.g., upcoming year for Calendar, past year for Results).
+    - If no URL parameters are present, default filters should be applied.
   - When filters are changed on the page:
     - The URL should be updated to reflect the new filter states.
     - The filter components should update accordingly.
@@ -127,6 +161,9 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 #### 1.6. API Call Notes
 
 - **Parameter Optimization**: Exclude parameters in API calls that have no values to optimize requests.
+- **Total Pages Handling**:
+  - Implement a way to retrieve the total number of pages from the API for accurate pagination.
+  - **Action Item**: Request API developer to include `totalItems` or `totalPages` in API responses.
 
 ### 2. Event Results Table
 
@@ -163,7 +200,46 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
   - **Date**: Date of the event.
   - **Location**: Event location.
 
-### 4. Menu Structure
+### 4. Runner Search
+
+#### 4.1. Search Functionality
+
+- **Description**: Allow users to search for runners by name, nationality, and other parameters.
+- **Endpoint**: `/api/runnerSearch`
+- **Parameters**:
+  - `sname`: Surname (last name)
+  - `fname`: First name
+  - `nat`: Nationality (country code)
+  - `exact`: Exact match parameter (`1` for exact match)
+
+#### 4.2. Search Behavior
+
+- **Wildcard Usage**:
+  - By default, a wildcard `%` is appended to the end of `sname` and at the beginning and end of `fname` (e.g., `Müller%`, `%Hans%`).
+- **Exact Match**:
+  - If `exact=1`, no wildcard is appended to `sname`.
+- **Combined Parameters**:
+  - If `sname` contains commas, it's split into multiple parameters internally.
+    - E.g., `?sname=Müller,Hans,GER` filters for Hans Müller from Germany.
+- **Numeric `sname`**:
+  - If `sname` is numeric and has at least 2 digits, it's interpreted as `PersonID` and returns that runner.
+
+#### 4.3. Example Requests
+
+- Search by name:
+  ```http
+  GET /api/runnerSearch?sname=Müller&fname=Hans&nat=GER
+  ```
+- Exact match:
+  ```http
+  GET /api/runnerSearch?sname=Müller&exact=1
+  ```
+- By PersonID:
+  ```http
+  GET /api/runnerSearch?sname=12345
+  ```
+
+### 5. Menu Structure
 
 - **Events**
   - **Calendar**: `/events?year=futur`
@@ -180,18 +256,18 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
   - **Credits**: `/credits`
   - **Contact**: `/contact`
 
-### 5. Navbar
+### 6. Navbar
 
 - **Logo**: Positioned on the left.
 - **Menu Navigation**: Centered, using shadcn/ui components.
 - **Search Bar**: Always displayed; searches runners, events, clubs, or pages on the site.
 - **Theme Toggle**: For switching between light and dark modes.
 
-### 6. Dark Mode Support
+### 7. Dark Mode Support
 
 - **Implementation**: All color classes should have a `dark:` equivalent for dark mode compatibility.
 
-### 7. Responsiveness
+### 8. Responsiveness
 
 - **Design**: The website should be fully responsive.
 - **Mobile Navigation**: Use a hamburger menu on mobile devices.
@@ -203,6 +279,8 @@ The DUV Ultramarathon Statistics website aims to present events, results, and st
 The DUV Ultramarathon Statistics website uses several API endpoints to fetch data. Each endpoint has corresponding HTML and JSON versions. The JSON versions are located in the `/json/` subfolder and prefixed with 'm'.
 
 **Base URL**: `https://statistik.d-u-v.org/`
+
+**Note**: Example responses are available in the `instructions` directory as JSON files (e.g., `mcalendar.json`, `msearchrunner.json`).
 
 ### 1. Calendar Endpoint
 
@@ -425,90 +503,169 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 
 - The response will include the top rankings for athletes from the specified country competing abroad.
 
+### 8. Runner Search Endpoint
+
+#### 8.1. Description
+
+- **HTML**: `search_runner.php`
+- **JSON**: `json/msearchrunner.php`
+
+#### 8.2. Parameters
+
+- **sname**: Surname (last name)
+- **fname**: First name
+- **nat**: Nationality (country code)
+- **exact**: Exact match (`1` for true)
+
+#### 8.3. Search Behavior
+
+- **Combined Parameters**:
+  - Instead of using several parameters, it's possible to use only `sname` with values separated by commas.
+    - E.g., `?sname=Müller,Hans,GER` will be split internally into filter parameters and return only Hans Müllers in Germany.
+- **Wildcard Usage**:
+  - By default, a wildcard `%` is appended to the end of `sname` and at the beginning and end of `fname` (e.g., `Müller%`, `%Hans%`).
+- **Exact Match**:
+  - If `exact=1`, no wildcard `%` is attached to the end of `sname`.
+- **Numeric `sname`**:
+  - If `sname` is numeric with at least 2 digits, it's interpreted as `PersonID` and only returns that runner.
+
+#### 8.4. Example Requests
+
+- Search by name:
+  ```http
+  GET https://statistik.d-u-v.org/json/msearchrunner.php?sname=Müller&fname=Hans&nat=GER&plain=1&Language=EN
+  ```
+- Exact match:
+  ```http
+  GET https://statistik.d-u-v.org/json/msearchrunner.php?sname=Müller&exact=1&plain=1&Language=EN
+  ```
+- By PersonID:
+  ```http
+  GET https://statistik.d-u-v.org/json/msearchrunner.php?sname=12345&plain=1&Language=EN
+  ```
+
 ---
 
 ## File Structure
 
+The project follows a structured file organization to maintain clarity and scalability.
+
 ```
-|-- app
-|   |-- layout.tsx
-|   |-- page.tsx
-|   |-- events
-|       |-- page.tsx
-|       |-- loading.tsx
-|   |-- championships
-|       |-- page.tsx
-|   |-- toplists
-|       |-- page.tsx
-|   |-- records
-|       |-- page.tsx
-|   |-- countrystats
-|       |-- page.tsx
-|   |-- about
-|       |-- page.tsx
-|   |-- whatsnew
-|       |-- page.tsx
-|   |-- faq
-|       |-- page.tsx
-|   |-- credits
-|       |-- page.tsx
-|   |-- contact
-|       |-- page.tsx
-|   |-- api
-|       |-- events
-|           |-- route.ts
-|       |-- eventDetail
-|           |-- route.ts
-|       |-- athleteProfile
-|           |-- route.ts
-|       |-- raceResults
-|           |-- route.ts
-|       |-- rankings
-|           |-- route.ts
-|       |-- searchEvent
-|           |-- route.ts
-|       |-- topRankingsAbroad
-|           |-- route.ts
-|
-|-- components
-|   |-- hero.tsx
-|   |-- the-navbar.tsx
-|   |-- event-filter.tsx
-|   |-- event-list.tsx
-|   |-- ui
-|       |-- badge.tsx
-|       |-- button.tsx
-|       |-- card.tsx
-|       |-- checkbox.tsx
-|       |-- command.tsx
-|       |-- dialog.tsx
-|       |-- navigation-menu.tsx
-|       |-- pagination.tsx
-|       |-- popover.tsx
-|       |-- range-calendar.tsx
-|       |-- select.tsx
-|       |-- slider.tsx
-|       |-- table.tsx
-|       |-- tooltip.tsx
-|
-|-- lib
-|   |-- utils.ts
-|
-|-- public
-|   |-- duv_logo_with_name.png
-|   |-- duv_logo_with_name_white.png
-|   |-- favicon.ico
-|   |-- robots.txt
-|
-|-- styles
-|   |-- globals.css
-|
-|-- next.config.ts
-|
-|-- tsconfig.json
-|
-|-- package.json
++ app
+  + api
+    + athleteProfile
+      - route.ts
+    + countries
+      - route.ts
+    + events
+      - route.ts
+    + eventDetail
+      - route.ts
+    + raceResults
+      - route.ts
+    + rankings
+      - route.ts
+    + runnerSearch
+      - route.ts
+    + searchEvent
+      - route.ts
+    + topRankingsAbroad
+      - route.ts
+  + events
+    - layout.tsx
+    - loading.tsx
+    - page.tsx
+  + fonts
+    - GeistMonoVF.woff
+    - GeistVF.woff
+  - favicon.ico
+  - globals.css
+  - layout.tsx
+  - page.tsx
++ components
+  + filters
+    - CountrySelectFilter.tsx
+    - DateRangeFilter.tsx
+    - EventTypeFilter.tsx
+    - RecordEligibleFilter.tsx
+    - SortOrderFilter.tsx
+    - WithoutResultsFilter.tsx
+  + layout
+    - Hero.tsx
+    - Navigation.tsx
+    - Providers.tsx
+    - ThemeProvider.tsx
+    - TheMobileNav.tsx
+    - TheNavbar.tsx
+  + ui
+    - Badge.tsx
+    - Button.tsx
+    - Calendar.tsx
+    - Card.tsx
+    - Checkbox.tsx
+    - Command.tsx
+    - Dialog.tsx
+    - Input.tsx
+    - Label.tsx
+    - NavigationMenu.tsx
+    - Pagination.tsx
+    - Popover.tsx
+    - RadioGroup.tsx
+    - ScrollArea.tsx
+    - Select.tsx
+    - Sheet.tsx
+    - Slider.tsx
+    - Switch.tsx
+    - Table.tsx
+    - ToggleGroup.tsx
+    - Toggle.tsx
+    - Tooltip.tsx
+  - DateInput.tsx
+  - DateRangePicker.tsx
+  - EventCard.tsx
+  - EventFilter.tsx
+  - EventList.tsx
+  - GlobalKeyboardShortcuts.tsx
++ hooks
+  - useEventsFetcher.ts
+  - useUrlParamSync.ts
++ instructions
+  - instructions.md
+  - mcalendar.json
+  - meventdetail.json
+  - mgetintbestlist.json
+  - mgetresultevent.json
+  - mgetresultperson.json
+  - msearchevent.json
+  - msearchrunner.json
+  - mtoprankabroad.json
+  - todo.md
++ lib
+  - event-utils.ts
+  - utils.ts
++ public
+  - duv_logo_with_name.png
+  - duv_logo_with_name_white.png
+- .eslintrc.json
+- .gitignore
+- components.json
+- draft.md
+- next-env.d.ts
+- next.config.mjs
+- package-lock.json
+- package.json
+- postcss.config.mjs
+- README.md
+- tailwind.config.ts
+- tsconfig.json
 ```
+
+**Notes**:
+
+- **PascalCase for Component Files**: All component file names use PascalCase (e.g., `EventCard.tsx`, `EventFilter.tsx`, `Badge.tsx`).
+- **Hooks and Lib Files**: Hooks and library files use camelCase (e.g., `useEventsFetcher.ts`, `event-utils.ts`).
+- **Instructions Directory**: Contains example JSON responses for API endpoints and documentation.
+- **3-Level Depth**: The file structure is presented up to three levels deep for clarity.
 
 ---
 
@@ -535,22 +692,73 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
   - Use the new App Router structure in the `/app` directory.
   - Utilize dynamic segments and layouts as per Next.js 14 conventions.
 
-### 2. Environment Variables
+### 2. Data Fetching Optimization and State Synchronization
+
+#### 2.1. State-Based Data Fetching
+
+- **Single Source of Truth**:
+  - All API calls must be based on the current state variables, not on URL parameters or `window.location.search`.
+  - State variables should be initialized from URL parameters on the initial render to allow direct navigation to specific filters (e.g., `/events?dist=24h`).
+  - State variables serve as the single source of truth for rendering and data fetching.
+
+#### 2.2. URL Parameter Synchronization
+
+- **State and URL Sync**:
+  - Implement a `useUrlParamSync` hook to update the URL parameters whenever state variables change.
+  - The URL should reflect current filter settings for shareability and bookmarking.
+- **Avoid Unnecessary URL Updates**:
+  - Modify `useUrlParamSync` to compare current URL parameters with desired parameters and only update the URL when changes occur.
+  - Prevents unnecessary route changes and re-renders that can lead to multiple API calls.
+
+#### 2.3. Preventing Multiple API Calls
+
+- **Stable State Initialization**:
+  - Use `useMemo` to initialize state variables from URL parameters only once during the initial render.
+  - Prevent state variables from re-initializing when `useSearchParams()` updates due to URL changes.
+- **Efficient Data Fetching**:
+  - Ensure that data-fetching hooks (e.g., `useEventsFetcher`) use current state variables to build API requests.
+  - Add checks to prevent redundant API calls when filters haven't changed.
+
+#### 2.4. Performance Optimization
+
+- **Single API Call on Initial Load**:
+  - Optimize data fetching logic to ensure only one API call is made during the initial page load.
+  - Avoid multiple API calls caused by state synchronization issues.
+- **Preventing Unnecessary Re-renders**:
+  - Maintain a consistent component hierarchy to prevent client components from unmounting and remounting.
+  - Avoid changes in server component hierarchy around client components between pages.
+
+#### 2.5. Client and Server Component Interaction
+
+- **Client Components**:
+  - Use `'use client'` directive for files utilizing client-side features like `useState` or `useEffect`.
+  - Handle client-side logic within client components.
+- **Server Components**:
+  - Perform server-side data fetching in server components when possible.
+
+#### 2.6. Handling Total Pages in API Responses
+
+- **Pagination Support**:
+  - Implement a method to retrieve the total number of pages from the API.
+  - **Requirement for API Developer**:
+    - Modify the API to include metadata in responses, such as `totalItems` or `totalPages`, to support accurate pagination.
+  - **Example**:
+    - The API response could include a field like `"totalItems": 1000` or `"totalPages": 50`.
+  - **Action Item**:
+    - Add this requirement to `todo.md` for the API developer.
+
+### 3. Environment Variables
 
 - **Sensitive Information**:
-  - Store all sensitive information (API keys, credentials) in environment variables.
-- **Local Development**:
-  - Use a `.env.local` file for local development and ensure it's listed in `.gitignore`.
-- **Production Environment**:
-  - Set environment variables in the Vercel dashboard under the project settings.
+  - Store all sensitive information in environment variables.
+  - Use `.env.local` for local development and set variables in Vercel for production.
 - **Next.js Configuration**:
   - Utilize `next.config.ts` for environment-specific configuration.
   - Use `process.env` directly in Server Components without additional configuration.
-    - Environment variables can be accessed in both Server and Client Components, but sensitive variables should only be used on the server.
 - **TypeScript Configuration**:
   - Use `.ts` and `.tsx` file extensions for all TypeScript files, including `next.config.ts`.
 
-### 3. Error Handling and Logging
+### 4. Error Handling and Logging
 
 - **Comprehensive Error Handling**:
   - Implement error handling in both client-side components and server-side API routes.
@@ -564,7 +772,9 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Loading UI**:
   - Use `loading.tsx` files in the App Router to display loading states during data fetching.
 
-### 4. Type Safety
+**Note**: Additional details about error handling and testing will be expanded upon later.
+
+### 5. Type Safety
 
 - **TypeScript Interfaces**:
   - Use TypeScript interfaces or types for all data structures, especially API responses.
@@ -573,10 +783,10 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Strict Mode**:
   - Enable TypeScript strict mode in `tsconfig.json` to enforce type safety.
 
-### 5. Accessibility
+### 6. Accessibility
 
 - **WCAG Compliance**:
-  - Ensure all color combinations and UI elements meet WCAG 2.2 Level AAA guidelines for color contrast.
+  - Ensure all color combinations and UI elements meet WCAG 2.2 Level AA standards for color contrast.
 - **General Accessibility**:
   - Ensure the website meets at least Level AA criteria for other accessibility considerations.
 - **Semantic HTML**:
@@ -587,8 +797,16 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
   - Use appropriate ARIA labels and roles for UI components.
 - **Testing**:
   - Use accessibility testing tools like Lighthouse or axe to validate compliance.
+- **Focus Management**:
+  - Ensure that focus states are managed appropriately when components are re-rendered or updated.
+  - Use `aria-live` regions if content updates dynamically.
+  - Maintain focus on interactive elements during navigation.
+- **Avoiding Flickering**:
+  - Prevent flickering of content to avoid disorienting users, especially those with motion sensitivities.
+  - Address issues like unnecessary component remounting that can cause visual flickering.
+  - Ensure that theme transitions are smooth and do not cause abrupt changes.
 
-### 6. Localization
+### 7. Localization
 
 - **Multi-Language Support**:
   - The website should support multiple languages.
@@ -597,11 +815,11 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Implementation**:
   - Use Next.js internationalized routing for localization.
   - Prepare components and pages to support localization using appropriate i18n practices.
-  - Store translations in separate JSON files and use a library like `next-i18next` or `react-intl` for managing translations.
+  - Store translations in separate JSON files (e.g., `en.json`, `de.json`) and use a library like `next-i18next` or `react-intl` for managing translations.
 - **Date and Number Formats**:
   - Adapt date and number formats according to the selected locale.
 
-### 7. SEO
+### 8. SEO
 
 - **SEO-Friendly**:
   - Optimize the website for search engines.
@@ -622,113 +840,110 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Structured Data**:
   - Implement JSON-LD structured data where applicable.
 
-### 7. Component Design and State Management
+### 9. Component Design and State Management
 
-#### 7.1. Consistent Component Hierarchy
+#### 9.1. Consistent Component Hierarchy
 
-- **Guideline**: Ensure that the server components wrapping client components remain consistent between page navigations to prevent unnecessary remounting and re-rendering.
+- **Guideline**:
+  - Ensure that the server components wrapping client components remain consistent between page navigations to prevent unnecessary remounting and re-rendering.
 - **Implementation**:
-
   - Create a consistent client component wrapper (e.g., a `Providers` component) that includes persistent client components like `ThemeProvider` and `TheNavbar`.
   - Include this `Providers` component in the root layout (`app/layout.tsx`) so that it wraps all page content consistently.
   - Avoid changing the server component hierarchy around client components between pages.
+- **Rationale**:
+  - In Next.js with the App Router, when navigating between pages, if the server components wrapping a client component change, the client component will unmount and remount. This can cause flickering effects and performance issues. By maintaining a consistent component hierarchy, we prevent unnecessary remounting.
 
-- **Rationale**: In Next.js with the App Router, when navigating between pages, if the server components wrapping a client component change, the client component will unmount and remount. This can cause flickering effects and performance issues. By maintaining a consistent component hierarchy, we prevent unnecessary remounting.
-
-#### 7.2. Handling Theme-Based Assets
+#### 9.2. Handling Theme-Based Assets
 
 - **Logo and Asset Switching**:
+  - Use CSS to control the visibility of theme-based assets (e.g., logos for dark mode and light mode) instead of dynamically changing the `src` attribute of image components.
+- **Implementation**:
+  - Render both the light and dark versions of the logo simultaneously within the component.
+  - Use CSS classes to show or hide the appropriate logo based on the current theme.
+  - Ensure that both logos are preloaded and cached by the browser to prevent re-fetching and flickering.
+- **Example CSS**:
 
-  - **Guideline**: Use CSS to control the visibility of theme-based assets (e.g., logos for dark mode and light mode) instead of dynamically changing the `src` attribute of image components.
-  - **Implementation**:
+  ```css
+  .logo-light {
+    display: block;
+  }
 
-    - Render both the light and dark versions of the logo simultaneously within the component.
-    - Use CSS classes to show or hide the appropriate logo based on the current theme.
-    - Ensure that both logos are preloaded and cached by the browser to prevent re-fetching and flickering.
-    - Example CSS:
+  .logo-dark {
+    display: none;
+  }
 
-      ```css
-      .logo-light {
-        display: block;
-      }
+  html.dark .logo-light {
+    display: none;
+  }
 
-      .logo-dark {
-        display: none;
-      }
+  html.dark .logo-dark {
+    display: block;
+  }
+  ```
 
-      html.dark .logo-light {
-        display: none;
-      }
+- **Rationale**:
+  - Dynamically changing the `src` attribute based on the theme can cause the image to be re-fetched, leading to flickering. Using CSS to control visibility ensures smooth transitions and better performance.
 
-      html.dark .logo-dark {
-        display: block;
-      }
-      ```
-
-  - **Rationale**: Dynamically changing the `src` attribute based on the theme can cause the image to be re-fetched, leading to flickering. Using CSS to control visibility ensures smooth transitions and better performance.
-
-#### 7.3. Preventing Content Shift Due to Scrollbar
+#### 9.3. Preventing Content Shift Due to Scrollbar
 
 - **Scrollbar Handling**:
+  - Prevent layout shifts caused by the appearance or disappearance of the scrollbar when content overflows the viewport height.
+- **Implementation**:
+  - Reserve scrollbar space by adding `overflow-y: scroll;` to the `html` element in the global CSS.
+  - Alternatively, use `scrollbar-gutter: stable;` if browser support is sufficient.
+- **Example CSS**:
 
-  - **Guideline**: Prevent layout shifts caused by the appearance or disappearance of the scrollbar when content overflows the viewport height.
-  - **Implementation**:
+  ```css
+  html {
+    overflow-y: scroll; /* Ensures scrollbar space is always reserved */
+  }
+  ```
 
-    - Reserve scrollbar space by adding `overflow-y: scroll;` to the `html` element in the global CSS.
-    - Alternatively, use `scrollbar-gutter: stable;` if browser support is sufficient.
-    - Example CSS:
+- **Rationale**:
+  - Reserving the scrollbar space prevents the content from shifting when navigating between pages with different content heights, providing a consistent and stable layout.
 
-      ```css
-      html {
-        overflow-y: scroll; /* Ensures scrollbar space is always reserved */
-      }
-      ```
-
-  - **Rationale**: Reserving the scrollbar space prevents the content from shifting when navigating between pages with different content heights, providing a consistent and stable layout.
-
-#### 7.4. Moving Client-Side Scripts into Components
+#### 9.4. Moving Client-Side Scripts into Components
 
 - **Global Client-Side Logic**:
+  - Encapsulate client-side scripts and logic within client components instead of using raw `<script>` tags.
+- **Implementation**:
+  - Create a `GlobalKeyboardShortcuts` component to handle global keyboard shortcuts.
+  - Place this component within the `Providers` component or another appropriate location.
+  - Ensure that all client-side behavior is managed within React's component structure.
+- **Example**:
 
-  - **Guideline**: Encapsulate client-side scripts and logic within client components instead of using raw `<script>` tags.
-  - **Implementation**:
+  ```tsx
+  // components/GlobalKeyboardShortcuts.tsx
+  "use client";
 
-    - Create a `GlobalKeyboardShortcuts` component to handle global keyboard shortcuts.
-    - Place this component within the `Providers` component or another appropriate location.
-    - Ensure that all client-side behavior is managed within React's component structure.
-    - Example:
+  import { useEffect } from "react";
 
-      ```tsx
-      // components/GlobalKeyboardShortcuts.tsx
-      "use client";
+  export function GlobalKeyboardShortcuts() {
+    useEffect(() => {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          const button = document.querySelector(
+            'button[aria-haspopup="dialog"]'
+          ) as HTMLElement;
+          if (button) {
+            button.click();
+          }
+        }
+      };
 
-      import { useEffect } from "react";
+      document.addEventListener("keydown", handleKeyDown);
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }, []);
 
-      export function GlobalKeyboardShortcuts() {
-        useEffect(() => {
-          const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-              e.preventDefault();
-              const button = document.querySelector(
-                'button[aria-haspopup="dialog"]'
-              ) as HTMLElement;
-              if (button) {
-                button.click();
-              }
-            }
-          };
+    return null;
+  }
+  ```
 
-          document.addEventListener("keydown", handleKeyDown);
-          return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-          };
-        }, []);
-
-        return null;
-      }
-      ```
-
-  - **Rationale**: Keeping client-side logic within components improves code organization, maintainability, and adheres to React best practices.
+- **Rationale**:
+  - Keeping client-side logic within components improves code organization, maintainability, and adheres to React best practices.
 
 ---
 
@@ -737,9 +952,12 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 ### Component Names
 
 - **File Naming**:
-  - Use lowercase and hyphens for filenames (e.g., `event-list.tsx`).
+  - Use **PascalCase** for component file names (e.g., `EventCard.tsx`, `EventFilter.tsx`).
+  - **Reason**: Consistency with component naming and easier to locate component files.
 - **Component Naming**:
-  - Use PascalCase for component names inside the file (e.g., `EventList`).
+  - Use PascalCase for component names inside the file.
+- **Hooks and Lib Files**:
+  - Use camelCase for hook files (e.g., `useEventsFetcher.ts`) and library files (e.g., `event-utils.ts`).
 - **Multi-Word Names**:
   - All component names should be multi-word to avoid conflicts with HTML elements.
 - **Folder Structure**:
@@ -747,9 +965,9 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Base Components**:
   - Components that apply app-specific styling and conventions should begin with a specific prefix, such as `Base`, `App`, or `V` (e.g., `BaseButton.tsx`).
 - **Singleton Components**:
-  - Components that should only ever have a single active instance should begin with the `The` prefix (e.g., `the-navbar.tsx`).
+  - Components that should only ever have a single active instance should begin with the `The` prefix (e.g., `TheNavbar.tsx`).
 - **Child Components**:
-  - Components tightly coupled with their parent should include the parent component name as a prefix (e.g., `event-filter.tsx` as a child of `event-list.tsx`).
+  - Components tightly coupled with their parent should include the parent component name as a prefix (e.g., `EventFilter.tsx` as a child of `EventList.tsx`).
 - **Name Structure**:
   - Start component names with the highest-level (most general) words and end with descriptive modifying words.
 - **Full Words Over Abbreviations**:
@@ -769,37 +987,9 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
   - Follow TypeScript best practices, including proper typing and avoiding the use of `any`.
 - **Next.js Conventions**:
   - Utilize Next.js features like dynamic routes, layouts, and the new App Router structure.
-- **Vue.js Style Guide Compliance**:
-  - Although this is a React project, the naming conventions inspired by the Vue.js Style Guide can still be applied where appropriate.
-
-#### Component Naming and Structure
-
-- **Consistent Component Hierarchy**:
-
-  - **Guideline**: Maintain a consistent component hierarchy, especially for components that are shared across pages (e.g., navbar, footer).
-  - **Implementation**:
-    - Shared components should be included in a way that does not change between pages.
-    - Avoid wrapping shared client components with different server components on different pages.
-
-- **Theme-Based Styling**:
-  - **Guideline**: Use CSS classes and the `ThemeProvider`'s theming capabilities to manage theme-specific styles and assets.
-  - **Implementation**:
-    - Use Tailwind CSS's dark mode variants (e.g., `dark:`) to define styles that change based on the theme.
-    - Control asset visibility (like logos) using CSS classes that respond to the `dark` class on the `<html>` element.
-
-#### CSS Practices
-
-- **Scrollbar Handling**:
-
-  - **Guideline**: Include CSS rules to prevent layout shifts due to scrollbar appearance.
-  - **Implementation**:
-    - As mentioned earlier, add `overflow-y: scroll;` to the `html` element in global styles.
-
-- **Class Naming Conventions**:
-  - **Guideline**: Use clear and descriptive class names for elements that require special handling (e.g., `.logo-light`, `.logo-dark`).
-  - **Implementation**:
-    - Follow BEM (Block Element Modifier) naming conventions if appropriate.
-    - Ensure that class names are intuitive and reflect their purpose.
+- **CSS Practices**:
+  - Use Tailwind CSS for styling.
+  - Apply dark mode variants and responsive design classes.
 
 ---
 
@@ -808,7 +998,7 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 ### Accessibility
 
 - **Color Contrast**:
-  - Ensure all text and background color combinations meet WCAG 2.2 Level AAA standards.
+  - Ensure all text and background color combinations meet WCAG 2.2 Level AA standards.
 - **Keyboard Navigation**:
   - All interactive elements should be accessible via keyboard.
 - **ARIA Labels**:
@@ -818,25 +1008,23 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
 - **Testing**:
   - Use accessibility testing tools like Lighthouse or axe to validate compliance.
 - **Focus Management**:
-  - Ensure that focus states are managed appropriately when components are re-rendered or updated.
+  - Maintain focus states appropriately.
   - Use `aria-live` regions if content updates dynamically.
-  - Maintain focus on interactive elements during navigation.
-- **Avoiding Flickering**:
-  - Prevent flickering of content to avoid disorienting users, especially those with motion sensitivities.
-  - Address issues like unnecessary component remounting that can cause visual flickering.
-  - Ensure that theme transitions are smooth and do not cause abrupt changes.
+  - Ensure smooth transitions without flickering.
+- **Prevent Flickering**:
+  - Optimize component rendering to prevent visual flickering.
 
 ### Localization
 
+- **Implementation**:
+  - Use libraries like `next-i18next` or `react-intl` for internationalization.
+  - Utilize Next.js internationalized routing features.
 - **Language Files**:
   - Store translations in separate JSON files for each language (e.g., `en.json`, `de.json`).
 - **Dynamic Content**:
   - Ensure that all dynamic content is translatable.
 - **Date and Number Formats**:
   - Adapt date and number formats according to the selected locale.
-- **Implementation**:
-  - Use libraries like `next-i18next` or `react-intl` for internationalization.
-  - Utilize Next.js internationalized routing features.
 
 ### SEO
 
@@ -854,13 +1042,5 @@ GET https://statistik.d-u-v.org/json/mtoprankabroad.php?country=GER&cnt=10&Langu
   - Use Next.js dynamic routes for SEO-friendly URLs.
 - **Image Optimization**:
   - Use the new `<Image />` component from `next/image` for image optimization.
-
----
-
-## Conclusion
-
-This Product Requirements Document (PRD) provides a comprehensive overview of the DUV Ultramarathon Statistics website project using Next.js 14. It includes detailed descriptions of core functionalities, API endpoints, file structure, additional requirements, and guidelines for naming conventions, style, accessibility, localization, and SEO. The aim is to ensure clear alignment among developers and stakeholders to facilitate efficient development and implementation of the project.
-
-By following this PRD, the development team can effectively build the DUV Ultramarathon Statistics website using Next.js 14, ensuring that all functionalities are implemented according to the specified requirements and the latest best practices.
 
 ---

@@ -1,7 +1,7 @@
 //hooks/useEventsFetcher.ts
 
 import { useState, useEffect, useRef } from "react";
-import { Event } from "@/lib/event-utils";
+import { Event } from "@/lib/eventUtils";
 import { DateRange } from "react-day-picker";
 
 interface Filters {
