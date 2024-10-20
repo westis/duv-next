@@ -1,25 +1,77 @@
 "use client";
 
-import React, { useState, memo } from "react";
+import React, { useState, memo, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
-import {
-  CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "@/components/ui/command";
+import { Moon, Sun, Search } from "lucide-react";
 import { MobileNav } from "@/components/layout/TheMobileNav";
 import { Navigation, navigationItems } from "@/components/layout/Navigation";
+import { SearchDialog } from "@/components/SearchDialog";
+import { useDebounce } from "@/hooks/useDebounce";
+
+type SearchResult = {
+  type: "runner" | "event";
+  id: string;
+  name: string;
+  details: string;
+};
+
+type SearchType = "all" | "runner" | "event";
 
 const TheNavbar = memo(function TheNavbar() {
   const { theme, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState<SearchType>("all");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [totalHits, setTotalHits] = useState(0);
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  const searchItems = useCallback(async (query: string, type: SearchType) => {
+    if (query.length < 3) {
+      setSearchResults([]);
+      setTotalHits(0);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(query)}&type=${type}`
+      );
+      const data = await response.json();
+
+      setTotalHits(data.totalHits);
+      setSearchResults(data.results);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      setSearchResults([]);
+      setTotalHits(0);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      searchItems(debouncedSearchTerm, searchType);
+    } else {
+      setSearchResults([]);
+      setTotalHits(0);
+    }
+  }, [debouncedSearchTerm, searchItems, searchType]);
+
+  const handleSearchTermChange = useCallback((value: string) => {
+    setSearchTerm(value);
+  }, []);
+
+  const handleSearchTypeChange = useCallback((value: SearchType) => {
+    setSearchType(value);
+  }, []);
 
   return (
     <nav className="border-b bg-background">
@@ -50,9 +102,10 @@ const TheNavbar = memo(function TheNavbar() {
             <Button
               variant="outline"
               className="w-full justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
-              onClick={() => setOpen(true)}
+              onClick={() => setSearchOpen(true)}
               aria-label="Open search"
             >
+              <Search className="mr-2 h-4 w-4" />
               <span className="truncate">Search runner, event, club...</span>
               <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex group-hover:bg-accent">
                 <span className="text-xs">⌘</span>K
@@ -73,17 +126,17 @@ const TheNavbar = memo(function TheNavbar() {
         </div>
       </div>
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Type to search..." />
-        <CommandList>
-          <CommandEmpty>No results found.</CommandEmpty>
-          <CommandGroup heading="Suggestions">
-            <CommandItem>Calendar</CommandItem>
-            <CommandItem>Results</CommandItem>
-            <CommandItem>Toplists</CommandItem>
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        searchTerm={searchTerm}
+        onSearchTermChange={handleSearchTermChange}
+        searchType={searchType}
+        onSearchTypeChange={handleSearchTypeChange}
+        searchResults={searchResults}
+        loading={loading}
+        totalHits={totalHits}
+      />
     </nav>
   );
 });
