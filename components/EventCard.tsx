@@ -14,6 +14,7 @@ import {
   getSurfaceIcon,
   getSurfaceColor,
 } from "@/lib/eventUtils";
+import Link from "next/link";
 
 interface EventCardProps {
   event: Event;
@@ -81,6 +82,28 @@ export function EventCard({ event, variant }: EventCardProps) {
     </>
   );
 
+  const renderButtons = () => (
+    <div className="flex flex-row sm:flex-col lg:flex-row gap-2 w-full sm:w-auto">
+      <Button
+        size="sm"
+        variant="outline"
+        className="flex-1 sm:flex-initial"
+        asChild
+      >
+        <Link href={`/events/${event.EventID}`}>
+          <InfoIcon className="h-4 w-4 mr-2" /> Details
+        </Link>
+      </Button>
+      {["C", "P", "S"].includes(event.Results) && (
+        <Button size="sm" className="flex-1 sm:flex-initial" asChild>
+          <Link href={`/events/${event.EventID}/results`}>
+            <BarChartIcon className="h-4 w-4 mr-2" /> Results
+          </Link>
+        </Button>
+      )}
+    </div>
+  );
+
   if (variant === "normal") {
     return (
       <Card className="overflow-hidden">
@@ -102,20 +125,7 @@ export function EventCard({ event, variant }: EventCardProps) {
               <div className="flex flex-row sm:flex-col lg:flex-row items-center gap-2">
                 {renderEventBadges()}
               </div>
-              <div className="flex flex-row sm:flex-col lg:flex-row gap-2 w-full sm:w-auto">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="flex-1 sm:flex-initial"
-                >
-                  <InfoIcon className="h-4 w-4 mr-2" /> Details
-                </Button>
-                {["C", "P", "S"].includes(event.Results) && (
-                  <Button size="sm" className="flex-1 sm:flex-initial">
-                    <BarChartIcon className="h-4 w-4 mr-2" /> Results
-                  </Button>
-                )}
-              </div>
+              {renderButtons()}
             </div>
           </div>
         </CardContent>
