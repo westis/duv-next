@@ -1,5 +1,23 @@
 import { NextResponse } from "next/server";
 
+interface ResultItem {
+  RankTotal: string;
+  Performance: string;
+  PerformanceNumeric: string;
+  FirstName: string;
+  LastName: string;
+  Club: string;
+  Nationality: string;
+  YOB: string;
+  DOB: string;
+  Gender: string;
+  AgeGradePerf: string;
+  RankMW: string;
+  Cat: string;
+  RankCat: string;
+  PersonID: string;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const eventId = searchParams.get("eventId");
@@ -30,18 +48,27 @@ export async function GET(request: Request) {
       );
     }
 
-    const formattedResults = data.Resultlist.map((result: any) => ({
+    const formattedResults = data.Resultlist.map((result: ResultItem) => ({
       rank: result.RankTotal,
       performance: result.Performance,
-      name: result.AthleteName,
+      performanceNumeric: result.PerformanceNumeric,
+      name: `${result.FirstName} ${result.LastName.toUpperCase()}`,
       club: result.Club,
       nationality: result.Nationality,
       yearOfBirth: result.YOB,
+      dob: result.DOB,
       sex: result.Gender,
       ageGradePerf: result.AgeGradePerf,
+      rankMW: result.RankMW,
+      cat: result.Cat,
+      rankCat: result.RankCat,
+      personId: result.PersonID,
     }));
 
-    return NextResponse.json(formattedResults);
+    return NextResponse.json({
+      results: formattedResults,
+      eventInfo: data.EvtHeader,
+    });
   } catch (error: unknown) {
     console.error("Error fetching event results:", error);
     return NextResponse.json(
