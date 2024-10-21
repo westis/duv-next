@@ -225,24 +225,6 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
 
   return (
     <div>
-      {eventInfo && (
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>{eventInfo.EvtName}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Date: {eventInfo.EvtDate}</p>
-            <p>Source: {eventInfo.Resultsource}</p>
-            <p>Recorded by: {eventInfo.RecordedBy}</p>
-            <p>Ranking eligible: {eventInfo.RecordEligible}</p>
-            <p>
-              <Link href={eventInfo.EvtDetailLink}>Event details</Link>
-            </p>
-            <p>Results: {eventInfo.FinisherCnt}</p>
-          </CardContent>
-        </Card>
-      )}
-
       <div className="flex flex-col gap-4 py-4">
         <div className="flex flex-wrap gap-4">
           <Select value={gender} onValueChange={handleGenderChange}>
