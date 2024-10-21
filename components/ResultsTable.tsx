@@ -69,7 +69,7 @@ const columns: ResultColumn[] = [
     cell: ({ row }) => (
       <Link
         href={`/runners/${row.original.personId}`}
-        className="text-blue-500 hover:underline"
+        className="hover:underline"
       >
         {row.getValue("name")}
       </Link>
@@ -224,10 +224,10 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 py-4">
+      <div className="flex flex-col gap-4 py-4 px-4">
         <div className="flex flex-wrap gap-4">
           <Select value={gender} onValueChange={handleGenderChange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[135px]">
               <SelectValue placeholder="Select gender" />
             </SelectTrigger>
             <SelectContent>
@@ -239,7 +239,7 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
             </SelectContent>
           </Select>
           <Select value={ageGroup} onValueChange={handleAgeGroupChange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[135px]">
               <SelectValue placeholder="Select age group" />
             </SelectTrigger>
             <SelectContent>
@@ -279,7 +279,7 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
         )}
       </div>
 
-      <div className="rounded-md border">
+      <div className="">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

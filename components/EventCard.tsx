@@ -87,16 +87,20 @@ export function EventCard({ event, variant }: EventCardProps) {
       <Button
         size="sm"
         variant="outline"
-        className="flex-1 sm:flex-initial"
+        className="flex-1 sm:flex-initial hover:bg-primary/20 hover:text-primary-foreground dark:hover:bg-primary/30 dark:hover:text-primary"
         asChild
       >
-        <Link href={`/events/${event.EventID}`}>
+        <Link href={`/events/${event.EventID}`} className="btn-link">
           <InfoIcon className="h-4 w-4 mr-2" /> Details
         </Link>
       </Button>
       {["C", "P", "S"].includes(event.Results) && (
-        <Button size="sm" className="flex-1 sm:flex-initial" asChild>
-          <Link href={`/events/${event.EventID}/results`}>
+        <Button
+          size="sm"
+          className="flex-1 sm:flex-initial hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
+          asChild
+        >
+          <Link href={`/events/${event.EventID}/results`} className="btn-link">
             <BarChartIcon className="h-4 w-4 mr-2" /> Results
           </Link>
         </Button>
@@ -150,12 +154,29 @@ export function EventCard({ event, variant }: EventCardProps) {
         </div>
         <div className="flex items-center gap-2 mt-2 sm:mt-0">
           {renderEventBadges()}
-          <Button size="sm" variant="ghost">
-            <InfoIcon className="h-4 w-4 mr-1" /> Details
+          <Button
+            size="sm"
+            variant="ghost"
+            className="hover:bg-primary/20 hover:text-primary-foreground dark:hover:bg-primary/30 dark:hover:text-primary"
+            asChild
+          >
+            <Link href={`/events/${event.EventID}`} className="btn-link">
+              <InfoIcon className="h-4 w-4 mr-1" /> Details
+            </Link>
           </Button>
           {["C", "P", "S"].includes(event.Results) && (
-            <Button size="sm" variant="ghost">
-              <BarChartIcon className="h-4 w-4 mr-1" /> Results
+            <Button
+              size="sm"
+              variant="ghost"
+              className="hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
+              asChild
+            >
+              <Link
+                href={`/events/${event.EventID}/results`}
+                className="btn-link"
+              >
+                <BarChartIcon className="h-4 w-4 mr-1" /> Results
+              </Link>
             </Button>
           )}
         </div>
@@ -220,14 +241,28 @@ export function EventCard({ event, variant }: EventCardProps) {
               <div className="flex flex-wrap gap-2 ">{renderEventBadges()}</div>
             </div>
             <div className="flex sm:flex-col justify-end p-4 space-x-2 sm:space-x-0 sm:space-y-2">
-              <Button className="flex-1 sm:w-full" variant="outline">
-                <InfoIcon className="h-4 w-4 mr-2" />
-                Details
+              <Button
+                className="flex-1 sm:w-full hover:bg-primary/20 hover:text-primary-foreground dark:hover:bg-primary/30 dark:hover:text-primary"
+                variant="outline"
+                asChild
+              >
+                <Link href={`/events/${event.EventID}`} className="btn-link">
+                  <InfoIcon className="h-4 w-4 mr-2" />
+                  Details
+                </Link>
               </Button>
               {["C", "P", "S"].includes(event.Results) && (
-                <Button className="flex-1 sm:w-full">
-                  <BarChartIcon className="h-4 w-4 mr-2" />
-                  Results
+                <Button
+                  className="flex-1 sm:w-full hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
+                  asChild
+                >
+                  <Link
+                    href={`/events/${event.EventID}/results`}
+                    className="btn-link"
+                  >
+                    <BarChartIcon className="h-4 w-4 mr-2" />
+                    Results
+                  </Link>
                 </Button>
               )}
             </div>

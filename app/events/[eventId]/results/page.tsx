@@ -30,7 +30,7 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
         </TabsList>
         <TabsContent value="results">
           <Card className="bg-card border-t-4 border-t-primary shadow-none">
-            <CardContent className="pt-6">
+            <CardContent className="p-2">
               <ResultsTable eventId={params.eventId} />
             </CardContent>
           </Card>

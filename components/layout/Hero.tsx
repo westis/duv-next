@@ -19,25 +19,33 @@ export function Hero() {
               asChild
               className="text-sm sm:text-base md:text-lg py-4 sm:py-6"
             >
-              <Link href="/events?year=futur">Calendar</Link>
+              <Link href="/events?year=futur" className="btn-link">
+                Calendar
+              </Link>
             </Button>
             <Button
               asChild
               className="text-sm sm:text-base md:text-lg py-4 sm:py-6"
             >
-              <Link href="/events?year=past1">Results</Link>
+              <Link href="/events?year=past1" className="btn-link">
+                Results
+              </Link>
             </Button>
             <Button
               asChild
               className="text-sm sm:text-base md:text-lg py-4 sm:py-6"
             >
-              <Link href="/toplists">Toplists</Link>
+              <Link href="/toplists" className="btn-link">
+                Toplists
+              </Link>
             </Button>
             <Button
               asChild
               className="text-sm sm:text-base md:text-lg py-4 sm:py-6"
             >
-              <Link href="/records">Records</Link>
+              <Link href="/records" className="btn-link">
+                Records
+              </Link>
             </Button>
           </div>
         </div>

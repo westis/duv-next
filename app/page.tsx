@@ -15,7 +15,7 @@ export default function Home() {
           results, enabling users to view and compare performances across
           distances, times, and locations.
         </p>
-        <p>
+        <p className="mb-4">
           Whether you&apos;re an athlete, coach, or fan, the DUV platform helps
           you stay informed about the world of ultrarunning with easily
           accessible statistics and historical data.
