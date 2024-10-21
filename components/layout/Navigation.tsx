@@ -43,7 +43,7 @@ export const navigationItems = [
     items: [
       {
         title: "Calendar",
-        href: "/events",
+        href: "/events/calendar",
         description: "View upcoming ultramarathon events",
         onClick: () => {
           const today = new Date();
@@ -56,7 +56,7 @@ export const navigationItems = [
       },
       {
         title: "Results",
-        href: "/events",
+        href: "/events/results",
         description: "Check results from past events",
         onClick: () => {
           const today = new Date();
