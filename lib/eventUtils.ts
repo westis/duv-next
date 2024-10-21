@@ -1,5 +1,3 @@
-// File path: lib/eventUtils.ts
-
 import { IconType } from "react-icons";
 import {
   FaStopwatch,
@@ -9,6 +7,8 @@ import {
   FaTree,
   FaCircle,
   FaHome,
+  FaSkullCrossbones,
+  FaHandshake,
 } from "react-icons/fa";
 
 export interface Event {
@@ -33,6 +33,8 @@ const eventTypeMap: {
   "4": { type: "Stage Race", surface: "Unknown", number: "4" },
   "5": { type: "Regular", surface: "Track", number: "5" },
   "6": { type: "Regular", surface: "Indoor", number: "6" },
+  "8": { type: "Invitational", surface: "Unknown", number: "8" },
+  "9": { type: "Elimination", surface: "Unknown", number: "9" },
   "10": { type: "Backyard Ultra", surface: "Unknown", number: "10" },
   "11": { type: "Walking", surface: "Road", number: "11" },
   "12": { type: "Walking", surface: "Road", number: "12" },
@@ -48,8 +50,11 @@ const eventTypeMap: {
   "Stage race": { type: "Stage Race", surface: "Unknown", number: "4" },
   Track: { type: "Regular", surface: "Track", number: "5" },
   Indoor: { type: "Regular", surface: "Indoor", number: "6" },
-  "no competition": { type: "Other", surface: "Unknown", number: "0" },
-  "invitational race": { type: "Other", surface: "Unknown", number: "0" },
+  "invitational race": {
+    type: "Invitational",
+    surface: "Unknown",
+    number: "8",
+  },
   "Elimination race": { type: "Elimination", surface: "Unknown", number: "9" },
   "Backyard Ultra": {
     type: "Backyard Ultra",
@@ -84,6 +89,8 @@ export const getTypeColor = (eventType: string) => {
     "4": "bg-rose-200/50 text-rose-800 dark:bg-rose-800/50 dark:text-rose-200",
     "5": "bg-red-200/50 text-red-800 dark:bg-red-800/50 dark:text-red-200",
     "6": "bg-purple-200/50 text-purple-800 dark:bg-purple-800/50 dark:text-purple-200",
+    "8": "bg-blue-200/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-200",
+    "9": "bg-indigo-200/50 text-indigo-800 dark:bg-indigo-800/50 dark:text-indigo-200",
     "10": "bg-violet-200/50 text-violet-800 dark:bg-violet-800/50 dark:text-violet-200",
     "11": "bg-emerald-200/50 text-emerald-800 dark:bg-emerald-800/50 dark:text-emerald-200",
     "12": "bg-emerald-200/50 text-emerald-800 dark:bg-emerald-800/50 dark:text-emerald-200",
@@ -97,12 +104,13 @@ export const getTypeColor = (eventType: string) => {
   );
 };
 
-export const getDurationLengthColor = (event: Event) => {
-  const typeNumber = getEventTypeNumber(event.EventType);
+export const getDurationLengthColor = (event: Event | EventTypeInput) => {
+  const typeNumber =
+    "EventType" in event ? getEventTypeNumber(event.EventType) : "0";
   if (typeNumber === "10") {
     return "bg-violet-200/50 text-violet-800 dark:bg-violet-800/50 dark:text-violet-200";
   }
-  return event.Length
+  return "Length" in event && event.Length
     ? "bg-blue-200/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-200"
     : "bg-yellow-200/50 text-yellow-800 dark:bg-yellow-800/50 dark:text-yellow-200";
 };
@@ -113,19 +121,25 @@ export const iauLabelColors: { [key: string]: string } = {
   B: "bg-amber-200/50 text-amber-800 dark:bg-amber-800/50 dark:text-amber-200",
 };
 
-export const mapEventType = (event: Event) => {
+export interface EventTypeInput {
+  EventType: string;
+  Length?: string;
+  Duration?: string;
+}
+
+export const mapEventType = (event: EventTypeInput) => {
   const typeNumber = getEventTypeNumber(event.EventType);
   const eventTypeInfo = eventTypeMap[typeNumber] || {
     type: "Other",
     surface: "Unknown",
     number: "0",
   };
-  let mappedType = { ...eventTypeInfo };
+  const mappedType = { ...eventTypeInfo };
 
   if (event.Duration && mappedType.type === "Regular") {
-    mappedType.type = "Fixed-time";
+    return { ...mappedType, type: "Fixed-time" };
   } else if (event.Length && mappedType.type === "Regular") {
-    mappedType.type = "Fixed-distance";
+    return { ...mappedType, type: "Fixed-distance" };
   }
 
   return mappedType;
@@ -142,6 +156,10 @@ export function getEventTypeIcon(eventType: {
       return FaRoute;
     case "Walking":
       return FaWalking;
+    case "Elimination":
+      return FaSkullCrossbones;
+    case "Invitational":
+      return FaHandshake;
     default:
       return null;
   }
@@ -151,7 +169,13 @@ export function getEventTypeLabel(eventType: {
   type: string;
   surface: string;
 }) {
-  return ["Backyard Ultra", "Stage Race", "Walking"].includes(eventType.type)
+  return [
+    "Backyard Ultra",
+    "Stage Race",
+    "Walking",
+    "Elimination",
+    "Invitational",
+  ].includes(eventType.type)
     ? eventType.type
     : "";
 }
@@ -184,4 +208,14 @@ export function getSurfaceColor(surface: string) {
     default:
       return "bg-neutral-200/50 text-neutral-800 dark:bg-neutral-800/50 dark:text-neutral-200";
   }
+}
+
+export function shouldShowDistanceOrDuration(event: EventTypeInput): boolean {
+  const mappedType = mapEventType(event);
+  return mappedType.type !== "Backyard Ultra";
+}
+
+export function shouldShowSurface(eventType: string): boolean {
+  const mappedType = mapEventType({ EventType: eventType });
+  return mappedType.surface !== "Unknown";
 }

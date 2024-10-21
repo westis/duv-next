@@ -21,11 +21,16 @@ interface EventInfo {
   EvtID: string;
   EvtName: string;
   EvtDate: string;
+  City: string;
+  Country: string;
+  EvtDist: string;
+  EvtType: string;
   Resultsource: string;
   RecordedBy: string;
   RecordEligible: string;
   EvtDetailLink: string;
   FinisherCnt: string;
+  AltitudeDiff?: string; // Make this optional as it might not always be present
 }
 
 export function useEventResults(eventId: string) {

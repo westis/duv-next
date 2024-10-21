@@ -4,7 +4,8 @@ import {
   MapPin,
   Users,
   Link as LinkIcon,
-  Info,
+  RulerIcon,
+  ClockIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -15,6 +16,9 @@ import {
   getDurationLengthColor,
   getSurfaceIcon,
   getEventTypeIcon,
+  EventTypeInput,
+  shouldShowDistanceOrDuration,
+  shouldShowSurface,
 } from "@/lib/eventUtils";
 
 interface EventInfo {
@@ -31,12 +35,12 @@ interface EventInfo {
 }
 
 export function EventHeader({ eventInfo }: { eventInfo: EventInfo }) {
-  const eventType = mapEventType({
+  const eventTypeInput: EventTypeInput = {
     EventType: eventInfo.EvtType,
     Length: eventInfo.EvtDist,
-    Duration: "",
-  } as any);
+  };
 
+  const eventType = mapEventType(eventTypeInput);
   const SurfaceIcon = getSurfaceIcon(eventType.surface);
   const EventTypeIcon = getEventTypeIcon(eventType);
 
@@ -74,27 +78,34 @@ export function EventHeader({ eventInfo }: { eventInfo: EventInfo }) {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2 mb-4">
-          <Badge
-            variant="secondary"
-            className={`${getDurationLengthColor({
-              EventType: eventInfo.EvtType,
-              Length: eventInfo.EvtDist,
-            } as any)} text-xs sm:text-sm px-2 py-1 rounded-full`}
-          >
-            <Info className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
-            <span>{eventInfo.EvtDist}</span>
-          </Badge>
-          <Badge
-            variant="secondary"
-            className={`${getTypeColor(
-              eventInfo.EvtType
-            )} text-xs sm:text-sm px-2 py-1 rounded-full`}
-          >
-            {SurfaceIcon && (
-              <SurfaceIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
-            )}
-            <span>{eventType.surface}</span>
-          </Badge>
+          {shouldShowDistanceOrDuration(eventTypeInput) && (
+            <Badge
+              variant="secondary"
+              className={`${getDurationLengthColor(
+                eventTypeInput
+              )} text-xs sm:text-sm px-2 py-1 rounded-full`}
+            >
+              {eventInfo.EvtDist ? (
+                <RulerIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
+              ) : (
+                <ClockIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
+              )}
+              <span>{eventInfo.EvtDist}</span>
+            </Badge>
+          )}
+          {shouldShowSurface(eventInfo.EvtType) && (
+            <Badge
+              variant="secondary"
+              className={`${getTypeColor(
+                eventInfo.EvtType
+              )} text-xs sm:text-sm px-2 py-1 rounded-full`}
+            >
+              {SurfaceIcon && (
+                <SurfaceIcon className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline" />
+              )}
+              <span>{eventType.surface}</span>
+            </Badge>
+          )}
           {EventTypeIcon && (
             <Badge
               variant="secondary"

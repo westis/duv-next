@@ -12,7 +12,8 @@ import {
   getEventTypeIcon,
   getEventTypeLabel,
   getSurfaceIcon,
-  getSurfaceColor,
+  shouldShowDistanceOrDuration,
+  shouldShowSurface,
 } from "@/lib/eventUtils";
 import Link from "next/link";
 
@@ -36,13 +37,12 @@ export function EventCard({ event, variant }: EventCardProps) {
           IAU {event.IAULabel}
         </Badge>
       )}
-      {/* Add UTMB and ITRA badges here if needed */}
     </div>
   );
 
   const renderEventBadges = () => (
     <>
-      {mapEventType(event).type !== "Backyard Ultra" && (
+      {shouldShowDistanceOrDuration(event) && (
         <Badge
           variant="secondary"
           className={`${getDurationLengthColor(
@@ -57,6 +57,17 @@ export function EventCard({ event, variant }: EventCardProps) {
           <span>{event.Length || event.Duration}</span>
         </Badge>
       )}
+      {shouldShowSurface(event.EventType) && (
+        <Badge
+          variant="secondary"
+          className={`${getTypeColor(
+            event.EventType
+          )} text-xs px-2 py-1 rounded-full`}
+        >
+          {SurfaceIcon && <SurfaceIcon className="h-3 w-3 mr-1 inline" />}
+          <span>{mapEventType(event).surface}</span>
+        </Badge>
+      )}
       {getEventTypeLabel(mapEventType(event)) && (
         <Badge
           variant="secondary"
@@ -66,17 +77,6 @@ export function EventCard({ event, variant }: EventCardProps) {
         >
           {EventTypeIcon && <EventTypeIcon className="h-3 w-3 mr-1 inline" />}
           <span>{getEventTypeLabel(mapEventType(event))}</span>
-        </Badge>
-      )}
-      {mapEventType(event).surface !== "Unknown" && (
-        <Badge
-          variant="secondary"
-          className={`${getSurfaceColor(
-            mapEventType(event).surface
-          )} text-xs px-2 py-1 rounded-full`}
-        >
-          {SurfaceIcon && <SurfaceIcon className="h-3 w-3 mr-1 inline" />}
-          <span>{mapEventType(event).surface}</span>
         </Badge>
       )}
     </>

@@ -27,7 +27,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEventResults } from "@/hooks/useEventResults";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { Row } from "@tanstack/react-table";
@@ -120,7 +119,7 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
   const [nationalityFilter, setNationalityFilter] = useState("");
   const [clubFilter, setClubFilter] = useState("");
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
-  const { results, eventInfo, loading, error } = useEventResults(eventId);
+  const { results, loading, error } = useEventResults(eventId);
 
   const filteredResults = useMemo(() => {
     return results.filter((result) => {

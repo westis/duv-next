@@ -67,7 +67,21 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       results: formattedResults,
-      eventInfo: data.EvtHeader,
+      eventInfo: {
+        EvtID: data.EvtHeader.EvtID,
+        EvtName: data.EvtHeader.EvtName,
+        EvtDate: data.EvtHeader.EvtDate,
+        City: data.EvtHeader.City,
+        Country: data.EvtHeader.Country,
+        EvtDist: data.EvtHeader.EvtDist,
+        EvtType: data.EvtHeader.EvtType,
+        Resultsource: data.EvtHeader.Resultsource,
+        RecordedBy: data.EvtHeader.RecordedBy,
+        RecordEligible: data.EvtHeader.RecordEligible,
+        EvtDetailLink: data.EvtHeader.EvtDetailLink,
+        FinisherCnt: data.EvtHeader.FinisherCnt,
+        AltitudeDiff: data.EvtHeader.AltitudeDiff, // This might be undefined if not present
+      },
     });
   } catch (error: unknown) {
     console.error("Error fetching event results:", error);
