@@ -56,11 +56,22 @@ const columns: ResultColumn[] = [
   {
     accessorKey: "rank",
     header: "Rank",
-    cell: ({ row }) => {
-      const gender = row.original.sex;
+    cell: ({ row, table }) => {
+      const { gender, ageGroup } = table.options.meta as {
+        gender: string;
+        ageGroup: string;
+      };
+      const rankTotal = row.original.rank;
       const rankMW = row.original.rankMW;
       const rankCat = row.original.rankCat;
-      return <span>{gender ? rankMW : rankCat}</span>;
+
+      if (gender !== "All" && ageGroup !== "All") {
+        return rankCat;
+      } else if (gender !== "All") {
+        return rankMW;
+      } else {
+        return rankTotal;
+      }
     },
   },
   {
@@ -102,6 +113,9 @@ const columns: ResultColumn[] = [
   {
     accessorKey: "sex",
     header: "Sex",
+    cell: ({ row }) => (
+      <span className="hidden sm:inline">{row.getValue("sex")}</span>
+    ),
   },
   {
     accessorKey: "performanceNumeric",
@@ -153,6 +167,10 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting,
+    },
+    meta: {
+      gender,
+      ageGroup,
     },
   });
 
@@ -212,6 +230,7 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
           : row.original.yearOfBirth}
       </p>
       <p className="lg:hidden">Club: {row.original.club}</p>
+      <p className="sm:hidden">Sex: {row.original.sex}</p>
       <p>Age Grade Performance: {row.original.ageGradePerf}</p>
       <p>Category: {row.original.cat}</p>
       <p>Category Rank: {row.original.rankCat}</p>
@@ -227,8 +246,8 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
       <div className="flex flex-col gap-4 py-4 px-4">
         <div className="flex flex-wrap gap-4">
           <Select value={gender} onValueChange={handleGenderChange}>
-            <SelectTrigger className="w-[135px]">
-              <SelectValue placeholder="Select gender" />
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Gender" />
             </SelectTrigger>
             <SelectContent>
               {genders.map((g) => (
@@ -239,8 +258,8 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
             </SelectContent>
           </Select>
           <Select value={ageGroup} onValueChange={handleAgeGroupChange}>
-            <SelectTrigger className="w-[135px]">
-              <SelectValue placeholder="Select age group" />
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Age Group" />
             </SelectTrigger>
             <SelectContent>
               {sortedAgeGroups.map((ag) => (
@@ -292,6 +311,8 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
                         ? "hidden md:table-cell"
                         : header.column.id === "club"
                         ? "hidden lg:table-cell"
+                        : header.column.id === "sex"
+                        ? "hidden sm:table-cell"
                         : ""
                     }
                   >
@@ -320,6 +341,8 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
                             ? "hidden md:table-cell"
                             : cell.column.id === "club"
                             ? "hidden lg:table-cell"
+                            : cell.column.id === "sex"
+                            ? "hidden sm:table-cell"
                             : ""
                         }
                       >
