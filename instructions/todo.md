@@ -28,7 +28,12 @@
    }   ```
 
    Until this change is implemented, we'll need to use a placeholder calculation for the total number of events.
+
    ````
+
+7. **Update mgetresultperson.json response**: Request the API developer to include the following additional information in the response:
+   - Add `Firstname` and `Lastname` fields to the `PersonHeader` object.
+   - Include `Rank` information in the `CompTable` array for each event participation.
 
 ### Temporary Workarounds
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -39,9 +39,22 @@ export default function PerformancesTable({
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
     {}
   );
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const initialExpandedState = performances.reduce((acc, yearPerf) => {
+      acc[yearPerf.Year] = true;
+      return acc;
+    }, {} as Record<string, boolean>);
+    setExpandedYears(initialExpandedState);
+  }, [performances]);
 
   const toggleYear = (year: string) => {
     setExpandedYears((prev) => ({ ...prev, [year]: !prev[year] }));
+  };
+
+  const toggleRow = (rowId: string) => {
+    setExpandedRows((prev) => ({ ...prev, [rowId]: !prev[rowId] }));
   };
 
   return (
@@ -71,26 +84,83 @@ export default function PerformancesTable({
                 <TableRow>
                   <TableHead>Date</TableHead>
                   <TableHead>Event</TableHead>
-                  <TableHead>Distance</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Distance
+                  </TableHead>
                   <TableHead>Performance</TableHead>
-                  <TableHead>Overall Rank</TableHead>
-                  <TableHead>Gender Rank</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Category Rank</TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Overall Rank
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Gender Rank
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Category
+                  </TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Category Rank
+                  </TableHead>
+                  <TableHead>More</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {yearPerf.PerfsPerYear.map((perf, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{perf.EvtDate}</TableCell>
-                    <TableCell>{perf.EvtName}</TableCell>
-                    <TableCell>{perf.EvtDist}</TableCell>
-                    <TableCell>{perf.Perf}</TableCell>
-                    <TableCell>{perf.RankOverall}</TableCell>
-                    <TableCell>{perf.RankMW}</TableCell>
-                    <TableCell>{perf.Cat}</TableCell>
-                    <TableCell>{perf.RankCat}</TableCell>
-                  </TableRow>
+                  <React.Fragment key={index}>
+                    <TableRow>
+                      <TableCell>{perf.EvtDate}</TableCell>
+                      <TableCell>{perf.EvtName}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {perf.EvtDist}
+                      </TableCell>
+                      <TableCell>{perf.Perf}</TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {perf.RankOverall}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {perf.RankMW}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {perf.Cat}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {perf.RankCat}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleRow(`${yearPerf.Year}-${index}`)}
+                        >
+                          {expandedRows[`${yearPerf.Year}-${index}`] ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                    {expandedRows[`${yearPerf.Year}-${index}`] && (
+                      <TableRow>
+                        <TableCell colSpan={9}>
+                          <div className="p-2">
+                            <p className="md:hidden">
+                              Distance: {perf.EvtDist}
+                            </p>
+                            <p className="lg:hidden">
+                              Overall Rank: {perf.RankOverall}
+                            </p>
+                            <p className="lg:hidden">
+                              Gender Rank: {perf.RankMW}
+                            </p>
+                            <p className="md:hidden">Category: {perf.Cat}</p>
+                            <p className="md:hidden">
+                              Category Rank: {perf.RankCat}
+                            </p>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
                 ))}
               </TableBody>
             </Table>

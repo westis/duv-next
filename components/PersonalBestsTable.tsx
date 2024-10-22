@@ -11,29 +11,36 @@ import {
 } from "@/components/ui/table";
 
 interface PersonalBest {
-  PB: string;
-  [year: string]:
-    | {
-        Perf: string;
-        RankIntNat: string;
-      }
-    | string;
-}
-
-interface PBEntry {
-  [distance: string]: PersonalBest;
+  [distance: string]: {
+    PB: string;
+    [year: string]:
+      | {
+          Perf: string;
+          RankIntNat: string;
+        }
+      | string;
+  };
 }
 
 export default function PersonalBestsTable({
   personalBests,
 }: {
-  personalBests: PBEntry[];
+  personalBests: PersonalBest[];
 }) {
-  const distances = personalBests.map((pb) => Object.keys(pb)[0]);
-  const firstPB = personalBests[0][distances[0]];
-  const years = Object.keys(firstPB)
-    .filter((key) => key !== "PB")
-    .sort((a, b) => Number(b) - Number(a)); // Sort years in descending order
+  const allYears = new Set<string>();
+  personalBests.forEach((pb) => {
+    Object.values(pb).forEach((distanceData) => {
+      Object.keys(distanceData).forEach((key) => {
+        if (key !== "PB" && !isNaN(Number(key))) {
+          allYears.add(key);
+        }
+      });
+    });
+  });
+
+  const sortedYears = Array.from(allYears).sort(
+    (a, b) => Number(b) - Number(a)
+  );
 
   return (
     <div className="overflow-x-auto">
@@ -46,7 +53,7 @@ export default function PersonalBestsTable({
             <TableHead className="bg-primary text-primary-foreground">
               PB
             </TableHead>
-            {years.map((year) => (
+            {sortedYears.map((year) => (
               <TableHead
                 key={year}
                 className="bg-primary text-primary-foreground"
@@ -57,30 +64,28 @@ export default function PersonalBestsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {personalBests.map((pbEntry, index) => {
-            const distance = Object.keys(pbEntry)[0];
-            const pbData = pbEntry[distance];
+          {personalBests.map((pb, index) => {
+            const distance = Object.keys(pb)[0];
+            const distanceData = pb[distance];
             return (
               <TableRow key={index} className="hover:bg-muted">
                 <TableCell className="font-medium">{distance}</TableCell>
                 <TableCell className="font-bold text-accent">
-                  {pbData.PB}
+                  {distanceData.PB}
                 </TableCell>
-                {years.map((year) => (
+                {sortedYears.map((year) => (
                   <TableCell key={year}>
-                    {pbData[year] && typeof pbData[year] === "object" ? (
+                    {distanceData[year] &&
+                    typeof distanceData[year] === "object" ? (
                       <div>
                         <span className="font-medium">
-                          {(pbData[year] as { Perf: string }).Perf}
+                          {(distanceData[year] as { Perf: string }).Perf}
                         </span>
                         <br />
                         <span className="text-xs text-muted-foreground">
                           {
-                            (
-                              pbData[year] as {
-                                RankIntNat: string;
-                              }
-                            ).RankIntNat
+                            (distanceData[year] as { RankIntNat: string })
+                              .RankIntNat
                           }
                         </span>
                       </div>

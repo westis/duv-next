@@ -27,13 +27,34 @@ export default function RunnerPage({
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3 mb-4">
-          <TabsTrigger value="performances" className="text-lg font-semibold">
+          <TabsTrigger
+            value="performances"
+            className={`text-xs sm:text-sm md:text-base lg:text-lg font-semibold ${
+              activeTab === "performances"
+                ? "bg-primary text-primary-foreground"
+                : ""
+            }`}
+          >
             Performances
           </TabsTrigger>
-          <TabsTrigger value="personalBests" className="text-lg font-semibold">
+          <TabsTrigger
+            value="personalBests"
+            className={`text-xs sm:text-sm md:text-base lg:text-lg font-semibold ${
+              activeTab === "personalBests"
+                ? "bg-primary text-primary-foreground"
+                : ""
+            }`}
+          >
             Personal Bests
           </TabsTrigger>
-          <TabsTrigger value="comparisons" className="text-lg font-semibold">
+          <TabsTrigger
+            value="comparisons"
+            className={`text-xs sm:text-sm md:text-base lg:text-lg font-semibold ${
+              activeTab === "comparisons"
+                ? "bg-primary text-primary-foreground"
+                : ""
+            }`}
+          >
             Race Comparisons
           </TabsTrigger>
         </TabsList>
