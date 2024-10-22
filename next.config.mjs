@@ -8,6 +8,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    domains: ["statistik.d-u-v.org"],
+  },
 };
 
 export default nextConfig;

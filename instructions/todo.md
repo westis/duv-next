@@ -32,8 +32,74 @@
    ````
 
 7. **Update mgetresultperson.json response**: Request the API developer to include the following additional information in the response:
+
    - Add `Firstname` and `Lastname` fields to the `PersonHeader` object.
    - Include `Rank` information in the `CompTable` array for each event participation.
+   - Add `PerformanceNumeric` field to allow for easier sorting and comparison of performances.
+
+8. **Standardize date format across all endpoints**:
+
+   - Decide on a standard date format to be used consistently across all API endpoints (e.g., ISO 8601 format: YYYY-MM-DD).
+   - Alternatively, consider providing separate fields for day, month, and year to allow for flexible formatting on the client side.
+   - Ensure this standardized format is implemented in all relevant API responses, including but not limited to:
+     - mgetresultperson.php
+     - mcalendar.php
+     - Any other endpoints that return date information
+
+9. **Implement pagination metadata**:
+
+   - Add pagination metadata to all endpoints that return lists of items.
+   - Include fields such as `totalItems`, `totalPages`, `currentPage`, and `itemsPerPage` in the response.
+   - This will allow for more efficient client-side pagination and improve overall performance.
+
+10. **Use consistent naming conventions**:
+
+    - Standardize field names across all endpoints (e.g., use camelCase or snake_case consistently).
+    - Ensure that similar data is represented with the same field names across different endpoints.
+
+11. **Implement HATEOAS principles**:
+
+    - Include hyperlinks in API responses to related resources.
+    - This will make the API more discoverable and easier to navigate.
+
+12. **Add versioning to the API**:
+
+    - Implement API versioning (e.g., /v1/, /v2/) to allow for future updates without breaking existing integrations.
+
+13. **Implement proper HTTP status codes**:
+
+    - Ensure that appropriate HTTP status codes are used for different scenarios (e.g., 200 for success, 404 for not found, 400 for bad request, etc.).
+
+14. **Add rate limiting**:
+
+    - Implement rate limiting to prevent abuse and ensure fair usage of the API.
+    - Include rate limit information in the response headers.
+
+15. **Implement proper CORS headers**:
+
+    - Ensure that proper CORS headers are set to allow secure cross-origin requests.
+
+16. **Add an endpoint for fetching event types**:
+
+    - Create a new endpoint that returns a list of all possible event types.
+    - This will allow for dynamic population of event type filters in the frontend.
+
+17. **Implement field selection**:
+
+    - Allow clients to specify which fields they want to be returned in the response.
+    - This can help reduce payload size and improve performance for clients that don't need all the data.
+
+18. **Add support for bulk operations**:
+
+    - Implement endpoints that allow for bulk creation, updating, or deletion of resources where applicable.
+
+19. **Implement proper caching headers**:
+
+    - Add appropriate caching headers to responses to improve performance and reduce server load.
+
+20. **Create a comprehensive API documentation**:
+    - Develop a detailed API documentation using a standard format like OpenAPI (Swagger).
+    - Include examples, all possible parameters, and response formats for each endpoint.
 
 ### Temporary Workarounds
 
