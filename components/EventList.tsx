@@ -59,7 +59,7 @@ export default function EventList() {
     [searchParams]
   );
   const initialEventsPerPage = useCallback(
-    () => Number(searchParams.get("perpage")) || 20,
+    () => Number(searchParams.get("perpage")) || 10,
     [searchParams]
   );
   const initialCountry = useCallback(
@@ -83,7 +83,7 @@ export default function EventList() {
   const [sortOrder, setSortOrder] = useState(initialSortOrder());
   const [layout, setLayout] = useState<
     "large" | "normal" | "compact" | "table"
-  >("normal");
+  >("table");
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const filters = {

@@ -49,7 +49,7 @@ export async function GET(request: Request) {
   const country = searchParams.get("country");
   const rproof = searchParams.get("rproof");
   const norslt = searchParams.get("norslt");
-  const perpage = searchParams.get("perpage") || "20";
+  const perpage = searchParams.get("perpage") || "10";
   const page = searchParams.get("page") || "1";
 
   // Validate parameters

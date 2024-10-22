@@ -33,7 +33,6 @@ export function useEventsFetcher(filters: Filters) {
   const [totalPages, setTotalPages] = useState(1);
   const [totalEvents, setTotalEvents] = useState(0);
 
-  const [isPageChange, setIsPageChange] = useState(false);
   const previousEvents = useRef<Event[]>([]);
   const previousFilters = useRef<Filters | null>(null);
 
@@ -65,14 +64,7 @@ export function useEventsFetcher(filters: Filters) {
         throw new Error("Received data is not an array");
       }
 
-      if (isPageChange) {
-        // If it's a page change, update the events immediately
-        setEvents(data.events);
-      } else {
-        // For other changes, keep the old data until new data is ready
-        previousEvents.current = events;
-        setEvents(data.events);
-      }
+      setEvents(data.events);
       setTotalPages(data.totalPages);
       setTotalEvents(data.totalEvents);
     } catch (err: unknown) {
@@ -81,7 +73,6 @@ export function useEventsFetcher(filters: Filters) {
       console.error("Error details:", err);
     } finally {
       setLoading(false);
-      setIsPageChange(false);
     }
   }, [
     eventType,
@@ -92,37 +83,18 @@ export function useEventsFetcher(filters: Filters) {
     recordEligible,
     withoutResults,
     sortOrder,
-    isPageChange,
-    events, // Add events to the dependency array
   ]);
 
   useEffect(() => {
-    if (
-      previousFilters.current &&
-      JSON.stringify(previousFilters.current) === JSON.stringify(filters)
-    ) {
-      return;
+    if (JSON.stringify(previousFilters.current) !== JSON.stringify(filters)) {
+      previousFilters.current = { ...filters };
+      previousEvents.current = events;
+      fetchEvents();
     }
-
-    // Check if only the page number has changed
-    const onlyPageChanged =
-      previousFilters.current &&
-      Object.keys(filters).every((key) => {
-        if (key === "currentPage") return true;
-        return (
-          previousFilters.current?.[key as keyof Filters] ===
-          filters[key as keyof Filters]
-        );
-      });
-
-    setIsPageChange(!!onlyPageChanged);
-    previousFilters.current = { ...filters };
-
-    fetchEvents();
-  }, [filters, fetchEvents]);
+  }, [filters, fetchEvents, events]);
 
   return {
-    events: isPageChange ? previousEvents.current : events,
+    events: loading ? previousEvents.current : events,
     loading,
     error,
     totalPages,
