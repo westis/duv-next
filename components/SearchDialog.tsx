@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, KeyboardEvent } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { User, Calendar, MapPin, Users, Clock } from "lucide-react";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type SearchResult = {
   type: "runner" | "event";
@@ -46,16 +47,43 @@ export function SearchDialog({
   loading,
   totalHits,
 }: SearchDialogProps) {
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const router = useRouter();
+
   const runners = searchResults.filter((result) => result.type === "runner");
   const events = searchResults.filter((result) => result.type === "event");
 
-  const handleLinkClick = () => {
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [searchResults]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) =>
+        prev < searchResults.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === "Enter" && selectedIndex >= 0) {
+      e.preventDefault();
+      handleResultClick(searchResults[selectedIndex]);
+    }
+  };
+
+  const handleResultClick = (result: SearchResult) => {
     onOpenChange(false);
+    const path =
+      result.type === "runner"
+        ? `/runners/${result.id}`
+        : `/events/${result.id}/results`;
+    router.push(path);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" onKeyDown={handleKeyDown}>
         <VisuallyHidden>
           <DialogTitle>Search runners and events</DialogTitle>
         </VisuallyHidden>
@@ -92,14 +120,16 @@ export function SearchDialog({
                       <div className="p-2 font-medium bg-gray-50 border-b dark:bg-gray-800 dark:text-gray-200">
                         Runners
                       </div>
-                      {runners.map((runner) => {
+                      {runners.map((runner, index) => {
                         const [nationality, yob] = runner.details.split(", ");
+                        const isSelected = index === selectedIndex;
                         return (
-                          <Link
+                          <div
                             key={runner.id}
-                            href={`/runners/${runner.id}`}
-                            className="block p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700"
-                            onClick={handleLinkClick}
+                            onClick={() => handleResultClick(runner)}
+                            className={`block p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
+                              isSelected ? "bg-gray-100 dark:bg-gray-600" : ""
+                            }`}
                           >
                             <div className="flex flex-col">
                               <div className="flex items-center">
@@ -130,7 +160,7 @@ export function SearchDialog({
                                 )}
                               </div>
                             </div>
-                          </Link>
+                          </div>
                         );
                       })}
                     </div>
@@ -140,14 +170,17 @@ export function SearchDialog({
                       <div className="p-2 font-medium bg-gray-50 border-b dark:bg-gray-800 dark:text-gray-200">
                         Events
                       </div>
-                      {events.map((event) => {
+                      {events.map((event, index) => {
                         const [date, location] = event.details.split(" • ");
+                        const isSelected =
+                          index + runners.length === selectedIndex;
                         return (
-                          <Link
+                          <div
                             key={event.id}
-                            href={`/events/${event.id}/results`}
-                            className="block p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700"
-                            onClick={handleLinkClick}
+                            onClick={() => handleResultClick(event)}
+                            className={`block p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
+                              isSelected ? "bg-gray-100 dark:bg-gray-600" : ""
+                            }`}
                           >
                             <div className="flex flex-col">
                               <div className="flex items-center">
@@ -163,7 +196,7 @@ export function SearchDialog({
                                 <span>{location}</span>
                               </div>
                             </div>
-                          </Link>
+                          </div>
                         );
                       })}
                     </div>

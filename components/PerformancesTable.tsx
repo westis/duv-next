@@ -57,7 +57,7 @@ export default function PerformancesTable({
         <div key={index} className="border rounded-lg overflow-hidden">
           <div
             onClick={() => toggleYear(yearPerf.Year)}
-            className="w-full flex justify-between items-center p-3 bg-primary text-primary-foreground cursor-pointer"
+            className="w-full flex justify-between items-center p-3 bg-gray-200 dark:bg-gray-800 cursor-pointer"
           >
             <span className="font-bold">
               {yearPerf.Year} ({yearPerf.EvtCnt} events, {yearPerf.KmSum})
@@ -71,11 +71,11 @@ export default function PerformancesTable({
             />
           </div>
           {expandedYears.includes(yearPerf.Year) && (
-            <div className="p-2 space-y-3 bg-secondary/50">
+            <div className="p-2 space-y-3 bg-gray-200 dark:bg-gray-800">
               {yearPerf.PerfsPerYear.map((perf, perfIndex) => (
                 <div
                   key={perfIndex}
-                  className="border rounded-md p-2 bg-background"
+                  className="border rounded-md p-2 bg-background/80"
                 >
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">
