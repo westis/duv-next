@@ -147,6 +147,7 @@ export default function EventList() {
 
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const isMediumScreen = useMediaQuery("(min-width: 768px)");
+  const isMobileScreen = useMediaQuery("(max-width: 640px)");
 
   return (
     <div className="space-y-4">
@@ -283,69 +284,29 @@ export default function EventList() {
         </div>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0">
         <div className="text-sm text-muted-foreground">
           Showing {(currentPage - 1) * eventsPerPage + 1}-
           {Math.min(currentPage * eventsPerPage, totalEvents)} of {totalEvents}{" "}
           events
         </div>
 
-        <Pagination className="justify-end">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handlePageChange(Math.max(1, currentPage - 1));
-                }}
-                aria-disabled={currentPage === 1}
-              />
-            </PaginationItem>
-            {totalPages <= 7 ? (
-              [...Array(totalPages)].map((_, index) => (
-                <PaginationItem key={index + 1}>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(index + 1);
-                    }}
-                    isActive={currentPage === index + 1}
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))
-            ) : (
-              <>
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(1);
-                    }}
-                    isActive={currentPage === 1}
-                  >
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                {currentPage > 3 && <PaginationEllipsis />}
-                {currentPage > 2 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(currentPage - 1);
-                      }}
-                    >
-                      {currentPage - 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
-                {currentPage !== 1 && currentPage !== totalPages && (
+        <div className="sm:ml-auto">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(Math.max(1, currentPage - 1));
+                  }}
+                  aria-disabled={currentPage === 1}
+                />
+              </PaginationItem>
+              {isMobileScreen ? (
+                // Simplified mobile pagination
+                <>
                   <PaginationItem>
                     <PaginationLink
                       href="#"
@@ -358,47 +319,119 @@ export default function EventList() {
                       {currentPage}
                     </PaginationLink>
                   </PaginationItem>
-                )}
-                {currentPage < totalPages - 1 && (
                   <PaginationItem>
                     <PaginationLink
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        handlePageChange(currentPage + 1);
+                        handlePageChange(Math.min(totalPages, currentPage + 1));
                       }}
                     >
-                      {currentPage + 1}
+                      {Math.min(totalPages, currentPage + 1)}
                     </PaginationLink>
                   </PaginationItem>
-                )}
-                {currentPage < totalPages - 2 && <PaginationEllipsis />}
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(totalPages);
-                    }}
-                    isActive={currentPage === totalPages}
-                  >
-                    {totalPages}
-                  </PaginationLink>
-                </PaginationItem>
-              </>
-            )}
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handlePageChange(Math.min(totalPages, currentPage + 1));
-                }}
-                aria-disabled={currentPage === totalPages}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+                  {currentPage < totalPages - 1 && <PaginationEllipsis />}
+                </>
+              ) : totalPages <= 7 ? (
+                // Desktop pagination for 7 or fewer pages
+                [...Array(totalPages)].map((_, index) => (
+                  <PaginationItem key={index + 1}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(index + 1);
+                      }}
+                      isActive={currentPage === index + 1}
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))
+              ) : (
+                // Desktop pagination for more than 7 pages
+                <>
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(1);
+                      }}
+                      isActive={currentPage === 1}
+                    >
+                      1
+                    </PaginationLink>
+                  </PaginationItem>
+                  {currentPage > 3 && <PaginationEllipsis />}
+                  {currentPage > 2 && (
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage - 1);
+                        }}
+                      >
+                        {currentPage - 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+                  {currentPage !== 1 && currentPage !== totalPages && (
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage);
+                        }}
+                        isActive
+                      >
+                        {currentPage}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+                  {currentPage < totalPages - 1 && (
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(currentPage + 1);
+                        }}
+                      >
+                        {currentPage + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+                  {currentPage < totalPages - 2 && <PaginationEllipsis />}
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(totalPages);
+                      }}
+                      isActive={currentPage === totalPages}
+                    >
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
+                </>
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(Math.min(totalPages, currentPage + 1));
+                  }}
+                  aria-disabled={currentPage === totalPages}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
     </div>
   );
