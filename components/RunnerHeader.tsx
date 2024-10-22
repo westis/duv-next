@@ -37,6 +37,28 @@ interface RunnerInfo {
 export function RunnerHeader({ runnerInfo }: { runnerInfo: RunnerInfo }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const additionalInfo = Object.entries(runnerInfo).filter(([key, value]) => {
+    return (
+      ![
+        "PersonName",
+        "Club",
+        "Residence",
+        "NationalityShort",
+        "NationalityLong",
+        "YOB",
+        "DOB",
+        "CatNAT",
+        "CatINT",
+        "TotalEvtCnt",
+        "TotalKm",
+        "Flag",
+        "SearchRslts",
+      ].includes(key) &&
+      value !== "" &&
+      value !== "&nbsp;"
+    );
+  });
+
   return (
     <Card className="mb-8">
       <CardHeader className="bg-yellow-500 text-black p-2 sm:p-3">
@@ -104,49 +126,31 @@ export function RunnerHeader({ runnerInfo }: { runnerInfo: RunnerInfo }) {
           </div>
         </div>
 
-        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-          <CollapsibleTrigger className="flex items-center justify-center w-full py-2 text-sm font-medium text-yellow-600 dark:text-yellow-500 hover:underline">
-            {isExpanded ? (
-              <>
-                <ChevronUp className="w-4 h-4 mr-2" />
-                Hide additional information
-              </>
-            ) : (
-              <>
-                <ChevronDown className="w-4 h-4 mr-2" />
-                Show additional information
-              </>
-            )}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 mt-4">
-            {Object.entries(runnerInfo).map(([key, value]) => {
-              if (
-                ![
-                  "PersonName",
-                  "Club",
-                  "Residence",
-                  "NationalityShort",
-                  "NationalityLong",
-                  "YOB",
-                  "DOB",
-                  "CatNAT",
-                  "CatINT",
-                  "TotalEvtCnt",
-                  "TotalKm",
-                  "Flag",
-                ].includes(key)
-              ) {
-                return (
-                  <div key={key} className="flex justify-between">
-                    <span className="font-medium">{key}:</span>
-                    <span>{value}</span>
-                  </div>
-                );
-              }
-              return null;
-            })}
-          </CollapsibleContent>
-        </Collapsible>
+        {additionalInfo.length > 0 && (
+          <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+            <CollapsibleTrigger className="flex items-center justify-center w-full py-2 text-sm font-medium text-yellow-600 dark:text-yellow-500 hover:underline">
+              {isExpanded ? (
+                <>
+                  <ChevronUp className="w-4 h-4 mr-2" />
+                  Hide additional information
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4 mr-2" />
+                  Show additional information
+                </>
+              )}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-2 mt-4">
+              {additionalInfo.map(([key, value]) => (
+                <div key={key} className="flex justify-between">
+                  <span className="font-medium">{key}:</span>
+                  <span>{value}</span>
+                </div>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+        )}
       </CardContent>
     </Card>
   );

@@ -22,9 +22,16 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
+    // Filter out empty fields and SearchRslts from PersonHeader
+    const filteredPersonHeader = Object.fromEntries(
+      Object.entries(data.PersonHeader).filter(([key, value]) => {
+        return key !== "SearchRslts" && value !== "" && value !== "&nbsp;";
+      })
+    );
+
     // Transform the data to match the expected structure
     const transformedData = {
-      PersonHeader: data.PersonHeader,
+      PersonHeader: filteredPersonHeader,
       AllPerfs: data.AllPerfs,
       AllPBs: data.AllPBs,
       CompTable: data.CompTable,

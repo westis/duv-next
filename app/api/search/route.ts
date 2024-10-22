@@ -36,20 +36,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [], totalHits: 0 });
   }
 
-  const formattedQuery = query.replace(/\s+/g, ",");
-  console.log(`API Route - Search query: ${formattedQuery}, Type: ${type}`);
+  console.log(`API Route - Search query: ${query}, Type: ${type}`);
 
   let results: SearchResult[] = [];
   let totalHits = 0;
 
   if (type === "all" || type === "runner") {
-    const runnerResults = await searchRunners(formattedQuery);
+    const runnerResults = await searchRunners(query);
     results = [...results, ...runnerResults.results];
     totalHits += runnerResults.totalHits;
   }
 
   if (type === "all" || type === "event") {
-    const eventResults = await searchEvents(formattedQuery);
+    const eventResults = await searchEvents(query);
     results = [...results, ...eventResults.results];
     totalHits += eventResults.totalHits;
   }
@@ -73,9 +72,8 @@ export async function GET(request: NextRequest) {
 async function searchRunners(
   query: string
 ): Promise<{ results: SearchResult[]; totalHits: number }> {
-  const url = `https://statistik.d-u-v.org/json/msearchrunner.php?sname=${encodeURIComponent(
-    query
-  )}&plain=1&Language=EN`;
+  const encodedQuery = query.replace(/\s+/g, "+");
+  const url = `https://statistik.d-u-v.org/json/msearchrunner.php?sname=${encodedQuery}&plain=1&Language=EN`;
   console.log(`Fetching runners from: ${url}`);
   try {
     const response = await fetch(url);
@@ -100,9 +98,8 @@ async function searchRunners(
 async function searchEvents(
   query: string
 ): Promise<{ results: SearchResult[]; totalHits: number }> {
-  const url = `https://statistik.d-u-v.org/json/msearchevent.php?sname=${encodeURIComponent(
-    query
-  )}&plain=1&Language=EN`;
+  const encodedQuery = query.replace(/\s+/g, "+");
+  const url = `https://statistik.d-u-v.org/json/msearchevent.php?sname=${encodedQuery}&plain=1&Language=EN`;
   console.log(`Fetching events from: ${url}`);
   try {
     const response = await fetch(url);

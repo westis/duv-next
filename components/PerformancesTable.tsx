@@ -1,19 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface Performance {
   EvtDate: string;
+  EvtID: string;
   EvtName: string;
   EvtDist: string;
   Perf: string;
@@ -36,134 +29,89 @@ export default function PerformancesTable({
 }: {
   performances: YearPerformances[];
 }) {
-  const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [expandedYears, setExpandedYears] = useState<string[]>([]);
+  const [expandedEvents, setExpandedEvents] = useState<string[]>([]);
 
   useEffect(() => {
-    const initialExpandedState = performances.reduce((acc, yearPerf) => {
-      acc[yearPerf.Year] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
-    setExpandedYears(initialExpandedState);
+    // Expand all years by default
+    setExpandedYears(performances.map((perf) => perf.Year));
   }, [performances]);
 
   const toggleYear = (year: string) => {
-    setExpandedYears((prev) => ({ ...prev, [year]: !prev[year] }));
+    setExpandedYears((prev) =>
+      prev.includes(year) ? prev.filter((y) => y !== year) : [...prev, year]
+    );
   };
 
-  const toggleRow = (rowId: string) => {
-    setExpandedRows((prev) => ({ ...prev, [rowId]: !prev[rowId] }));
+  const toggleEvent = (eventId: string) => {
+    setExpandedEvents((prev) =>
+      prev.includes(eventId)
+        ? prev.filter((id) => id !== eventId)
+        : [...prev, eventId]
+    );
   };
 
   return (
     <div className="space-y-4">
-      {performances.map((yearPerf) => (
-        <div key={yearPerf.Year} className="border rounded-lg overflow-hidden">
+      {performances.map((yearPerf, index) => (
+        <div key={index} className="border rounded-lg overflow-hidden">
           <div
-            className="bg-gray-100 dark:bg-gray-800 p-4 flex justify-between items-center cursor-pointer"
             onClick={() => toggleYear(yearPerf.Year)}
+            className="w-full flex justify-between items-center p-3 bg-primary text-primary-foreground cursor-pointer"
           >
-            <h3 className="text-lg font-semibold">{yearPerf.Year}</h3>
-            <div className="flex items-center space-x-4">
-              <span>Events: {yearPerf.EvtCnt}</span>
-              <span>Total: {yearPerf.KmSum}</span>
-              <Button variant="ghost" size="sm">
-                {expandedYears[yearPerf.Year] ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            <span className="font-bold">
+              {yearPerf.Year} ({yearPerf.EvtCnt} events, {yearPerf.KmSum})
+            </span>
+            <ChevronDown
+              className={`w-5 h-5 transition-transform ${
+                expandedYears.includes(yearPerf.Year)
+                  ? "transform rotate-180"
+                  : ""
+              }`}
+            />
           </div>
-          {expandedYears[yearPerf.Year] && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Event</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Distance
-                  </TableHead>
-                  <TableHead>Performance</TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    Overall Rank
-                  </TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    Gender Rank
-                  </TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Category
-                  </TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Category Rank
-                  </TableHead>
-                  <TableHead>More</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {yearPerf.PerfsPerYear.map((perf, index) => (
-                  <React.Fragment key={index}>
-                    <TableRow>
-                      <TableCell>{perf.EvtDate}</TableCell>
-                      <TableCell>{perf.EvtName}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {perf.EvtDist}
-                      </TableCell>
-                      <TableCell>{perf.Perf}</TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {perf.RankOverall}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {perf.RankMW}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {perf.Cat}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {perf.RankCat}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleRow(`${yearPerf.Year}-${index}`)}
-                        >
-                          {expandedRows[`${yearPerf.Year}-${index}`] ? (
-                            <ChevronUp className="h-4 w-4" />
-                          ) : (
-                            <ChevronDown className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                    {expandedRows[`${yearPerf.Year}-${index}`] && (
-                      <TableRow>
-                        <TableCell colSpan={9}>
-                          <div className="p-2">
-                            <p className="md:hidden">
-                              Distance: {perf.EvtDist}
-                            </p>
-                            <p className="lg:hidden">
-                              Overall Rank: {perf.RankOverall}
-                            </p>
-                            <p className="lg:hidden">
-                              Gender Rank: {perf.RankMW}
-                            </p>
-                            <p className="md:hidden">Category: {perf.Cat}</p>
-                            <p className="md:hidden">
-                              Category Rank: {perf.RankCat}
-                            </p>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-            </Table>
+          {expandedYears.includes(yearPerf.Year) && (
+            <div className="p-2 space-y-3 bg-secondary/50">
+              {yearPerf.PerfsPerYear.map((perf, perfIndex) => (
+                <div
+                  key={perfIndex}
+                  className="border rounded-md p-2 bg-background"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">
+                      {perf.EvtName} ({perf.EvtDist})
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleEvent(perf.EvtID)}
+                    >
+                      <ChevronRight
+                        className={`w-5 h-5 transition-transform ${
+                          expandedEvents.includes(perf.EvtID)
+                            ? "transform rotate-90"
+                            : ""
+                        }`}
+                      />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap justify-between text-sm mt-1">
+                    <span>{perf.EvtDate}</span>
+                    <span className="font-bold">{perf.Perf}</span>
+                    <span>Overall: {perf.RankOverall}</span>
+                    <span>
+                      {perf.Gender}: {perf.RankMW}
+                    </span>
+                  </div>
+                  {expandedEvents.includes(perf.EvtID) && (
+                    <div className="mt-2 text-sm space-y-1 bg-muted p-2 rounded">
+                      <div>Category: {perf.Cat}</div>
+                      <div>Category Rank: {perf.RankCat}</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       ))}

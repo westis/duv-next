@@ -27,54 +27,23 @@ export default function RunnerPage({
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3 mb-4">
-          <TabsTrigger
-            value="performances"
-            className={`text-xs sm:text-sm md:text-base lg:text-lg font-semibold ${
-              activeTab === "performances"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
-          >
-            Performances
-          </TabsTrigger>
-          <TabsTrigger
-            value="personalBests"
-            className={`text-xs sm:text-sm md:text-base lg:text-lg font-semibold ${
-              activeTab === "personalBests"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
-          >
-            Personal Bests
-          </TabsTrigger>
-          <TabsTrigger
-            value="comparisons"
-            className={`text-xs sm:text-sm md:text-base lg:text-lg font-semibold ${
-              activeTab === "comparisons"
-                ? "bg-primary text-primary-foreground"
-                : ""
-            }`}
-          >
-            Race Comparisons
-          </TabsTrigger>
+          <TabsTrigger value="performances">Performances</TabsTrigger>
+          <TabsTrigger value="personalBests">Personal Bests</TabsTrigger>
+          <TabsTrigger value="comparisons">Race Comparisons</TabsTrigger>
         </TabsList>
         <TabsContent value="performances">
-          <Card className="bg-card border-t-4 border-t-primary shadow-none">
-            <CardContent className="p-2">
-              <PerformancesTable performances={runnerInfo.AllPerfs} />
-            </CardContent>
-          </Card>
+          <PerformancesTable performances={runnerInfo.AllPerfs} />
         </TabsContent>
         <TabsContent value="personalBests">
-          <Card className="bg-card border-t-4 border-t-secondary">
-            <CardContent className="p-2">
+          <Card>
+            <CardContent>
               <PersonalBestsTable personalBests={runnerInfo.AllPBs} />
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="comparisons">
-          <Card className="bg-card border-t-4 border-t-accent">
-            <CardContent className="p-2">
+          <Card>
+            <CardContent>
               <RaceComparisonsTable comparisons={runnerInfo.CompTable} />
             </CardContent>
           </Card>
