@@ -190,17 +190,21 @@ export default function EventList() {
             setLayout(value as "large" | "normal" | "compact" | "table")
           }
         >
+          <ToggleGroupItem value="table" aria-label="Table layout">
+            <TableIcon className="h-4 w-4" />
+            <span className="sr-only">Table layout</span>
+          </ToggleGroupItem>
           <ToggleGroupItem value="large" aria-label="Large layout">
             <Rows className="h-4 w-4" />
+            <span className="sr-only">Large layout</span>
           </ToggleGroupItem>
           <ToggleGroupItem value="normal" aria-label="Normal layout">
             <LayoutGrid className="h-4 w-4" />
+            <span className="sr-only">Normal layout</span>
           </ToggleGroupItem>
           <ToggleGroupItem value="compact" aria-label="Compact layout">
             <List className="h-4 w-4" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="table" aria-label="Table layout">
-            <TableIcon className="h-4 w-4" />
+            <span className="sr-only">Compact layout</span>
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
