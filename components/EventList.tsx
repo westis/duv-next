@@ -25,7 +25,16 @@ import {
 import { useEventsFetcher } from "@/hooks/useEventsFetcher";
 import { useUrlParamSync } from "@/hooks/useUrlParamSync";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { LayoutGrid, List, Rows } from "lucide-react";
+import { LayoutGrid, List, Rows, Table as TableIcon } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { shouldShowSurface } from "@/lib/eventUtils";
 
 export default function EventList() {
   const searchParams = useSearchParams();
@@ -72,9 +81,10 @@ export default function EventList() {
   const [recordEligible, setRecordEligible] = useState(false);
   const [withoutResults, setWithoutResults] = useState(false);
   const [sortOrder, setSortOrder] = useState(initialSortOrder());
-  const [layout, setLayout] = useState<"large" | "normal" | "compact">(
-    "normal"
-  );
+  const [layout, setLayout] = useState<
+    "large" | "normal" | "compact" | "table"
+  >("normal");
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const filters = {
     eventType,
@@ -87,7 +97,8 @@ export default function EventList() {
     sortOrder,
   };
 
-  const { events, loading, error, totalPages } = useEventsFetcher(filters);
+  const { events, loading, error, totalPages, totalEvents } =
+    useEventsFetcher(filters);
 
   useUrlParamSync(filters);
 
@@ -130,65 +141,29 @@ export default function EventList() {
     setCurrentPage(1);
   };
 
+  const toggleRowExpanded = useCallback((eventId: string) => {
+    setExpandedRows((prev) => ({ ...prev, [eventId]: !prev[eventId] }));
+  }, []);
+
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+  const isMediumScreen = useMediaQuery("(min-width: 768px)");
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <EventFilter
-          eventType={eventType}
-          onEventTypeChange={handleEventTypeChange}
-          dateRange={dateRange}
-          onDateRangeChange={handleDateRangeChange}
-          country={country}
-          onCountryChange={handleCountryChange}
-          recordEligible={recordEligible}
-          onRecordEligibleChange={handleRecordEligibleChange}
-          withoutResults={withoutResults}
-          onWithoutResultsChange={handleWithoutResultsChange}
-          sortOrder={sortOrder}
-          onSortOrderChange={handleSortOrderChange}
-        />
-        <ToggleGroup
-          type="single"
-          value={layout}
-          onValueChange={(value) =>
-            setLayout(value as "large" | "normal" | "compact")
-          }
-        >
-          <ToggleGroupItem value="large" aria-label="Large layout">
-            <Rows className="h-4 w-4" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="normal" aria-label="Normal layout">
-            <LayoutGrid className="h-4 w-4" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="compact" aria-label="Compact layout">
-            <List className="h-4 w-4" />
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-
-      {loading ? (
-        <div className="min-h-[200px] flex items-center justify-center">
-          Loading events...
-        </div>
-      ) : error ? (
-        <div className="min-h-[200px] flex items-center justify-center">
-          Error: {error}
-        </div>
-      ) : events.length === 0 ? (
-        <div className="min-h-[200px] flex items-center justify-center">
-          No events found.
-        </div>
-      ) : (
-        <div
-          className={
-            layout === "compact" ? "border rounded-lg divide-y" : "space-y-4"
-          }
-        >
-          {events.map((event) => (
-            <EventCard key={event.EventID} event={event} variant={layout} />
-          ))}
-        </div>
-      )}
+      <EventFilter
+        eventType={eventType}
+        onEventTypeChange={handleEventTypeChange}
+        dateRange={dateRange}
+        onDateRangeChange={handleDateRangeChange}
+        country={country}
+        onCountryChange={handleCountryChange}
+        recordEligible={recordEligible}
+        onRecordEligibleChange={handleRecordEligibleChange}
+        withoutResults={withoutResults}
+        onWithoutResultsChange={handleWithoutResultsChange}
+        sortOrder={sortOrder}
+        onSortOrderChange={handleSortOrderChange}
+      />
 
       <div className="flex justify-between items-center">
         <Select
@@ -207,7 +182,115 @@ export default function EventList() {
           </SelectContent>
         </Select>
 
-        <Pagination>
+        <ToggleGroup
+          type="single"
+          value={layout}
+          onValueChange={(value) =>
+            setLayout(value as "large" | "normal" | "compact" | "table")
+          }
+        >
+          <ToggleGroupItem value="large" aria-label="Large layout">
+            <Rows className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="normal" aria-label="Normal layout">
+            <LayoutGrid className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="compact" aria-label="Compact layout">
+            <List className="h-4 w-4" />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="table" aria-label="Table layout">
+            <TableIcon className="h-4 w-4" />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+
+      {loading ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          Loading events...
+        </div>
+      ) : error ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          Error: {error}
+        </div>
+      ) : events.length === 0 ? (
+        <div className="min-h-[200px] flex items-center justify-center">
+          No events found.
+        </div>
+      ) : layout === "table" ? (
+        <Table className="bg-background rounded border">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Event</TableHead>
+              <TableHead>Distance/Duration</TableHead>
+              <TableHead className="hidden md:table-cell">Surface</TableHead>
+              <TableHead className="hidden md:table-cell">Location</TableHead>
+              <TableHead className="hidden lg:table-cell">Labels</TableHead>
+              <TableHead>Results</TableHead>
+              {(!isLargeScreen || !isMediumScreen) && (
+                <TableHead>More</TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {events.map((event) => {
+              const hasExpandableContent: boolean =
+                !isLargeScreen &&
+                ((!isMediumScreen && Boolean(event.City || event.Country)) ||
+                  (!isMediumScreen && shouldShowSurface(event.EventType)) ||
+                  (!isLargeScreen && ["G", "S", "B"].includes(event.IAULabel)));
+
+              console.log(
+                `Event ${event.EventID} expandable:`,
+                hasExpandableContent,
+                {
+                  isLargeScreen,
+                  isMediumScreen,
+                  city: event.City,
+                  country: event.Country,
+                  showSurface: shouldShowSurface(event.EventType),
+                  iauLabel: event.IAULabel,
+                }
+              );
+
+              return (
+                <EventCard
+                  key={event.EventID}
+                  event={event}
+                  variant="table"
+                  isExpanded={!!expandedRows[event.EventID]}
+                  onToggleExpand={() => toggleRowExpanded(event.EventID)}
+                  hasExpandableContent={hasExpandableContent}
+                />
+              );
+            })}
+          </TableBody>
+        </Table>
+      ) : (
+        <div
+          className={
+            layout === "compact" ? "border rounded-lg divide-y" : "space-y-4"
+          }
+        >
+          {events.map((event) => (
+            <EventCard
+              key={event.EventID}
+              event={event}
+              variant={layout}
+              hasExpandableContent={false}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="flex justify-between items-center">
+        <div className="text-sm text-muted-foreground">
+          Showing {(currentPage - 1) * eventsPerPage + 1}-
+          {Math.min(currentPage * eventsPerPage, totalEvents)} of {totalEvents}{" "}
+          events
+        </div>
+
+        <Pagination className="justify-end">
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
@@ -249,20 +332,7 @@ export default function EventList() {
                   </PaginationLink>
                 </PaginationItem>
                 {currentPage > 3 && <PaginationEllipsis />}
-                {currentPage === totalPages && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(totalPages - 2);
-                      }}
-                    >
-                      {totalPages - 2}
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
-                {currentPage > 2 && currentPage < totalPages && (
+                {currentPage > 2 && (
                   <PaginationItem>
                     <PaginationLink
                       href="#"
@@ -289,7 +359,7 @@ export default function EventList() {
                     </PaginationLink>
                   </PaginationItem>
                 )}
-                {currentPage < totalPages - 1 && currentPage > 1 && (
+                {currentPage < totalPages - 1 && (
                   <PaginationItem>
                     <PaginationLink
                       href="#"
@@ -299,19 +369,6 @@ export default function EventList() {
                       }}
                     >
                       {currentPage + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
-                {currentPage === 1 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(3);
-                      }}
-                    >
-                      3
                     </PaginationLink>
                   </PaginationItem>
                 )}

@@ -298,7 +298,7 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
         )}
       </div>
 
-      <div className="">
+      <div className=" ">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

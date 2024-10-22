@@ -2,7 +2,14 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { InfoIcon, BarChartIcon, RulerIcon, ClockIcon } from "lucide-react";
+import {
+  InfoIcon,
+  BarChartIcon,
+  RulerIcon,
+  ClockIcon,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import {
   Event,
   getTypeColor,
@@ -16,19 +23,34 @@ import {
   shouldShowSurface,
 } from "@/lib/eventUtils";
 import Link from "next/link";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 interface EventCardProps {
   event: Event;
-  variant: "normal" | "compact" | "large";
+  variant: "normal" | "compact" | "large" | "table";
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+  hasExpandableContent?: boolean; // Make this optional
 }
 
-export function EventCard({ event, variant }: EventCardProps) {
+export function EventCard({
+  event,
+  variant,
+  isExpanded,
+  onToggleExpand,
+  hasExpandableContent = false, // Provide a default value
+}: EventCardProps) {
   const EventTypeIcon = getEventTypeIcon(mapEventType(event));
   const SurfaceIcon = getSurfaceIcon(mapEventType(event).surface);
+  const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+  const isMediumScreen = useMediaQuery("(min-width: 768px)");
+
+  const hasCategoryBadges = ["G", "S", "B"].includes(event.IAULabel);
 
   const renderCategoryBadges = () => (
     <div className="flex flex-wrap gap-1">
-      {["G", "S", "B"].includes(event.IAULabel) && (
+      {hasCategoryBadges && (
         <Badge
           className={`${
             iauLabelColors[event.IAULabel]
@@ -37,6 +59,7 @@ export function EventCard({ event, variant }: EventCardProps) {
           IAU {event.IAULabel}
         </Badge>
       )}
+      {/* Add UTMB and ITRA badges here if needed */}
     </div>
   );
 
@@ -107,6 +130,147 @@ export function EventCard({ event, variant }: EventCardProps) {
       )}
     </div>
   );
+
+  if (variant === "table") {
+    console.log(`Rendering event ${event.EventID}:`, {
+      hasExpandableContent,
+      isExpanded,
+      city: event.City,
+      country: event.Country,
+      showSurface: shouldShowSurface(event.EventType),
+      iauLabel: event.IAULabel,
+    });
+
+    return (
+      <>
+        <TableRow>
+          <TableCell>{event.Startdate}</TableCell>
+          <TableCell>
+            <Link
+              href={`/events/${event.EventID}`}
+              className="hover:underline text-foreground"
+            >
+              {event.EventName}
+            </Link>
+          </TableCell>
+          <TableCell>
+            {shouldShowDistanceOrDuration(event) && (
+              <Badge
+                variant="secondary"
+                className={`${getDurationLengthColor(
+                  event
+                )} text-xs px-2 py-1 rounded-full`}
+              >
+                {event.Length ? (
+                  <RulerIcon className="h-3 w-3 mr-1 inline" />
+                ) : (
+                  <ClockIcon className="h-3 w-3 mr-1 inline" />
+                )}
+                <span>{event.Length || event.Duration}</span>
+              </Badge>
+            )}
+            {getEventTypeLabel(mapEventType(event)) && (
+              <Badge
+                variant="secondary"
+                className={`${getTypeColor(
+                  event.EventType
+                )} text-xs px-2 py-1 rounded-full ml-1`}
+              >
+                {EventTypeIcon && (
+                  <EventTypeIcon className="h-3 w-3 mr-1 inline" />
+                )}
+                <span>{getEventTypeLabel(mapEventType(event))}</span>
+              </Badge>
+            )}
+          </TableCell>
+          <TableCell className="hidden md:table-cell">
+            {shouldShowSurface(event.EventType) && (
+              <Badge
+                variant="secondary"
+                className={`${getTypeColor(
+                  event.EventType
+                )} text-xs px-2 py-1 rounded-full`}
+              >
+                {SurfaceIcon && <SurfaceIcon className="h-3 w-3 mr-1 inline" />}
+                <span>{mapEventType(event).surface}</span>
+              </Badge>
+            )}
+          </TableCell>
+          <TableCell className="hidden md:table-cell">
+            {event.City},{" "}
+            <span className="text-muted-foreground">{event.Country}</span>
+          </TableCell>
+          <TableCell className="hidden lg:table-cell">
+            {renderCategoryBadges()}
+          </TableCell>
+          <TableCell>
+            {["C", "P", "S"].includes(event.Results) && (
+              <Button
+                size="sm"
+                className="hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
+                asChild
+              >
+                <Link
+                  href={`/events/${event.EventID}/results`}
+                  className="btn-link text-foreground"
+                >
+                  <BarChartIcon className="h-4 w-4 mr-1" /> Results
+                </Link>
+              </Button>
+            )}
+          </TableCell>
+          {hasExpandableContent && (
+            <TableCell>
+              <Button variant="ghost" size="sm" onClick={onToggleExpand}>
+                {isExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </Button>
+            </TableCell>
+          )}
+        </TableRow>
+        {isExpanded && hasExpandableContent && (
+          <TableRow>
+            <TableCell colSpan={hasExpandableContent ? 8 : 7}>
+              <div className="p-2">
+                {!isMediumScreen && (event.City || event.Country) && (
+                  <div className="md:hidden">
+                    Location: {event.City},{" "}
+                    <span className="text-muted-foreground">
+                      {event.Country}
+                    </span>
+                  </div>
+                )}
+                {!isMediumScreen && shouldShowSurface(event.EventType) && (
+                  <div className="md:hidden">
+                    Surface:{" "}
+                    <Badge
+                      variant="secondary"
+                      className={`${getTypeColor(
+                        event.EventType
+                      )} text-xs px-2 py-1 rounded-full`}
+                    >
+                      {SurfaceIcon && (
+                        <SurfaceIcon className="h-3 w-3 mr-1 inline" />
+                      )}
+                      <span>{mapEventType(event).surface}</span>
+                    </Badge>
+                  </div>
+                )}
+                {!isLargeScreen && ["G", "S", "B"].includes(event.IAULabel) && (
+                  <div className="lg:hidden">
+                    Labels: {renderCategoryBadges()}
+                  </div>
+                )}
+              </div>
+            </TableCell>
+          </TableRow>
+        )}
+      </>
+    );
+  }
 
   if (variant === "normal") {
     return (
@@ -211,7 +375,7 @@ export function EventCard({ event, variant }: EventCardProps) {
                   <h3 className="text-lg font-semibold text-foreground mr-2 mb-1">
                     {event.EventName}
                   </h3>
-                  {["G", "S", "B"].includes(event.IAULabel) && (
+                  {hasCategoryBadges && (
                     <Badge
                       className={`${
                         iauLabelColors[event.IAULabel]
@@ -220,22 +384,7 @@ export function EventCard({ event, variant }: EventCardProps) {
                       IAU {event.IAULabel}
                     </Badge>
                   )}
-                  {event.Results === "O" && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-yellow-200 text-yellow-800 ml-2"
-                    >
-                      Postponed
-                    </Badge>
-                  )}
-                  {event.Results === "R" && (
-                    <Badge
-                      variant="secondary"
-                      className="bg-red-200 text-red-800 ml-2"
-                    >
-                      Cancelled
-                    </Badge>
-                  )}
+                  {/* Additional badges can be added here */}
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 ">{renderEventBadges()}</div>

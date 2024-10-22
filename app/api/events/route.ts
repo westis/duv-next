@@ -24,18 +24,19 @@ async function fetchEvents(baseUrl: string, dist: string) {
   console.log("Raw response:", text.slice(0, 200) + "...");
   try {
     if (!text.trim() || text.trim() === "null") {
-      return [];
+      return { events: [], hitCount: 0, pagination: null };
     }
     const data = JSON.parse(text);
-    return data.Races
+    const events = data.Races
       ? data.Races.map((race: Record<string, unknown>) => ({
           ...race,
           Results: race.Results || "N", // Ensure Results field is always present
         }))
       : [];
+    return { events, hitCount: data.HitCnt || 0, pagination: data.Pagination };
   } catch (error) {
     console.error("Error parsing JSON:", error);
-    return [];
+    return { events: [], hitCount: 0, pagination: null };
   }
 }
 
@@ -49,6 +50,7 @@ export async function GET(request: Request) {
   const rproof = searchParams.get("rproof");
   const norslt = searchParams.get("norslt");
   const perpage = searchParams.get("perpage") || "20";
+  const page = searchParams.get("page") || "1";
 
   // Validate parameters
   if ((from && !to) || (!from && to)) {
@@ -70,7 +72,7 @@ export async function GET(request: Request) {
 
   const order = searchParams.get("order") || "asc";
 
-  let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?plain=1&perpage=${perpage}&Language=EN`;
+  let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?plain=1&perpage=${perpage}&page=${page}&Language=EN`;
 
   if (from && to) {
     baseUrl += `&from=${from}&to=${to}&order=${order}`;
@@ -85,11 +87,16 @@ export async function GET(request: Request) {
   const distValues: string[] = dist && dist !== "all" ? [dist] : ["all"];
 
   try {
-    const allEvents = await Promise.all(
+    const allEventsData = await Promise.all(
       distValues.map((dist) => fetchEvents(baseUrl, dist))
     );
 
-    const events = allEvents.flat();
+    const events = allEventsData.flatMap((data) => data.events);
+    const totalHitCount = allEventsData.reduce(
+      (sum, data) => sum + data.hitCount,
+      0
+    );
+    const pagination = allEventsData[0].pagination; // Assume all requests have the same pagination
 
     // Sort all events by date
     events.sort((a, b) => {
@@ -98,8 +105,15 @@ export async function GET(request: Request) {
         : new Date(b.Startdate).getTime() - new Date(a.Startdate).getTime();
     });
 
-    console.log(`Processed ${events.length} events`);
-    return NextResponse.json(events);
+    console.log(
+      `Processed ${totalHitCount} events, returning page ${pagination.CurrPage} of ${pagination.MaxPage}`
+    );
+    return NextResponse.json({
+      events: events,
+      totalEvents: totalHitCount,
+      totalPages: pagination.MaxPage,
+      currentPage: pagination.CurrPage,
+    });
   } catch (error: unknown) {
     console.error("Error fetching events:", error);
     return NextResponse.json(
