@@ -205,15 +205,11 @@ export default function EventList() {
         </ToggleGroup>
       </div>
 
-      {loading ? (
-        <div className="min-h-[200px] flex items-center justify-center">
-          Loading events...
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="min-h-[200px] flex items-center justify-center">
           Error: {error}
         </div>
-      ) : events.length === 0 ? (
+      ) : events.length === 0 && !loading ? (
         <div className="min-h-[200px] flex items-center justify-center">
           No events found.
         </div>
@@ -281,6 +277,12 @@ export default function EventList() {
               hasExpandableContent={false}
             />
           ))}
+        </div>
+      )}
+
+      {loading && (
+        <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
         </div>
       )}
 
