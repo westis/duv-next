@@ -66,7 +66,7 @@ export function EventFilter({
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="h-10">
+          <Button variant="outline" className="h-10" aria-label="More Filters">
             More Filters
           </Button>
         </PopoverTrigger>
@@ -78,7 +78,7 @@ export function EventFilter({
                 checked={recordEligible}
                 onCheckedChange={onRecordEligibleChange}
               />
-              <span>Record Eligible</span>
+              <label htmlFor="record-eligible">Record Eligible</label>
             </div>
             <div className="flex items-center space-x-2">
               <Switch
@@ -86,7 +86,7 @@ export function EventFilter({
                 checked={withoutResults}
                 onCheckedChange={onWithoutResultsChange}
               />
-              <span>Without Results</span>
+              <label htmlFor="without-results">Without Results</label>
             </div>
           </div>
         </PopoverContent>

@@ -24,7 +24,9 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Providers>
+            <header>{/* Add your header content here */}</header>
             <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            <footer>{/* Add your footer content here */}</footer>
           </Providers>
         </ThemeProvider>
       </body>

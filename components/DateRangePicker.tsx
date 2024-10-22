@@ -1,6 +1,14 @@
 import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addMonths, addYears, format, subMonths, subYears } from "date-fns";
+import {
+  addMonths,
+  addYears,
+  format,
+  subMonths,
+  subYears,
+  startOfYear,
+  endOfYear,
+} from "date-fns";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -83,10 +91,21 @@ export function DateRangePicker({
         to = addMonths(now, 1);
         break;
       default:
-        return;
+        // Handle year selection
+        const year = parseInt(value, 10);
+        if (!isNaN(year)) {
+          from = startOfYear(new Date(year, 0, 1));
+          to = endOfYear(new Date(year, 0, 1));
+        } else {
+          return;
+        }
     }
     setTempDateRange({ from, to });
   };
+
+  // Generate an array of the last 10 years and the next 5 years
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 33 }, (_, i) => currentYear - 30 + i);
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -161,19 +180,18 @@ export function DateRangePicker({
               />
             </div>
             <div className="p-3 border-l sm:border-t-0 border-t flex flex-col gap-2">
-              <div className="sm:hidden">
-                <Select onValueChange={handleQuickSelect}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Quick select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="lastYear">Last Year</SelectItem>
-                    <SelectItem value="nextYear">Next Year</SelectItem>
-                    <SelectItem value="lastMonth">Last Month</SelectItem>
-                    <SelectItem value="nextMonth">Next Month</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select onValueChange={handleQuickSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <div className="hidden sm:flex sm:flex-col sm:gap-2">
                 <Button
                   variant="outline"

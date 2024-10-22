@@ -96,7 +96,12 @@ export async function GET(request: Request) {
       (sum, data) => sum + data.hitCount,
       0
     );
-    const pagination = allEventsData[0].pagination; // Assume all requests have the same pagination
+
+    // Handle the case when pagination is not provided
+    const pagination = allEventsData[0].pagination || {
+      CurrPage: 1,
+      MaxPage: 1,
+    };
 
     // Sort all events by date
     events.sort((a, b) => {

@@ -21,6 +21,7 @@ import {
   getSurfaceIcon,
   shouldShowDistanceOrDuration,
   shouldShowSurface,
+  getEventTypeColor,
 } from "@/lib/eventUtils";
 import Link from "next/link";
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -99,8 +100,8 @@ export function EventCard({
       {getEventTypeLabel(mapEventType(event)) && (
         <Badge
           variant="secondary"
-          className={`${getTypeColor(
-            event.EventType
+          className={`${getEventTypeColor(
+            mapEventType(event)
           )} text-xs px-2 py-1 rounded-full`}
         >
           {EventTypeIcon && <EventTypeIcon className="h-3 w-3 mr-1 inline" />}
@@ -187,24 +188,11 @@ export function EventCard({
                 <span>{mapEventType(event).surface}</span>
               </Badge>
             )}
-            {isSpecialEventType && (
+            {getEventTypeLabel(mapEventType(event)) && (
               <Badge
                 variant="secondary"
-                className={`${getTypeColor(
-                  event.EventType
-                )} text-xs px-2 py-1 rounded-full ml-1`}
-              >
-                {EventTypeIcon && (
-                  <EventTypeIcon className="h-3 w-3 mr-1 inline" />
-                )}
-                <span>{getEventTypeLabel(mapEventType(event))}</span>
-              </Badge>
-            )}
-            {getEventTypeLabel(mapEventType(event)) && !isSpecialEventType && (
-              <Badge
-                variant="secondary"
-                className={`${getTypeColor(
-                  event.EventType
+                className={`${getEventTypeColor(
+                  mapEventType(event)
                 )} text-xs px-2 py-1 rounded-full ml-1`}
               >
                 {EventTypeIcon && (
