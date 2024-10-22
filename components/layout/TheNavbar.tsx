@@ -73,6 +73,21 @@ const TheNavbar = memo(function TheNavbar() {
     setSearchType(value);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   return (
     <nav className="border-b bg-background">
       <div className="container mx-auto flex items-center justify-between py-2 md:py-4">
