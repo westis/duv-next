@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import Link from "next/link";
 
 type SearchResult = {
   type: "runner" | "event";
@@ -47,6 +48,10 @@ export function SearchDialog({
 }: SearchDialogProps) {
   const runners = searchResults.filter((result) => result.type === "runner");
   const events = searchResults.filter((result) => result.type === "event");
+
+  const handleLinkClick = () => {
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,9 +95,11 @@ export function SearchDialog({
                       {runners.map((runner) => {
                         const [nationality, yob] = runner.details.split(", ");
                         return (
-                          <div
+                          <Link
                             key={runner.id}
-                            className="p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            href={`/runners/${runner.id}`}
+                            className="block p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            onClick={handleLinkClick}
                           >
                             <div className="flex flex-col">
                               <div className="flex items-center">
@@ -123,7 +130,7 @@ export function SearchDialog({
                                 )}
                               </div>
                             </div>
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>
@@ -136,9 +143,11 @@ export function SearchDialog({
                       {events.map((event) => {
                         const [date, location] = event.details.split(" • ");
                         return (
-                          <div
+                          <Link
                             key={event.id}
-                            className="p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            href={`/events/${event.id}/results`}
+                            className="block p-2 border-b last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            onClick={handleLinkClick}
                           >
                             <div className="flex flex-col">
                               <div className="flex items-center">
@@ -154,7 +163,7 @@ export function SearchDialog({
                                 <span>{location}</span>
                               </div>
                             </div>
-                          </div>
+                          </Link>
                         );
                       })}
                     </div>
