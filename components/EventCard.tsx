@@ -48,6 +48,11 @@ export function EventCard({
 
   const hasCategoryBadges = ["G", "S", "B"].includes(event.IAULabel);
 
+  const specialEventTypes = ["Backyard Ultra"];
+  const isSpecialEventType = specialEventTypes.includes(
+    getEventTypeLabel(mapEventType(event))
+  );
+
   const renderCategoryBadges = () => (
     <div className="flex flex-wrap gap-1">
       {hasCategoryBadges && (
@@ -154,7 +159,7 @@ export function EventCard({
             </Link>
           </TableCell>
           <TableCell>
-            {shouldShowDistanceOrDuration(event) && (
+            {!isSpecialEventType && shouldShowDistanceOrDuration(event) && (
               <Badge
                 variant="secondary"
                 className={`${getDurationLengthColor(
@@ -169,7 +174,20 @@ export function EventCard({
                 <span>{event.Length || event.Duration}</span>
               </Badge>
             )}
-            {getEventTypeLabel(mapEventType(event)) && (
+          </TableCell>
+          <TableCell className="hidden md:table-cell">
+            {shouldShowSurface(event.EventType) && (
+              <Badge
+                variant="secondary"
+                className={`${getTypeColor(
+                  event.EventType
+                )} text-xs px-2 py-1 rounded-full`}
+              >
+                {SurfaceIcon && <SurfaceIcon className="h-3 w-3 mr-1 inline" />}
+                <span>{mapEventType(event).surface}</span>
+              </Badge>
+            )}
+            {isSpecialEventType && (
               <Badge
                 variant="secondary"
                 className={`${getTypeColor(
@@ -182,17 +200,17 @@ export function EventCard({
                 <span>{getEventTypeLabel(mapEventType(event))}</span>
               </Badge>
             )}
-          </TableCell>
-          <TableCell className="hidden md:table-cell">
-            {shouldShowSurface(event.EventType) && (
+            {getEventTypeLabel(mapEventType(event)) && !isSpecialEventType && (
               <Badge
                 variant="secondary"
                 className={`${getTypeColor(
                   event.EventType
-                )} text-xs px-2 py-1 rounded-full`}
+                )} text-xs px-2 py-1 rounded-full ml-1`}
               >
-                {SurfaceIcon && <SurfaceIcon className="h-3 w-3 mr-1 inline" />}
-                <span>{mapEventType(event).surface}</span>
+                {EventTypeIcon && (
+                  <EventTypeIcon className="h-3 w-3 mr-1 inline" />
+                )}
+                <span>{getEventTypeLabel(mapEventType(event))}</span>
               </Badge>
             )}
           </TableCell>

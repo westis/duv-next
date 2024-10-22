@@ -224,7 +224,7 @@ export default function EventList() {
               <TableHead>Date</TableHead>
               <TableHead>Event</TableHead>
               <TableHead>Distance/Duration</TableHead>
-              <TableHead className="hidden md:table-cell">Surface</TableHead>
+              <TableHead className="hidden md:table-cell">Type</TableHead>
               <TableHead className="hidden md:table-cell">Location</TableHead>
               <TableHead className="hidden lg:table-cell">Labels</TableHead>
               <TableHead>Results</TableHead>
