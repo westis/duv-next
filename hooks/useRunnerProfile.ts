@@ -57,22 +57,39 @@ export function useRunnerProfile(personId: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+
     const fetchRunnerProfile = async () => {
       try {
-        const response = await fetch(`/api/runnerProfile?personId=${personId}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch runner profile");
-        }
+        setLoading(true);
+        const response = await fetch(
+          `/api/runnerProfile?personId=${personId}`,
+          {
+            signal: controller.signal,
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch runner data");
         const data = await response.json();
-        setRunnerInfo(data);
-        setLoading(false);
+        if (isMounted) {
+          setRunnerInfo(data);
+          setError(null);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        setLoading(false);
+        if (isMounted && err.name !== "AbortError") {
+          setError(err.message);
+        }
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
     fetchRunnerProfile();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [personId]);
 
   return { runnerInfo, loading, error };

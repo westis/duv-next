@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRunnerProfile } from "@/hooks/useRunnerProfile";
@@ -14,8 +15,21 @@ export default function RunnerPage({
 }: {
   params: { personId: string };
 }) {
-  const [activeTab, setActiveTab] = useState("performances");
+  const searchParams = useSearchParams();
+  const initialActiveTab = useMemo(
+    () => searchParams.get("tab") || "performances",
+    [searchParams]
+  );
+  const [activeTab, setActiveTab] = useState(initialActiveTab);
+
   const { runnerInfo, loading, error } = useRunnerProfile(params.personId);
+
+  useEffect(() => {
+    // Update URL when tab changes
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("tab", activeTab);
+    window.history.pushState({}, "", newUrl.toString());
+  }, [activeTab]);
 
   if (loading) return <div>Loading runner details...</div>;
   if (error) return <div>Error: {error}</div>;

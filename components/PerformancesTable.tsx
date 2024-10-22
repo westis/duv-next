@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Performance {
   EvtDate: string;
@@ -29,6 +31,7 @@ export default function PerformancesTable({
 }: {
   performances: YearPerformances[];
 }) {
+  const router = useRouter();
   const [expandedYears, setExpandedYears] = useState<string[]>([]);
   const [expandedEvents, setExpandedEvents] = useState<string[]>([]);
 
@@ -49,6 +52,10 @@ export default function PerformancesTable({
         ? prev.filter((id) => id !== eventId)
         : [...prev, eventId]
     );
+  };
+
+  const handleEventClick = (eventId: string) => {
+    router.push(`/events/${eventId}/results`);
   };
 
   return (
@@ -78,7 +85,10 @@ export default function PerformancesTable({
                   className="border rounded-md p-2 bg-background/80"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold">
+                    <span
+                      className="font-semibold hover:underline cursor-pointer"
+                      onClick={() => handleEventClick(perf.EvtID)}
+                    >
                       {perf.EvtName} ({perf.EvtDist})
                     </span>
                     <Button
