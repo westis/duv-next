@@ -189,6 +189,7 @@ export default function EventList() {
           onValueChange={(value) =>
             setLayout(value as "large" | "normal" | "compact" | "table")
           }
+          aria-label="View layout"
         >
           <ToggleGroupItem value="table" aria-label="Table layout">
             <TableIcon className="h-4 w-4" />
@@ -298,7 +299,7 @@ export default function EventList() {
         </div>
 
         <div className="sm:ml-auto">
-          <Pagination>
+          <Pagination aria-label="Event list navigation">
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious

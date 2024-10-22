@@ -103,10 +103,10 @@ const TheNavbar = memo(function TheNavbar() {
               variant="outline"
               className="w-full justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
               onClick={() => setSearchOpen(true)}
-              aria-label="Open search"
+              aria-label="Search runner, event, club"
             >
               <Search className="mr-2 h-4 w-4" />
-              <span className="truncate">Search runner, event, club...</span>
+              <span className="truncate">Search runner, event, club</span>
               <span className="sr-only">Press Cmd + K to search</span>
               <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>K

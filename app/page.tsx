@@ -2,7 +2,7 @@ import { Hero } from "@/components/layout/Hero";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <main className="min-h-screen">
       <Hero />
       <section className="container py-6">
         <h2 className="text-2xl font-bold mb-4">
@@ -21,6 +21,6 @@ export default function Home() {
           accessible statistics and historical data.
         </p>
       </section>
-    </div>
+    </main>
   );
 }
