@@ -66,7 +66,7 @@ export function EventFilter({
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" className="h-10" aria-label="More Filters">
+          <Button variant="outline" className="h-10">
             More Filters
           </Button>
         </PopoverTrigger>

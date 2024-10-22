@@ -103,7 +103,6 @@ const TheNavbar = memo(function TheNavbar() {
               variant="outline"
               className="w-full justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
               onClick={() => setSearchOpen(true)}
-              aria-label="Search runner, event, club"
             >
               <Search className="mr-2 h-4 w-4" />
               <span className="truncate">Search runner, event, club</span>
