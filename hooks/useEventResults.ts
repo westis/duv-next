@@ -18,28 +18,26 @@ interface Result {
 }
 
 interface EventInfo {
-  EvtID: string;
-  EvtName: string;
-  EvtDate: string;
-  City: string;
-  Country: string;
-  EvtDist: string;
-  EvtType: string;
   Resultsource: string;
   RecordedBy: string;
-  RecordEligible: string;
-  EvtDetailLink: string;
-  FinisherCnt: string;
-  AltitudeDiff?: string; // Make this optional as it might not always be present
+  EvtType: string;
+  AltitudeDiff?: string;
+  // Add other properties as needed
 }
 
-export function useEventResults(eventId: string) {
+export function useEventResults(eventId: string | undefined) {
   const [results, setResults] = useState<Result[]>([]);
   const [eventInfo, setEventInfo] = useState<EventInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!eventId) {
+      setLoading(false);
+      setError("Event ID is missing");
+      return;
+    }
+
     const fetchResults = async () => {
       setLoading(true);
       try {

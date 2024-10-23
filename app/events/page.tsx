@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import EventList from "@/components/EventList";
 
-export default function EventsPage({
+export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const year = (searchParams.year as string) || "futur";
+  const params = await searchParams;
+  const year = (params.year as string) || "futur";
   const title = year === "futur" ? "Upcoming Events" : "Past Events";
 
   return (

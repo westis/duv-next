@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEventResults } from "@/hooks/useEventResults";
 import { EventHeader } from "@/components/EventHeader";
 import ResultsTable from "@/components/ResultsTable";
 
-export default function EventPage({ params }: { params: { eventId: string } }) {
+export default function EventPage() {
   const [activeTab, setActiveTab] = useState("results");
-  const { eventInfo, loading, error } = useEventResults(params.eventId);
+  const params = useParams();
+  const eventId = params.eventId as string;
+  const { eventInfo, loading, error } = useEventResults(eventId);
 
   if (loading) return <div>Loading event details...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -31,7 +34,7 @@ export default function EventPage({ params }: { params: { eventId: string } }) {
         <TabsContent value="results">
           <Card className="bg-card border-t-4 border-t-primary shadow-none">
             <CardContent className="p-2">
-              <ResultsTable eventId={params.eventId} />
+              <ResultsTable eventId={eventId} />
             </CardContent>
           </Card>
         </TabsContent>

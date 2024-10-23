@@ -98,8 +98,14 @@
     - Add appropriate caching headers to responses to improve performance and reduce server load.
 
 20. **Create a comprehensive API documentation**:
+
     - Develop a detailed API documentation using a standard format like OpenAPI (Swagger).
     - Include examples, all possible parameters, and response formats for each endpoint.
+
+21. **Fix HTML entity encoding in mgetresultevent.php**:
+    - Address the issue where mgetresultevent.php is using HTML entities (e.g., &#039;) in the response instead of the actual characters (e.g., ').
+    - Ensure consistency with mcalendar.php, which correctly uses the actual characters.
+    - Implement the same character encoding approach across all API endpoints for consistency.
 
 ### Temporary Workarounds
 

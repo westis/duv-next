@@ -1,4 +1,3 @@
-// components/providers.tsx
 "use client";
 
 import { ThemeProvider } from "@/components/layout/ThemeProvider";

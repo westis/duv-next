@@ -3,13 +3,13 @@
 import React, { useState, memo, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { MobileNav } from "@/components/layout/TheMobileNav";
 import { Navigation, navigationItems } from "@/components/layout/Navigation";
 import { SearchDialog } from "@/components/SearchDialog";
 import { useDebounce } from "@/hooks/useDebounce";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 type SearchResult = {
   type: "runner" | "event";
@@ -21,7 +21,6 @@ type SearchResult = {
 type SearchType = "all" | "runner" | "event";
 
 const TheNavbar = memo(function TheNavbar() {
-  const { theme, setTheme } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchType, setSearchType] = useState<SearchType>("all");
@@ -127,18 +126,7 @@ const TheNavbar = memo(function TheNavbar() {
               </kbd>
             </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="text-base md:text-lg"
-            aria-label={`Switch to ${
-              theme === "dark" ? "light" : "dark"
-            } theme`}
-          >
-            <Sun className="h-[1.5rem] w-[1.5rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.5rem] w-[1.5rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          </Button>
+          <ThemeToggle />
           <MobileNav items={navigationItems} />
         </div>
       </div>
