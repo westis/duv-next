@@ -1,12 +1,15 @@
 import EventList from "@/components/EventList";
 import { Event } from "@/lib/eventUtils";
+import { headers } from "next/headers";
 
 export const revalidate = 60;
 
 async function getInitialEvents(year: string): Promise<Event[]> {
-  const url = `${
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-  }/api/events?year=${year}&page=1&perpage=10`;
+  const headersList = await headers();
+  const host = headersList.get("host") || "localhost:3000";
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
+  const url = `${protocol}://${host}/api/events?year=${year}&page=1&perpage=10`;
   console.log("Fetching events from:", url);
 
   try {

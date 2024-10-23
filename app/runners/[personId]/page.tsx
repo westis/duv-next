@@ -8,6 +8,7 @@ import { RunnerHeader } from "@/components/RunnerHeader";
 import PerformancesTable from "@/components/PerformancesTable";
 import PersonalBestsTable from "@/components/PersonalBestsTable";
 import RaceComparisonsTable from "@/components/RaceComparisonsTable";
+import { headers } from "next/headers";
 
 export const revalidate = 3600;
 
@@ -16,9 +17,11 @@ interface PageProps {
 }
 
 async function getRunnerProfile(personId: string) {
-  const url = `${
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-  }/api/runnerProfile?personId=${personId}`;
+  const headersList = await headers();
+  const host = headersList.get("host") || "localhost:3000";
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
+  const url = `${protocol}://${host}/api/runnerProfile?personId=${personId}`;
   console.log("Fetching runner profile from:", url);
 
   const res = await fetch(url, {

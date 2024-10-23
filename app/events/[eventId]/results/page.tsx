@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventHeader } from "@/components/EventHeader";
 import ResultsTable from "@/components/ResultsTable";
+import { headers } from "next/headers";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -10,10 +11,11 @@ interface PageProps {
 }
 
 async function getEventResults(eventId: string) {
-  // Use the full URL here
-  const url = `${
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-  }/api/eventResults?eventId=${eventId}`;
+  const headersList = await headers();
+  const host = headersList.get("host") || "localhost:3000";
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
+  const url = `${protocol}://${host}/api/eventResults?eventId=${eventId}`;
   console.log("Fetching event results from:", url);
 
   try {
