@@ -13,7 +13,8 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `https://statistik.d-u-v.org/json/mgetresultperson.php?runner=${personId}&Language=EN`
+      `https://statistik.d-u-v.org/json/mgetresultperson.php?runner=${personId}&Language=EN`,
+      { next: { revalidate: 3600 } }
     );
 
     if (!response.ok) {

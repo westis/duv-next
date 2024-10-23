@@ -37,6 +37,7 @@
 8. [Accessibility, Localization, and SEO](#accessibility-localization-and-seo)
 9. [Conclusion](#conclusion)
 10. [Analysis and Suggestions](#analysis-and-suggestions)
+11. [Handling Dynamic API Routes](#handling-dynamic-api-routes)
 
 ---
 
@@ -1044,3 +1045,16 @@ The project follows a structured file organization to maintain clarity and scala
   - Use the new `<Image />` component from `next/image` for image optimization.
 
 ---
+
+## Handling Dynamic API Routes
+
+When working with dynamic routes in Next.js, it's crucial to handle the `params` object correctly to avoid synchronous API calls. This section outlines best practices to prevent the "Route used `params.someParam`. `params` should be awaited before using its properties" error.
+
+#### 10.1. Asynchronous Params Handling
+
+- **Issue**: Using `params` synchronously in dynamic routes can lead to errors and unexpected behavior.
+- **Solution**: Always treat `params` as a Promise and await it before accessing its properties.
+
+#### 10.2. Correct Usage in Page Components
+
+When defining page components for dynamic routes:

@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import EventList from "@/components/EventList";
 import { Event } from "@/lib/eventUtils";
 import { getBaseUrl } from "@/lib/utils";
@@ -34,12 +33,11 @@ async function getInitialEvents(year: string): Promise<Event[]> {
   }
 }
 
-export default async function EventsPage({
-  searchParams,
-}: {
+interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  // Await the searchParams
+}
+
+export default async function EventsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const year = typeof params.year === "string" ? params.year : "futur";
 
@@ -56,9 +54,7 @@ export default async function EventsPage({
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">{title}</h1>
-      <Suspense fallback={<div>Loading events...</div>}>
-        <EventList initialEvents={initialEvents} />
-      </Suspense>
+      <EventList initialEvents={initialEvents} />
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { getBaseUrl } from "@/lib/utils";
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { personId: string };
+  params: Promise<{ personId: string }>;
 }
 
 async function getRunnerProfile(personId: string) {
@@ -36,7 +36,7 @@ async function getRunnerProfile(personId: string) {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { personId } = params;
+  const { personId } = await params;
   try {
     const runnerInfo = await getRunnerProfile(personId);
     return {
@@ -53,7 +53,7 @@ export async function generateMetadata({
 }
 
 export default async function RunnerPage({ params }: PageProps) {
-  const { personId } = params;
+  const { personId } = await params;
 
   try {
     const runnerInfo = await getRunnerProfile(personId);

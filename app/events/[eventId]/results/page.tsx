@@ -7,7 +7,7 @@ import { getBaseUrl } from "@/lib/utils";
 export const revalidate = 3600; // Revalidate every hour
 
 interface PageProps {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
 }
 
 async function getEventResults(eventId: string) {
@@ -30,7 +30,7 @@ async function getEventResults(eventId: string) {
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { eventId } = params;
+  const { eventId } = await params;
   try {
     const { eventInfo } = await getEventResults(eventId);
     return {
@@ -47,7 +47,7 @@ export async function generateMetadata({
 }
 
 export default async function EventResultsPage({ params }: PageProps) {
-  const { eventId } = params;
+  const { eventId } = await params;
 
   try {
     const { eventInfo } = await getEventResults(eventId);

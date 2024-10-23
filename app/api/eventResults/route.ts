@@ -1,23 +1,5 @@
 import { NextResponse } from "next/server";
 
-interface ResultItem {
-  RankTotal: string;
-  Performance: string;
-  PerformanceNumeric: string;
-  FirstName: string;
-  LastName: string;
-  Club: string;
-  Nationality: string;
-  YOB: string;
-  DOB: string;
-  Gender: string;
-  AgeGradePerf: string;
-  RankMW: string;
-  Cat: string;
-  RankCat: string;
-  PersonID: string;
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const eventId = searchParams.get("eventId");
@@ -31,7 +13,8 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(
-      `https://statistik.d-u-v.org/json/mgetresultevent.php?event=${eventId}&plain=1&Language=EN`
+      `https://statistik.d-u-v.org/json/mgetresultevent.php?event=${eventId}&plain=1&Language=EN`,
+      { next: { revalidate: 3600 } }
     );
 
     if (!response.ok) {
@@ -48,7 +31,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const formattedResults = data.Resultlist.map((result: ResultItem) => ({
+    const formattedResults = data.Resultlist.map((result: any) => ({
       rank: result.RankTotal,
       performance: result.Performance,
       performanceNumeric: result.PerformanceNumeric,
@@ -65,24 +48,18 @@ export async function GET(request: Request) {
       personId: result.PersonID,
     }));
 
-    return NextResponse.json({
-      results: formattedResults,
-      eventInfo: {
-        EvtID: data.EvtHeader.EvtID,
-        EvtName: data.EvtHeader.EvtName,
-        EvtDate: data.EvtHeader.EvtDate,
-        City: data.EvtHeader.City,
-        Country: data.EvtHeader.Country,
-        EvtDist: data.EvtHeader.EvtDist,
-        EvtType: data.EvtHeader.EvtType,
-        Resultsource: data.EvtHeader.Resultsource,
-        RecordedBy: data.EvtHeader.RecordedBy,
-        RecordEligible: data.EvtHeader.RecordEligible,
-        EvtDetailLink: data.EvtHeader.EvtDetailLink,
-        FinisherCnt: data.EvtHeader.FinisherCnt,
-        AltitudeDiff: data.EvtHeader.AltitudeDiff, // This might be undefined if not present
+    return NextResponse.json(
+      {
+        results: formattedResults,
+        eventInfo: data.EvtHeader,
       },
-    });
+      {
+        headers: {
+          "Cache-Control":
+            "public, s-maxage=3600, stale-while-revalidate=86400",
+        },
+      }
+    );
   } catch (error: unknown) {
     console.error("Error fetching event results:", error);
     return NextResponse.json(
