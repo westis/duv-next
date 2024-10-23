@@ -8,6 +8,7 @@ import { RunnerHeader } from "@/components/RunnerHeader";
 import PerformancesTable from "@/components/PerformancesTable";
 import PersonalBestsTable from "@/components/PersonalBestsTable";
 import RaceComparisonsTable from "@/components/RaceComparisonsTable";
+import { getBaseUrl } from "@/lib/utils";
 
 export const revalidate = 3600;
 
@@ -16,10 +17,12 @@ interface PageProps {
 }
 
 async function getRunnerProfile(personId: string) {
-  // Use a relative URL
-  const res = await fetch(`/api/runnerProfile?personId=${personId}`, {
-    next: { revalidate: 3600 },
-  });
+  const res = await fetch(
+    `${getBaseUrl()}/api/runnerProfile?personId=${personId}`,
+    {
+      next: { revalidate: 3600 },
+    }
+  );
   if (!res.ok) throw new Error("Failed to fetch runner profile");
   return res.json();
 }

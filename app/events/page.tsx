@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import DefaultLayout from "@/app/layouts/DefaultLayout";
 import EventList from "@/components/EventList";
 import { Event } from "@/lib/eventUtils";
+import { getBaseUrl } from "@/lib/utils";
 
 // This is for Incremental Static Regeneration
 export const revalidate = 60; // Revalidate this page every 60 seconds
@@ -14,7 +15,7 @@ async function getInitialEvents(year: string): Promise<Event[]> {
     // Add other default filter parameters as needed
   });
 
-  const res = await fetch(`/api/events?${params.toString()}`, {
+  const res = await fetch(`${getBaseUrl()}/api/events?${params.toString()}`, {
     next: { revalidate: 60 },
   });
 

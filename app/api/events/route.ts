@@ -4,7 +4,8 @@ import { NextResponse } from "next/server";
 import { getBaseUrl } from "@/lib/utils";
 
 async function fetchEvents(baseUrl: string, dist: string) {
-  const url = `${getBaseUrl()}${baseUrl}&dist=${dist}`;
+  // Remove getBaseUrl() from here as it's not needed for external URLs
+  const url = `${baseUrl}&dist=${dist}`;
   console.log("Fetching from URL:", url);
   const response = await fetch(url);
   if (!response.ok) {
