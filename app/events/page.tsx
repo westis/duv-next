@@ -12,16 +12,26 @@ async function getInitialEvents(year: string): Promise<Event[]> {
     perpage: "10",
   });
 
-  const res = await fetch(`${getBaseUrl()}/api/events?${params.toString()}`, {
-    next: { revalidate: 60 },
-  });
+  const url = `${getBaseUrl()}/api/events?${params.toString()}`;
+  console.log("Fetching events from:", url);
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch events");
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch events. Status:", res.status);
+      console.error("Response text:", await res.text());
+      throw new Error(`Failed to fetch events. Status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.events;
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    throw error;
   }
-
-  const data = await res.json();
-  return data.events;
 }
 
 export default async function EventsPage({
@@ -32,7 +42,15 @@ export default async function EventsPage({
   // Await the searchParams
   const params = await searchParams;
   const year = typeof params.year === "string" ? params.year : "futur";
-  const initialEvents = await getInitialEvents(year);
+
+  let initialEvents: Event[] = [];
+  try {
+    initialEvents = await getInitialEvents(year);
+  } catch (error) {
+    console.error("Failed to get initial events:", error);
+    // You might want to add some error handling UI here
+  }
+
   const title = year === "futur" ? "Upcoming Events" : "Past Events";
 
   return (
