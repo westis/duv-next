@@ -10,6 +10,15 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .icon-button {
+    @apply text-foreground hover:bg-accent/50 hover:text-foreground transition-colors duration-200;
+  }
+  .hover-icon {
+    @apply text-foreground hover:text-primary transition-colors duration-200;
+  }
+  .kbd {
+    @apply bg-muted text-muted-foreground border-border;
+  }
 }
 
 @layer base {
@@ -36,7 +45,8 @@ body {
     --radius: 0.5rem;
     --color-gray-200: 229 231 235;
     --color-green-200: 187 247 208;
-    /* ... other light mode colors ... */
+    --link: 39 100% 30%;
+    --link-hover: 39 100% 30%;
   }
 
   .dark {
@@ -61,7 +71,8 @@ body {
     --ring: 212.7 26.8% 83.9%;
     --color-gray-700: 55 65 81;
     --color-green-800: 22 101 52;
-    /* ... other dark mode colors ... */
+    --link: 39 100% 60%;
+    --link-hover: 39 100% 60%;
   }
 
   /* Add this to ensure light mode styles are applied */
@@ -230,3 +241,28 @@ html {
   background-color: rgb(var(--color-green-800));
 }
 /* ... (add other dark mode background color classes) */
+
+@layer base {
+  a:not(.btn):not(.nav-link):not([role="button"]) {
+    @apply text-link underline underline-offset-4 decoration-link/30 hover:decoration-link-hover hover:decoration-2 focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 transition-all duration-200;
+  }
+}
+
+@layer utilities {
+  .nav-link {
+    @apply text-foreground no-underline transition-colors duration-200;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    @apply text-link bg-primary/10;
+  }
+
+  .nav-link:focus {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
+
+  .nav-link[aria-current="page"] {
+    @apply bg-primary/20 font-semibold;
+  }
+}

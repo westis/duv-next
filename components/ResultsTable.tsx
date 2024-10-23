@@ -27,9 +27,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEventResults } from "@/hooks/useEventResults";
-import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { Row } from "@tanstack/react-table";
+import Link from "next/link";
 
 interface Result {
   rank: string;
@@ -52,7 +52,6 @@ type ResultValue = Result[keyof Result];
 type ResultColumn = ColumnDef<Result, ResultValue>;
 
 export default function ResultsTable({ eventId }: { eventId: string }) {
-  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [gender, setGender] = useState("All");
   const [ageGroup, setAgeGroup] = useState("All");
@@ -90,13 +89,12 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
         accessorKey: "name",
         header: "Name",
         cell: ({ row }) => (
-          <Button
-            variant="link"
-            className="p-0 h-auto font-normal"
-            onClick={() => router.push(`/runners/${row.original.personId}`)}
+          <Link
+            href={`/runners/${row.original.personId}`}
+            className="hover:underline"
           >
             {row.getValue("name")}
-          </Button>
+          </Link>
         ),
       },
       {
@@ -136,7 +134,7 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
         cell: ({ row }) => <span>{row.original.performanceNumeric}</span>,
       },
     ],
-    [router]
+    [] // Remove 'router' from this array
   );
 
   const filteredResults = useMemo(() => {

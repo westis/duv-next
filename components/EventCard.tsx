@@ -119,7 +119,7 @@ export function EventCard({
         className="flex-1 sm:flex-initial hover:bg-primary/20 hover:text-primary-foreground dark:hover:bg-primary/30 dark:hover:text-primary"
         asChild
       >
-        <Link href={`/events/${event.EventID}`} className="btn-link">
+        <Link href={`/events/${event.EventID}`} role="button">
           <InfoIcon className="h-4 w-4 mr-2" /> Details
         </Link>
       </Button>
@@ -129,7 +129,7 @@ export function EventCard({
           className="flex-1 sm:flex-initial hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
           asChild
         >
-          <Link href={`/events/${event.EventID}/results`} className="btn-link">
+          <Link href={`/events/${event.EventID}/results`} role="button">
             <BarChartIcon className="h-4 w-4 mr-2" /> Results
           </Link>
         </Button>
@@ -216,10 +216,7 @@ export function EventCard({
                 className="hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
                 asChild
               >
-                <Link
-                  href={`/events/${event.EventID}/results`}
-                  className="btn-link text-foreground"
-                >
+                <Link href={`/events/${event.EventID}/results`} role="button">
                   <BarChartIcon className="h-4 w-4 mr-1" /> Results
                 </Link>
               </Button>

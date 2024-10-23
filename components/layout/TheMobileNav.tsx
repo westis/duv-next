@@ -28,7 +28,7 @@ export function MobileNav({ items }: MobileNavProps) {
           variant="ghost"
           className="px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 lg:hidden"
         >
-          <Menu className="h-5 w-5 md:h-6 md:w-6" />
+          <Menu className="h-5 w-5 md:h-6 md:w-6 icon-button" />
           <span className="sr-only">Toggle Menu</span>
         </Button>
       </SheetTrigger>
@@ -74,7 +74,13 @@ function MobileLink({
   return (
     <Link
       href={href}
-      className={cn(className, pathname === href && "text-foreground")}
+      className={cn(
+        "nav-link block py-2 px-3 rounded-md transition-colors duration-200",
+        "hover:bg-primary/10 focus:bg-primary/10",
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+        pathname === href && "bg-primary/20 font-semibold",
+        className
+      )}
       onClick={() => setOpen(false)}
     >
       {children}

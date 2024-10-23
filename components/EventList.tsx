@@ -132,7 +132,15 @@ export default function EventList({ initialEvents }: EventListProps) {
         currentPage: newPage,
       });
     }
-  }, [searchParams, optimisticUpdate]);
+  }, [
+    searchParams,
+    optimisticUpdate,
+    eventType,
+    dateRange,
+    sortOrder,
+    country,
+    currentPage,
+  ]);
 
   const handleEventTypeChange = useCallback(
     (value: string) => {

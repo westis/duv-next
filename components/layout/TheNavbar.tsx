@@ -10,6 +10,7 @@ import { Navigation, navigationItems } from "@/components/layout/Navigation";
 import { SearchDialog } from "@/components/SearchDialog";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { cn } from "@/lib/utils";
 
 type SearchResult = {
   type: "runner" | "event";
@@ -115,13 +116,27 @@ const TheNavbar = memo(function TheNavbar() {
           <div className="relative w-[140px] sm:w-[200px] lg:w-80">
             <Button
               variant="outline"
-              className="w-full justify-start text-left font-normal text-sm md:text-base text-muted-foreground group"
+              className={cn(
+                "w-full justify-start text-left font-normal",
+                "text-sm md:text-base",
+                "text-muted-foreground",
+                "hover:bg-accent/30 hover:text-foreground",
+                "group"
+              )}
               onClick={() => setSearchOpen(true)}
             >
               <Search className="mr-2 h-4 w-4" />
-              <span className="truncate">Search runner, event, club</span>
+              <span className="inline-block truncate">
+                Search runner, event, club
+              </span>
               <span className="sr-only">Press Cmd + K to search</span>
-              <kbd className="pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+              <kbd
+                className={cn(
+                  "pointer-events-none absolute right-1.5 top-1.5 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 transition-all",
+                  "group-hover:bg-accent/30 group-hover:textforeground",
+                  "sm:flex"
+                )}
+              >
                 <span className="text-xs">⌘</span>K
               </kbd>
             </Button>
