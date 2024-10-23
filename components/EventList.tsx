@@ -1,4 +1,3 @@
-// components/EventList.tsx
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -35,8 +34,14 @@ import {
 } from "@/components/ui/table";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { shouldShowSurface } from "@/lib/eventUtils";
+import { useCountries } from "@/hooks/useCountries";
+import { Event } from "@/lib/eventUtils";
 
-export default function EventList() {
+interface EventListProps {
+  initialEvents: Event[];
+}
+
+export default function EventList({ initialEvents }: EventListProps) {
   const searchParams = useSearchParams();
 
   const initialEventType = useCallback(
@@ -47,10 +52,7 @@ export default function EventList() {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     if (from && to) {
-      return {
-        from: new Date(from),
-        to: new Date(to),
-      };
+      return { from: new Date(from), to: new Date(to) };
     }
     return undefined;
   }, [searchParams]);
@@ -97,49 +99,90 @@ export default function EventList() {
     sortOrder,
   };
 
-  const { events, loading, error, totalPages, totalEvents } =
-    useEventsFetcher(filters);
+  const {
+    events = initialEvents,
+    loading,
+    error,
+    totalPages,
+    totalEvents,
+    optimisticUpdate,
+  } = useEventsFetcher(filters);
+
+  const { countries, isLoading: isLoadingCountries } = useCountries();
 
   useUrlParamSync(filters);
 
-  const handleEventTypeChange = useCallback((value: string) => {
-    setEventType(value);
-    setCurrentPage(1);
-  }, []);
+  const handleEventTypeChange = useCallback(
+    (value: string) => {
+      setEventType(value);
+      setCurrentPage(1);
+      optimisticUpdate({ eventType: value, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
-  const handleDateRangeChange = useCallback((range: DateRange | undefined) => {
-    setDateRange(range);
-    setCurrentPage(1);
-  }, []);
+  const handleDateRangeChange = useCallback(
+    (range: DateRange | undefined) => {
+      setDateRange(range);
+      setCurrentPage(1);
+      optimisticUpdate({ dateRange: range, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
-  const handleCountryChange = useCallback((value: string) => {
-    setCountry(value);
-    setCurrentPage(1);
-  }, []);
+  const handleCountryChange = useCallback(
+    (value: string) => {
+      setCountry(value);
+      setCurrentPage(1);
+      optimisticUpdate({ country: value, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
-  const handleRecordEligibleChange = useCallback((checked: boolean) => {
-    setRecordEligible(checked);
-    setCurrentPage(1);
-  }, []);
+  const handleRecordEligibleChange = useCallback(
+    (checked: boolean) => {
+      setRecordEligible(checked);
+      setCurrentPage(1);
+      optimisticUpdate({ recordEligible: checked, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
-  const handleWithoutResultsChange = useCallback((checked: boolean) => {
-    setWithoutResults(checked);
-    setCurrentPage(1);
-  }, []);
+  const handleWithoutResultsChange = useCallback(
+    (checked: boolean) => {
+      setWithoutResults(checked);
+      setCurrentPage(1);
+      optimisticUpdate({ withoutResults: checked, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
-  const handleSortOrderChange = useCallback((value: string) => {
-    setSortOrder(value);
-    setCurrentPage(1);
-  }, []);
+  const handleSortOrderChange = useCallback(
+    (value: string) => {
+      setSortOrder(value);
+      setCurrentPage(1);
+      optimisticUpdate({ sortOrder: value, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+      optimisticUpdate({ currentPage: page });
+    },
+    [optimisticUpdate]
+  );
 
-  const handleEventsPerPageChange = (value: string) => {
-    setEventsPerPage(Number(value));
-    setCurrentPage(1);
-  };
+  const handleEventsPerPageChange = useCallback(
+    (value: string) => {
+      const newEventsPerPage = Number(value);
+      setEventsPerPage(newEventsPerPage);
+      setCurrentPage(1);
+      optimisticUpdate({ eventsPerPage: newEventsPerPage, currentPage: 1 });
+    },
+    [optimisticUpdate]
+  );
 
   const toggleRowExpanded = useCallback((eventId: string) => {
     setExpandedRows((prev) => ({ ...prev, [eventId]: !prev[eventId] }));
@@ -164,6 +207,8 @@ export default function EventList() {
         onWithoutResultsChange={handleWithoutResultsChange}
         sortOrder={sortOrder}
         onSortOrderChange={handleSortOrderChange}
+        countries={countries}
+        isLoadingCountries={isLoadingCountries}
       />
 
       <div className="flex justify-between items-center">
@@ -214,9 +259,9 @@ export default function EventList() {
         <div className="min-h-[200px] flex items-center justify-center">
           Error: {error}
         </div>
-      ) : events.length === 0 && !loading ? (
+      ) : !events || events.length === 0 ? (
         <div className="min-h-[200px] flex items-center justify-center">
-          No events found.
+          {loading ? "Loading events..." : "No events found."}
         </div>
       ) : layout === "table" ? (
         <Table className="bg-background rounded border">
@@ -241,19 +286,6 @@ export default function EventList() {
                 ((!isMediumScreen && Boolean(event.City || event.Country)) ||
                   (!isMediumScreen && shouldShowSurface(event.EventType)) ||
                   (!isLargeScreen && ["G", "S", "B"].includes(event.IAULabel)));
-
-              console.log(
-                `Event ${event.EventID} expandable:`,
-                hasExpandableContent,
-                {
-                  isLargeScreen,
-                  isMediumScreen,
-                  city: event.City,
-                  country: event.Country,
-                  showSurface: shouldShowSurface(event.EventType),
-                  iauLabel: event.IAULabel,
-                }
-              );
 
               return (
                 <EventCard
@@ -312,7 +344,6 @@ export default function EventList() {
                 />
               </PaginationItem>
               {isMobileScreen ? (
-                // Simplified mobile pagination
                 <>
                   <PaginationItem>
                     <PaginationLink
@@ -340,7 +371,6 @@ export default function EventList() {
                   {currentPage < totalPages - 1 && <PaginationEllipsis />}
                 </>
               ) : totalPages <= 7 ? (
-                // Desktop pagination for 7 or fewer pages
                 [...Array(totalPages)].map((_, index) => (
                   <PaginationItem key={index + 1}>
                     <PaginationLink
@@ -356,7 +386,6 @@ export default function EventList() {
                   </PaginationItem>
                 ))
               ) : (
-                // Desktop pagination for more than 7 pages
                 <>
                   <PaginationItem>
                     <PaginationLink
@@ -398,19 +427,20 @@ export default function EventList() {
                       </PaginationLink>
                     </PaginationItem>
                   )}
-                  {currentPage < totalPages - 1 && (
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handlePageChange(currentPage + 1);
-                        }}
-                      >
-                        {currentPage + 1}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )}
+                  {currentPage < totalPages - 1 &&
+                    currentPage !== totalPages - 1 && (
+                      <PaginationItem>
+                        <PaginationLink
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(currentPage + 1);
+                          }}
+                        >
+                          {currentPage + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
                   {currentPage < totalPages - 2 && <PaginationEllipsis />}
                   <PaginationItem>
                     <PaginationLink

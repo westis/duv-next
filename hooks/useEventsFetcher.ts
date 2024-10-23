@@ -1,6 +1,4 @@
-//hooks/useEventsFetcher.ts
-
-import { useState, useEffect, useRef, useCallback } from "react";
+import useSWR from "swr";
 import { Event } from "@/lib/eventUtils";
 import { DateRange } from "react-day-picker";
 
@@ -15,6 +13,14 @@ interface Filters {
   sortOrder: string;
 }
 
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+};
+
 export function useEventsFetcher(filters: Filters) {
   const {
     eventType,
@@ -27,77 +33,85 @@ export function useEventsFetcher(filters: Filters) {
     sortOrder,
   } = filters;
 
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalEvents, setTotalEvents] = useState(0);
+  const params = new URLSearchParams();
+  params.set("perpage", eventsPerPage.toString());
+  params.set("page", currentPage.toString());
+  params.set("order", sortOrder);
 
-  const previousEvents = useRef<Event[]>([]);
-  const previousFilters = useRef<Filters | null>(null);
+  if (eventType !== "all") params.set("dist", eventType);
+  if (dateRange?.from && dateRange.to) {
+    params.set("from", dateRange.from.toISOString().split("T")[0]);
+    params.set("to", dateRange.to.toISOString().split("T")[0]);
+  }
+  if (country) params.set("country", country);
+  if (recordEligible) params.set("rproof", "1");
+  if (withoutResults) params.set("norslt", "1");
 
-  const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.set("perpage", eventsPerPage.toString());
-      params.set("page", currentPage.toString());
-      params.set("order", sortOrder);
+  const {
+    data: eventsData,
+    error: eventsError,
+    mutate,
+  } = useSWR(`/api/events?${params.toString()}`, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000,
+    keepPreviousData: true,
+  });
 
-      if (eventType !== "all") params.set("dist", eventType);
-      if (dateRange?.from && dateRange.to) {
-        params.set("from", dateRange.from.toISOString().split("T")[0]);
-        params.set("to", dateRange.to.toISOString().split("T")[0]);
-      }
-      if (country) params.set("country", country);
-      if (recordEligible) params.set("rproof", "1");
-      if (withoutResults) params.set("norslt", "1");
-
-      const url = `/api/events?${params.toString()}`;
-
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      if (!Array.isArray(data.events)) {
-        throw new Error("Received data is not an array");
-      }
-
-      setEvents(data.events);
-      setTotalPages(data.totalPages);
-      setTotalEvents(data.totalEvents);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      setError(`Failed to load events: ${errorMessage}`);
-      console.error("Error details:", err);
-    } finally {
-      setLoading(false);
+  const { data: countriesData, error: countriesError } = useSWR(
+    "/api/countries",
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 3600000,
     }
-  }, [
-    eventType,
-    dateRange,
-    currentPage,
-    eventsPerPage,
-    country,
-    recordEligible,
-    withoutResults,
-    sortOrder,
-  ]);
+  );
 
-  useEffect(() => {
-    if (JSON.stringify(previousFilters.current) !== JSON.stringify(filters)) {
-      previousFilters.current = { ...filters };
-      previousEvents.current = events;
-      fetchEvents();
-    }
-  }, [filters, fetchEvents, events]);
+  const optimisticUpdate = (newFilters: Partial<Filters>) => {
+    const updatedFilters = { ...filters, ...newFilters };
+    const updatedParams = new URLSearchParams();
+
+    Object.entries(updatedFilters).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") {
+        if (
+          key === "dateRange" &&
+          value instanceof Object &&
+          "from" in value &&
+          "to" in value
+        ) {
+          updatedParams.set(
+            "from",
+            (value as DateRange).from?.toISOString().split("T")[0] || ""
+          );
+          updatedParams.set(
+            "to",
+            (value as DateRange).to?.toISOString().split("T")[0] || ""
+          );
+        } else if (key === "recordEligible" && value) {
+          updatedParams.set("rproof", "1");
+        } else if (key === "withoutResults" && value) {
+          updatedParams.set("norslt", "1");
+        } else {
+          updatedParams.set(key, value.toString());
+        }
+      }
+    });
+
+    mutate(`/api/events?${updatedParams.toString()}`, {
+      optimisticData: eventsData,
+      revalidate: true,
+    });
+  };
 
   return {
-    events: loading ? previousEvents.current : events,
-    loading,
-    error,
-    totalPages,
-    totalEvents,
+    events: eventsData?.events as Event[],
+    loading:
+      (!eventsError && !eventsData) || (!countriesError && !countriesData),
+    error: eventsError ? eventsError.message : null,
+    totalPages: eventsData?.totalPages || 1,
+    totalEvents: eventsData?.totalEvents || 0,
+    countries: countriesData?.countries || [],
+    optimisticUpdate,
   };
 }

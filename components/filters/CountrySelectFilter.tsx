@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Check, ChevronsUpDown, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,53 +16,27 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-interface RawCountry {
+interface Country {
   value: string;
   label: string;
-}
-
-interface Country extends RawCountry {
-  searchTerms: string;
 }
 
 interface CountrySelectFilterProps {
   country: string;
   onCountryChange: (value: string) => void;
   placeholder?: string;
+  countries: Country[];
+  isLoading: boolean;
 }
 
 export function CountrySelectFilter({
   country,
   onCountryChange,
   placeholder = "All Countries",
+  countries,
+  isLoading,
 }: CountrySelectFilterProps) {
   const [open, setOpen] = useState(false);
-  const [countries, setCountries] = useState<Country[]>([]);
-
-  useEffect(() => {
-    async function fetchCountries() {
-      try {
-        const response = await fetch("/api/countries");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch countries: ${response.status}`);
-        }
-        const data: RawCountry[] = await response.json();
-        setCountries(
-          data
-            .filter((c) => c.value !== "all")
-            .map((c) => ({
-              ...c,
-              searchTerms: `${c.label} ${c.value}`.toLowerCase(),
-            }))
-        );
-      } catch (err) {
-        console.error(err);
-        setCountries([]);
-      }
-    }
-
-    fetchCountries();
-  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -106,24 +80,28 @@ export function CountrySelectFilter({
                 />
                 All Countries
               </CommandItem>
-              {countries.map((c) => (
-                <CommandItem
-                  key={c.value}
-                  value={c.searchTerms}
-                  onSelect={() => {
-                    onCountryChange(c.value);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      country === c.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {c.label}
-                </CommandItem>
-              ))}
+              {isLoading ? (
+                <CommandItem disabled>Loading countries...</CommandItem>
+              ) : (
+                countries.map((c) => (
+                  <CommandItem
+                    key={c.value}
+                    value={c.value}
+                    onSelect={() => {
+                      onCountryChange(c.value);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        country === c.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {c.label}
+                  </CommandItem>
+                ))
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

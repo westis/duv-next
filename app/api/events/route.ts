@@ -2,17 +2,6 @@
 
 import { NextResponse } from "next/server";
 
-// Remove or comment out the unused eventTypes object
-// const eventTypes = {
-//   "Fixed-Distance": ["1", "2", "4", "8"],
-//   "Fixed-Time": ["6h", "12h", "24h", "48h", "72h", "6d", "10d"],
-//   "Backyard Ultra": ["Backy"],
-//   "Elimination Race": ["Elim"],
-//   "Stage Race": ["Stage"],
-//   Walking: ["Walk"],
-//   Other: ["Other"],
-// };
-
 async function fetchEvents(baseUrl: string, dist: string) {
   const url = `${baseUrl}&dist=${dist}`;
   console.log("Fetching from URL:", url);
@@ -30,7 +19,7 @@ async function fetchEvents(baseUrl: string, dist: string) {
     const events = data.Races
       ? data.Races.map((race: Record<string, unknown>) => ({
           ...race,
-          Results: race.Results || "N", // Ensure Results field is always present
+          Results: race.Results || "N",
         }))
       : [];
     return { events, hitCount: data.HitCnt || 0, pagination: data.Pagination };
@@ -42,6 +31,7 @@ async function fetchEvents(baseUrl: string, dist: string) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
+
   const from = searchParams.get("from");
   const to = searchParams.get("to");
   const year = searchParams.get("year");
@@ -52,21 +42,20 @@ export async function GET(request: Request) {
   const perpage = searchParams.get("perpage") || "10";
   const page = searchParams.get("page") || "1";
 
-  // Validate parameters
   if ((from && !to) || (!from && to)) {
-    return NextResponse.json(
-      {
+    return new NextResponse(
+      JSON.stringify({
         error:
           "Both 'from' and 'to' must be provided for date range filtering.",
-      },
-      { status: 400 }
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
   if (from && to && year) {
-    return NextResponse.json(
-      { error: "'year' cannot be used with 'from' and 'to'." },
-      { status: 400 }
+    return new NextResponse(
+      JSON.stringify({ error: "'year' cannot be used with 'from' and 'to'." }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
 
@@ -97,13 +86,11 @@ export async function GET(request: Request) {
       0
     );
 
-    // Handle the case when pagination is not provided
     const pagination = allEventsData[0].pagination || {
       CurrPage: 1,
       MaxPage: 1,
     };
 
-    // Sort all events by date
     events.sort((a, b) => {
       return order === "asc"
         ? new Date(a.Startdate).getTime() - new Date(b.Startdate).getTime()
@@ -113,20 +100,29 @@ export async function GET(request: Request) {
     console.log(
       `Processed ${totalHitCount} events, returning page ${pagination.CurrPage} of ${pagination.MaxPage}`
     );
-    return NextResponse.json({
+
+    const responseData = {
       events: events,
       totalEvents: totalHitCount,
       totalPages: pagination.MaxPage,
       currentPage: pagination.CurrPage,
+    };
+
+    return new NextResponse(JSON.stringify(responseData), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=59",
+      },
     });
   } catch (error: unknown) {
     console.error("Error fetching events:", error);
-    return NextResponse.json(
-      {
+    return new NextResponse(
+      JSON.stringify({
         error: "Failed to fetch events",
         details: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
+      }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 }

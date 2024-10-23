@@ -31,12 +31,11 @@ import Link from "next/link";
 import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { Row } from "@tanstack/react-table";
 
-// Update the Result interface to include PerformanceNumeric
 interface Result {
   rank: string;
   performance: string;
   performanceNumeric: string;
-  name: string; // This now contains the formatted name
+  name: string;
   club: string;
   nationality: string;
   yearOfBirth: string;
@@ -388,7 +387,6 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
           </TableBody>
         </Table>
       </div>
-      {/* Pagination controls */}
       <div className="flex items-center justify-between space-x-2 py-4">
         <Button
           variant="outline"
@@ -411,7 +409,6 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
           Next
         </Button>
       </div>
-      {/* Rows per page selector */}
       <div className="flex items-center space-x-2">
         <p className="text-sm font-medium">Rows per page</p>
         <Select

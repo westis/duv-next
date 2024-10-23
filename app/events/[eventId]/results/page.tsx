@@ -1,64 +1,56 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { useEventResults } from "@/hooks/useEventResults";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { EventHeader } from "@/components/EventHeader";
 import ResultsTable from "@/components/ResultsTable";
 
-export default function EventPage() {
-  const [activeTab, setActiveTab] = useState("results");
-  const params = useParams();
-  const eventId = params.eventId as string;
-  const { eventInfo, loading, error } = useEventResults(eventId);
+export const revalidate = 3600; // Revalidate every hour
 
-  if (loading) return <div>Loading event details...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!eventInfo) return <div>No event information found.</div>;
+interface PageProps {
+  params: Promise<{ eventId: string }>;
+}
 
-  return (
-    <div className="w-full max-w-full mx-auto px-4 py-8">
-      <EventHeader eventInfo={eventInfo} />
+async function getEventResults(eventId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/eventResults?eventId=${eventId}`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) throw new Error("Failed to fetch event results");
+  return res.json();
+}
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full grid grid-cols-2 mb-4">
-          <TabsTrigger value="results" className="text-lg font-semibold">
-            Results
-          </TabsTrigger>
-          <TabsTrigger value="details" className="text-lg font-semibold">
-            Event Details
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="results">
-          <Card className="bg-card border-t-4 border-t-primary shadow-none">
-            <CardContent className="p-2">
-              <ResultsTable eventId={eventId} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="details">
-          <Card className="bg-card border-t-4 border-t-secondary">
-            <CardContent className="space-y-4 pt-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">
-                  Event Information
-                </h3>
-                <ul className="list-disc pl-5 space-y-2">
-                  <li>Results Source: {eventInfo.Resultsource}</li>
-                  <li>Recorded By: {eventInfo.RecordedBy}</li>
-                  <li>Event Type: {eventInfo.EvtType}</li>
-                  {eventInfo.AltitudeDiff && (
-                    <li>Altitude Difference: {eventInfo.AltitudeDiff}</li>
-                  )}
-                </ul>
-              </div>
-              {/* Add more event details here as needed */}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { eventId } = await params;
+  try {
+    const { eventInfo } = await getEventResults(eventId);
+    return {
+      title: `Results - ${eventInfo.EvtName}`,
+      description: `Results for ${eventInfo.EvtName} held on ${eventInfo.EvtDate} in ${eventInfo.City}, ${eventInfo.Country}`,
+    };
+  } catch (error) {
+    console.error("Error generating metadata:", error);
+    return {
+      title: "Event Results",
+      description: "View the results for this ultramarathon event.",
+    };
+  }
+}
+
+export default async function EventResultsPage({ params }: PageProps) {
+  const { eventId } = await params;
+
+  try {
+    const { eventInfo } = await getEventResults(eventId);
+
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <EventHeader eventInfo={eventInfo} />
+        <ResultsTable eventId={eventId} />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error fetching event results:", error);
+    notFound();
+  }
 }

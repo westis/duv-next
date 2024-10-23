@@ -4,7 +4,7 @@ interface Result {
   rank: string;
   performance: string;
   performanceNumeric: string;
-  name: string; // This will now contain the formatted name
+  name: string;
   club: string;
   nationality: string;
   yearOfBirth: string;
@@ -22,7 +22,15 @@ interface EventInfo {
   RecordedBy: string;
   EvtType: string;
   AltitudeDiff?: string;
-  // Add other properties as needed
+  EvtID: string;
+  EvtName: string;
+  EvtDate: string;
+  City: string;
+  Country: string;
+  EvtDist: string;
+  RecordEligible: string;
+  EvtDetailLink: string;
+  FinisherCnt: string;
 }
 
 export function useEventResults(eventId: string | undefined) {
