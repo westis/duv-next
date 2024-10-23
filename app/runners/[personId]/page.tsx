@@ -8,7 +8,6 @@ import { RunnerHeader } from "@/components/RunnerHeader";
 import PerformancesTable from "@/components/PerformancesTable";
 import PersonalBestsTable from "@/components/PersonalBestsTable";
 import RaceComparisonsTable from "@/components/RaceComparisonsTable";
-import { getBaseUrl } from "@/lib/utils";
 
 export const revalidate = 3600;
 
@@ -17,8 +16,9 @@ interface PageProps {
 }
 
 async function getRunnerProfile(personId: string) {
-  const url = `${getBaseUrl()}/api/runnerProfile?personId=${personId}`;
-  console.log("Fetching runner profile from:", url);
+  const url = new URL(`/api/runnerProfile`, "http://localhost:3000");
+  url.searchParams.set("personId", personId);
+  console.log("Fetching runner profile from:", url.toString());
 
   const res = await fetch(url, {
     next: { revalidate: 3600 },

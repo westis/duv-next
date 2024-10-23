@@ -1,18 +1,14 @@
 import EventList from "@/components/EventList";
 import { Event } from "@/lib/eventUtils";
-import { getBaseUrl } from "@/lib/utils";
 
 export const revalidate = 60;
 
 async function getInitialEvents(year: string): Promise<Event[]> {
-  const params = new URLSearchParams({
-    year,
-    page: "1",
-    perpage: "10",
-  });
-
-  const url = `${getBaseUrl()}/api/events?${params.toString()}`;
-  console.log("Fetching events from:", url);
+  const url = new URL("/api/events", "http://localhost:3000");
+  url.searchParams.set("year", year);
+  url.searchParams.set("page", "1");
+  url.searchParams.set("perpage", "10");
+  console.log("Fetching events from:", url.toString());
 
   try {
     const res = await fetch(url, {

@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { EventHeader } from "@/components/EventHeader";
 import ResultsTable from "@/components/ResultsTable";
-import { getBaseUrl } from "@/lib/utils";
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -11,8 +10,9 @@ interface PageProps {
 }
 
 async function getEventResults(eventId: string) {
-  const url = `${getBaseUrl()}/api/eventResults?eventId=${eventId}`;
-  console.log("Fetching event results from:", url);
+  const url = new URL(`/api/eventResults`, "http://localhost:3000");
+  url.searchParams.set("eventId", eventId);
+  console.log("Fetching event results from:", url.toString());
 
   try {
     const res = await fetch(url, {

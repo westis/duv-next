@@ -1,5 +1,23 @@
 import { NextResponse } from "next/server";
 
+interface RaceResult {
+  RankTotal: string;
+  Performance: string;
+  PerformanceNumeric: number;
+  FirstName: string;
+  LastName: string;
+  Club: string;
+  Nationality: string;
+  YOB: string;
+  DOB: string;
+  Gender: string;
+  AgeGradePerf: string;
+  RankMW: string;
+  Cat: string;
+  RankCat: string;
+  PersonID: string;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const eventId = searchParams.get("eventId");
@@ -31,7 +49,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const formattedResults = data.Resultlist.map((result: any) => ({
+    const formattedResults = data.Resultlist.map((result: RaceResult) => ({
       rank: result.RankTotal,
       performance: result.Performance,
       performanceNumeric: result.PerformanceNumeric,
