@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type SearchResult = {
@@ -83,7 +82,10 @@ export function SearchDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]" onKeyDown={handleKeyDown}>
+      <DialogContent
+        className="sm:max-w-[425px] fixed top-[20%] left-[50%] translate-x-[-50%]"
+        onKeyDown={handleKeyDown}
+      >
         <DialogTitle>
           <VisuallyHidden>Search runners and events</VisuallyHidden>
         </DialogTitle>
