@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { RunnerHeader } from "@/components/RunnerHeader";
 import PerformancesTable from "@/components/PerformancesTable";
 import PersonalBestsTable from "@/components/PersonalBestsTable";
@@ -11,7 +12,7 @@ import RaceComparisonsTable from "@/components/RaceComparisonsTable";
 export const revalidate = 3600;
 
 interface PageProps {
-  params: Promise<{ personId: string }>;
+  params: { personId: string };
 }
 
 async function getRunnerProfile(personId: string) {
@@ -49,35 +50,54 @@ export default async function RunnerPage({ params }: PageProps) {
     const runnerInfo = await getRunnerProfile(personId);
 
     return (
-      <div className="w-full max-w-full mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 space-y-8">
         <RunnerHeader runnerInfo={runnerInfo.PersonHeader} />
 
         <Tabs defaultValue="performances" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="performances">Performances</TabsTrigger>
             <TabsTrigger value="personalBests">Personal Bests</TabsTrigger>
             <TabsTrigger value="comparisons">Race Comparisons</TabsTrigger>
           </TabsList>
           <TabsContent value="performances">
-            <Suspense fallback={<div>Loading performances...</div>}>
-              <PerformancesTable performances={runnerInfo.AllPerfs} />
-            </Suspense>
+            <Card>
+              <CardHeader>
+                <CardTitle>Performances</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[600px]">
+                  <Suspense fallback={<div>Loading performances...</div>}>
+                    <PerformancesTable performances={runnerInfo.AllPerfs} />
+                  </Suspense>
+                </ScrollArea>
+              </CardContent>
+            </Card>
           </TabsContent>
           <TabsContent value="personalBests">
             <Card>
+              <CardHeader>
+                <CardTitle>Personal Bests</CardTitle>
+              </CardHeader>
               <CardContent>
-                <Suspense fallback={<div>Loading personal bests...</div>}>
-                  <PersonalBestsTable personalBests={runnerInfo.AllPBs} />
-                </Suspense>
+                <ScrollArea className="h-[600px]">
+                  <Suspense fallback={<div>Loading personal bests...</div>}>
+                    <PersonalBestsTable personalBests={runnerInfo.AllPBs} />
+                  </Suspense>
+                </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="comparisons">
             <Card>
+              <CardHeader>
+                <CardTitle>Race Comparisons</CardTitle>
+              </CardHeader>
               <CardContent>
-                <Suspense fallback={<div>Loading race comparisons...</div>}>
-                  <RaceComparisonsTable comparisons={runnerInfo.CompTable} />
-                </Suspense>
+                <ScrollArea className="h-[600px]">
+                  <Suspense fallback={<div>Loading race comparisons...</div>}>
+                    <RaceComparisonsTable comparisons={runnerInfo.CompTable} />
+                  </Suspense>
+                </ScrollArea>
               </CardContent>
             </Card>
           </TabsContent>

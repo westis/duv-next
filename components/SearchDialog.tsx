@@ -84,9 +84,9 @@ export function SearchDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]" onKeyDown={handleKeyDown}>
-        <VisuallyHidden>
-          <DialogTitle>Search runners and events</DialogTitle>
-        </VisuallyHidden>
+        <DialogTitle>
+          <VisuallyHidden>Search runners and events</VisuallyHidden>
+        </DialogTitle>
         <div className="flex flex-col space-y-4">
           <div className="flex space-x-2">
             <Input

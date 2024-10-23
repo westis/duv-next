@@ -98,8 +98,14 @@
     - Add appropriate caching headers to responses to improve performance and reduce server load.
 
 20. **Create a comprehensive API documentation**:
+
     - Develop a detailed API documentation using a standard format like OpenAPI (Swagger).
     - Include examples, all possible parameters, and response formats for each endpoint.
+
+21. **Add event type to mgetresultperson.php endpoint**:
+    - Request the API developer to include the event type (e.g., road, trail, track) in the response of the mgetresultperson.php endpoint.
+    - This information should be added for each event in the runner's performance history.
+    - Including the event type will allow for better filtering and categorization of a runner's performances in the frontend.
 
 ### Temporary Workarounds
 
