@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEventResults } from "@/hooks/useEventResults";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { Row } from "@tanstack/react-table";
 
@@ -51,79 +51,8 @@ interface Result {
 type ResultValue = Result[keyof Result];
 type ResultColumn = ColumnDef<Result, ResultValue>;
 
-const columns: ResultColumn[] = [
-  {
-    accessorKey: "rank",
-    header: "Rank",
-    cell: ({ row, table }) => {
-      const { gender, ageGroup } = table.options.meta as {
-        gender: string;
-        ageGroup: string;
-      };
-      const rankTotal = row.original.rank;
-      const rankMW = row.original.rankMW;
-      const rankCat = row.original.rankCat;
-
-      if (gender !== "All" && ageGroup !== "All") {
-        return rankCat;
-      } else if (gender !== "All") {
-        return rankMW;
-      } else {
-        return rankTotal;
-      }
-    },
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      <Link
-        href={`/runners/${row.original.personId}`}
-        className="hover:underline"
-      >
-        {row.getValue("name")}
-      </Link>
-    ),
-  },
-  {
-    accessorKey: "birthDate",
-    header: "Birth Date",
-    cell: ({ row }) => {
-      const dob = row.original.dob;
-      const yob = row.original.yearOfBirth;
-      return (
-        <span className="hidden md:inline">
-          {dob && dob !== "0000-00-00" ? dob : yob}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "club",
-    header: "Club",
-    cell: ({ row }) => (
-      <span className="hidden lg:inline">{row.getValue("club")}</span>
-    ),
-  },
-  {
-    accessorKey: "nationality",
-    header: "Nat.",
-  },
-  {
-    accessorKey: "sex",
-    header: "Sex",
-    cell: ({ row }) => (
-      <span className="hidden sm:inline">{row.getValue("sex")}</span>
-    ),
-  },
-  {
-    accessorKey: "performanceNumeric",
-    header: "Result",
-    cell: ({ row }) => <span>{row.original.performanceNumeric}</span>,
-  },
-];
-
 export default function ResultsTable({ eventId }: { eventId: string }) {
+  const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [gender, setGender] = useState("All");
   const [ageGroup, setAgeGroup] = useState("All");
@@ -133,6 +62,82 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
   const [clubFilter, setClubFilter] = useState("");
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
   const { results, loading, error } = useEventResults(eventId);
+
+  const columns: ResultColumn[] = useMemo(
+    () => [
+      {
+        accessorKey: "rank",
+        header: "Rank",
+        cell: ({ row, table }) => {
+          const { gender, ageGroup } = table.options.meta as {
+            gender: string;
+            ageGroup: string;
+          };
+          const rankTotal = row.original.rank;
+          const rankMW = row.original.rankMW;
+          const rankCat = row.original.rankCat;
+
+          if (gender !== "All" && ageGroup !== "All") {
+            return rankCat;
+          } else if (gender !== "All") {
+            return rankMW;
+          } else {
+            return rankTotal;
+          }
+        },
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+          <Button
+            variant="link"
+            className="p-0 h-auto font-normal"
+            onClick={() => router.push(`/runners/${row.original.personId}`)}
+          >
+            {row.getValue("name")}
+          </Button>
+        ),
+      },
+      {
+        accessorKey: "birthDate",
+        header: "Birth Date",
+        cell: ({ row }) => {
+          const dob = row.original.dob;
+          const yob = row.original.yearOfBirth;
+          return (
+            <span className="hidden md:inline">
+              {dob && dob !== "0000-00-00" ? dob : yob}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "club",
+        header: "Club",
+        cell: ({ row }) => (
+          <span className="hidden lg:inline">{row.getValue("club")}</span>
+        ),
+      },
+      {
+        accessorKey: "nationality",
+        header: "Nat.",
+      },
+      {
+        accessorKey: "sex",
+        header: "Sex",
+        cell: ({ row }) => (
+          <span className="hidden sm:inline">{row.getValue("sex")}</span>
+        ),
+      },
+      {
+        accessorKey: "performanceNumeric",
+        header: "Result",
+        cell: ({ row }) => <span>{row.original.performanceNumeric}</span>,
+      },
+    ],
+    [router]
+  );
 
   const filteredResults = useMemo(() => {
     return results.filter((result) => {
