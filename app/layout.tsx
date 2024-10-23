@@ -1,11 +1,9 @@
-// app/layout.tsx
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/layout/Providers";
 import { TheFooter } from "@/components/layout/TheFooter";
 import "./globals.css";
-import { ThemeProvider } from "@/components/layout/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,18 +19,40 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            (function() {
+              function getInitialColorMode() {
+                const persistedColorPreference = window.localStorage.getItem('theme');
+                const hasPersistedPreference = typeof persistedColorPreference === 'string';
+                if (hasPersistedPreference) {
+                  return persistedColorPreference;
+                }
+                const mql = window.matchMedia('(prefers-color-scheme: dark)');
+                const hasMediaQueryPreference = typeof mql.matches === 'boolean';
+                if (hasMediaQueryPreference) {
+                  return mql.matches ? 'dark' : 'light';
+                }
+                return 'light';
+              }
+              const colorMode = getInitialColorMode();
+              document.documentElement.classList.add(colorMode);
+            })();
+          `,
+          }}
+        />
+      </head>
       <body
         className={`${inter.className} flex flex-col min-h-screen`}
         suppressHydrationWarning
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Providers>
-            <header>{/* Add your header content here */}</header>
-            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-            <TheFooter />
-          </Providers>
-        </ThemeProvider>
+        <Providers>
+          <header>{/* Add your header content here */}</header>
+          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          <TheFooter />
+        </Providers>
       </body>
     </html>
   );
