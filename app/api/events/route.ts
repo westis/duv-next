@@ -1,9 +1,10 @@
 // File path: app/api/events/route.ts
 
 import { NextResponse } from "next/server";
+import { getBaseUrl } from "@/lib/utils";
 
 async function fetchEvents(baseUrl: string, dist: string) {
-  const url = `${baseUrl}&dist=${dist}`;
+  const url = `${getBaseUrl()}${baseUrl}&dist=${dist}`;
   console.log("Fetching from URL:", url);
   const response = await fetch(url);
   if (!response.ok) {

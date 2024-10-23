@@ -16,8 +16,8 @@ interface PageProps {
 }
 
 async function getRunnerProfile(personId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/runnerProfile?personId=${personId}`, {
+  // Use a relative URL
+  const res = await fetch(`/api/runnerProfile?personId=${personId}`, {
     next: { revalidate: 3600 },
   });
   if (!res.ok) throw new Error("Failed to fetch runner profile");

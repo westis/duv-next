@@ -10,8 +10,8 @@ interface PageProps {
 }
 
 async function getEventResults(eventId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/eventResults?eventId=${eventId}`, {
+  // Use a relative URL
+  const res = await fetch(`/api/eventResults?eventId=${eventId}`, {
     next: { revalidate: 3600 },
   });
   if (!res.ok) throw new Error("Failed to fetch event results");

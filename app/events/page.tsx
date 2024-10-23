@@ -14,10 +14,9 @@ async function getInitialEvents(year: string): Promise<Event[]> {
     // Add other default filter parameters as needed
   });
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/events?${params.toString()}`,
-    { next: { revalidate: 60 } }
-  );
+  const res = await fetch(`/api/events?${params.toString()}`, {
+    next: { revalidate: 60 },
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch events");
