@@ -73,39 +73,6 @@ export function EventFilter({
         isLoading={isLoadingCountries}
       />
 
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="record-eligible"
-          checked={recordEligible}
-          onCheckedChange={onRecordEligibleChange}
-        />
-        <label
-          htmlFor="record-eligible"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Record Eligible
-        </label>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="without-results"
-          checked={withoutResults}
-          onCheckedChange={onWithoutResultsChange}
-        />
-        <label
-          htmlFor="without-results"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          Without Results
-        </label>
-      </div>
-
-      <SortOrderFilter
-        sortOrder={sortOrder}
-        onSortOrderChange={onSortOrderChange}
-      />
-
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline">More Filters</Button>
@@ -114,11 +81,42 @@ export function EventFilter({
           <div className="grid gap-4">
             <h4 className="font-medium leading-none">Additional Filters</h4>
             <div className="grid gap-2">
-              {/* Add more filters here if needed */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="record-eligible"
+                  checked={recordEligible}
+                  onCheckedChange={onRecordEligibleChange}
+                />
+                <label
+                  htmlFor="record-eligible"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Record Eligible
+                </label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="without-results"
+                  checked={withoutResults}
+                  onCheckedChange={onWithoutResultsChange}
+                />
+                <label
+                  htmlFor="without-results"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Without Results
+                </label>
+              </div>
             </div>
           </div>
         </PopoverContent>
       </Popover>
+
+      <SortOrderFilter
+        sortOrder={sortOrder}
+        onSortOrderChange={onSortOrderChange}
+      />
     </div>
   );
 }
