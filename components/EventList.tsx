@@ -283,7 +283,7 @@ export default function EventList({ initialEvents }: EventListProps) {
         </div>
       ) : !events || events.length === 0 ? (
         <div className="min-h-[200px] flex items-center justify-center">
-          {loading ? "Loading events..." : "No events found."}
+          No events found.
         </div>
       ) : layout === "table" ? (
         <Table className="bg-background rounded border">
