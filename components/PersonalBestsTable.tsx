@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -27,6 +27,16 @@ export default function PersonalBestsTable({
 }: {
   personalBests: PersonalBest[];
 }) {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [personalBests]);
+
+  if (isLoading) {
+    return <div>Loading personal bests...</div>;
+  }
+
   const allYears = new Set<string>();
   personalBests.forEach((pb) => {
     Object.values(pb).forEach((distanceData) => {

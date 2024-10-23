@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -31,7 +33,7 @@ interface RunnerInfo {
   CatINT: string;
   TotalEvtCnt: string;
   TotalKm: string;
-  [key: string]: string; // Allow for additional properties
+  [key: string]: string;
 }
 
 export function RunnerHeader({ runnerInfo }: { runnerInfo: RunnerInfo }) {
@@ -88,6 +90,7 @@ export function RunnerHeader({ runnerInfo }: { runnerInfo: RunnerInfo }) {
                 width={24}
                 height={16}
                 className="object-contain"
+                loading="lazy"
               />
             </div>
           </div>

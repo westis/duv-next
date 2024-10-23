@@ -22,14 +22,12 @@ export async function GET(request: Request) {
 
     const data = await response.json();
 
-    // Filter out empty fields and SearchRslts from PersonHeader
     const filteredPersonHeader = Object.fromEntries(
       Object.entries(data.PersonHeader).filter(([key, value]) => {
         return key !== "SearchRslts" && value !== "" && value !== "&nbsp;";
       })
     );
 
-    // Transform the data to match the expected structure
     const transformedData = {
       PersonHeader: filteredPersonHeader,
       AllPerfs: data.AllPerfs,
@@ -37,7 +35,11 @@ export async function GET(request: Request) {
       CompTable: data.CompTable,
     };
 
-    return NextResponse.json(transformedData);
+    return NextResponse.json(transformedData, {
+      headers: {
+        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+      },
+    });
   } catch (error) {
     console.error("Error fetching runner data:", error);
     return NextResponse.json(

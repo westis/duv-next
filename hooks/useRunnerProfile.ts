@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 
 interface RunnerProfile {
   PersonHeader: {
@@ -51,46 +51,17 @@ interface RunnerProfile {
   }>;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function useRunnerProfile(personId: string) {
-  const [runnerInfo, setRunnerInfo] = useState<RunnerProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error } = useSWR<RunnerProfile>(
+    `/api/runnerProfile?personId=${personId}`,
+    fetcher
+  );
 
-  useEffect(() => {
-    let isMounted = true;
-    const controller = new AbortController();
-
-    const fetchRunnerProfile = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `/api/runnerProfile?personId=${personId}`,
-          {
-            signal: controller.signal,
-          }
-        );
-        if (!response.ok) throw new Error("Failed to fetch runner data");
-        const data = await response.json();
-        if (isMounted) {
-          setRunnerInfo(data);
-          setError(null);
-        }
-      } catch (err) {
-        if (isMounted && err.name !== "AbortError") {
-          setError(err.message);
-        }
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    fetchRunnerProfile();
-
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, [personId]);
-
-  return { runnerInfo, loading, error };
+  return {
+    runnerInfo: data,
+    loading: !error && !data,
+    error: error,
+  };
 }

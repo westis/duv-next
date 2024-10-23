@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -27,6 +27,15 @@ export default function RaceComparisonsTable({
   const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>(
     {}
   );
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, [comparisons]);
+
+  if (isLoading) {
+    return <div>Loading race comparisons...</div>;
+  }
 
   const toggleEvent = (eventId: string) => {
     setExpandedEvents((prev) => ({ ...prev, [eventId]: !prev[eventId] }));

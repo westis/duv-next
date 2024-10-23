@@ -36,7 +36,6 @@ export default function PerformancesTable({
   const [expandedEvents, setExpandedEvents] = useState<string[]>([]);
 
   useEffect(() => {
-    // Expand all years by default
     setExpandedYears(performances.map((perf) => perf.Year));
   }, [performances]);
 
