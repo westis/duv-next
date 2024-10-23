@@ -14,17 +14,22 @@ async function getEventResults(eventId: string) {
   const url = `${getBaseUrl()}/api/eventResults?eventId=${eventId}`;
   console.log("Fetching event results from:", url);
 
-  const res = await fetch(url, {
-    next: { revalidate: 3600 },
-  });
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 3600 },
+    });
 
-  if (!res.ok) {
-    console.error("Failed to fetch event results. Status:", res.status);
-    console.error("Response text:", await res.text());
-    throw new Error(`Failed to fetch event results. Status: ${res.status}`);
+    if (!res.ok) {
+      console.error("Failed to fetch event results. Status:", res.status);
+      console.error("Response text:", await res.text());
+      throw new Error(`Failed to fetch event results. Status: ${res.status}`);
+    }
+
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching event results:", error);
+    throw error;
   }
-
-  return res.json();
 }
 
 export async function generateMetadata({
