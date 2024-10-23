@@ -36,6 +36,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { shouldShowSurface } from "@/lib/eventUtils";
 import { useCountries } from "@/hooks/useCountries";
 import { Event } from "@/lib/eventUtils";
+import { cn } from "@/lib/utils";
 
 interface EventListProps {
   initialEvents: Event[];
@@ -370,7 +371,10 @@ export default function EventList({ initialEvents }: EventListProps) {
                     e.preventDefault();
                     handlePageChange(Math.max(1, currentPage - 1));
                   }}
-                  aria-disabled={currentPage === 1}
+                  className={cn(
+                    "bg-background hover:bg-accent/30 hover:text-accent-foreground",
+                    currentPage === 1 && "pointer-events-none opacity-50"
+                  )}
                 />
               </PaginationItem>
               {isMobileScreen ? (
@@ -383,6 +387,7 @@ export default function EventList({ initialEvents }: EventListProps) {
                         handlePageChange(currentPage);
                       }}
                       isActive
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       {currentPage}
                     </PaginationLink>
@@ -394,6 +399,7 @@ export default function EventList({ initialEvents }: EventListProps) {
                         e.preventDefault();
                         handlePageChange(Math.min(totalPages, currentPage + 1));
                       }}
+                      className="bg-background hover:bg-accent/30 hover:text-accent-foreground"
                     >
                       {Math.min(totalPages, currentPage + 1)}
                     </PaginationLink>
@@ -410,6 +416,11 @@ export default function EventList({ initialEvents }: EventListProps) {
                         handlePageChange(index + 1);
                       }}
                       isActive={currentPage === index + 1}
+                      className={cn(
+                        "bg-background hover:bg-accent/30 hover:text-accent-foreground",
+                        currentPage === index + 1 &&
+                          "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
                     >
                       {index + 1}
                     </PaginationLink>
@@ -425,6 +436,11 @@ export default function EventList({ initialEvents }: EventListProps) {
                         handlePageChange(1);
                       }}
                       isActive={currentPage === 1}
+                      className={cn(
+                        "bg-background hover:bg-accent/30 hover:text-accent-foreground",
+                        currentPage === 1 &&
+                          "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
                     >
                       1
                     </PaginationLink>
@@ -438,6 +454,7 @@ export default function EventList({ initialEvents }: EventListProps) {
                           e.preventDefault();
                           handlePageChange(currentPage - 1);
                         }}
+                        className="bg-background hover:bg-accent/30 hover:text-accent-foreground"
                       >
                         {currentPage - 1}
                       </PaginationLink>
@@ -452,6 +469,7 @@ export default function EventList({ initialEvents }: EventListProps) {
                           handlePageChange(currentPage);
                         }}
                         isActive
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         {currentPage}
                       </PaginationLink>
@@ -466,6 +484,7 @@ export default function EventList({ initialEvents }: EventListProps) {
                             e.preventDefault();
                             handlePageChange(currentPage + 1);
                           }}
+                          className="bg-background hover:bg-accent/30 hover:text-accent-foreground"
                         >
                           {currentPage + 1}
                         </PaginationLink>
@@ -480,6 +499,11 @@ export default function EventList({ initialEvents }: EventListProps) {
                         handlePageChange(totalPages);
                       }}
                       isActive={currentPage === totalPages}
+                      className={cn(
+                        "bg-background hover:bg-accent/30 hover:text-accent-foreground",
+                        currentPage === totalPages &&
+                          "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
                     >
                       {totalPages}
                     </PaginationLink>
@@ -493,7 +517,11 @@ export default function EventList({ initialEvents }: EventListProps) {
                     e.preventDefault();
                     handlePageChange(Math.min(totalPages, currentPage + 1));
                   }}
-                  aria-disabled={currentPage === totalPages}
+                  className={cn(
+                    "bg-background hover:bg-accent/30 hover:text-accent-foreground",
+                    currentPage === totalPages &&
+                      "pointer-events-none opacity-50"
+                  )}
                 />
               </PaginationItem>
             </PaginationContent>
