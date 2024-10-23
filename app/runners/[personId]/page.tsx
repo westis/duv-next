@@ -17,20 +17,26 @@ interface PageProps {
 }
 
 async function getRunnerProfile(personId: string) {
-  const res = await fetch(
-    `${getBaseUrl()}/api/runnerProfile?personId=${personId}`,
-    {
-      next: { revalidate: 3600 },
-    }
-  );
-  if (!res.ok) throw new Error("Failed to fetch runner profile");
+  const url = `${getBaseUrl()}/api/runnerProfile?personId=${personId}`;
+  console.log("Fetching runner profile from:", url);
+
+  const res = await fetch(url, {
+    next: { revalidate: 3600 },
+  });
+
+  if (!res.ok) {
+    console.error("Failed to fetch runner profile. Status:", res.status);
+    console.error("Response text:", await res.text());
+    throw new Error(`Failed to fetch runner profile. Status: ${res.status}`);
+  }
+
   return res.json();
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { personId } = await params;
+  const { personId } = params;
   try {
     const runnerInfo = await getRunnerProfile(personId);
     return {
@@ -47,7 +53,7 @@ export async function generateMetadata({
 }
 
 export default async function RunnerPage({ params }: PageProps) {
-  const { personId } = await params;
+  const { personId } = params;
 
   try {
     const runnerInfo = await getRunnerProfile(personId);

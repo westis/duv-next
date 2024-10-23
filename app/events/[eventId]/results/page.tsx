@@ -7,24 +7,30 @@ import { getBaseUrl } from "@/lib/utils";
 export const revalidate = 3600; // Revalidate every hour
 
 interface PageProps {
-  params: Promise<{ eventId: string }>;
+  params: { eventId: string };
 }
 
 async function getEventResults(eventId: string) {
-  const res = await fetch(
-    `${getBaseUrl()}/api/eventResults?eventId=${eventId}`,
-    {
-      next: { revalidate: 3600 },
-    }
-  );
-  if (!res.ok) throw new Error("Failed to fetch event results");
+  const url = `${getBaseUrl()}/api/eventResults?eventId=${eventId}`;
+  console.log("Fetching event results from:", url);
+
+  const res = await fetch(url, {
+    next: { revalidate: 3600 },
+  });
+
+  if (!res.ok) {
+    console.error("Failed to fetch event results. Status:", res.status);
+    console.error("Response text:", await res.text());
+    throw new Error(`Failed to fetch event results. Status: ${res.status}`);
+  }
+
   return res.json();
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { eventId } = await params;
+  const { eventId } = params;
   try {
     const { eventInfo } = await getEventResults(eventId);
     return {
@@ -41,7 +47,7 @@ export async function generateMetadata({
 }
 
 export default async function EventResultsPage({ params }: PageProps) {
-  const { eventId } = await params;
+  const { eventId } = params;
 
   try {
     const { eventInfo } = await getEventResults(eventId);
