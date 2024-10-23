@@ -4,11 +4,10 @@ import { Event } from "@/lib/eventUtils";
 export const revalidate = 60;
 
 async function getInitialEvents(year: string): Promise<Event[]> {
-  const url = new URL("/api/events", "http://localhost:3000");
-  url.searchParams.set("year", year);
-  url.searchParams.set("page", "1");
-  url.searchParams.set("perpage", "10");
-  console.log("Fetching events from:", url.toString());
+  const url = `${
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+  }/api/events?year=${year}&page=1&perpage=10`;
+  console.log("Fetching events from:", url);
 
   try {
     const res = await fetch(url, {

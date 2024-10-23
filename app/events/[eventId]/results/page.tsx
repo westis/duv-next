@@ -10,9 +10,11 @@ interface PageProps {
 }
 
 async function getEventResults(eventId: string) {
-  const url = new URL(`/api/eventResults`, "http://localhost:3000");
-  url.searchParams.set("eventId", eventId);
-  console.log("Fetching event results from:", url.toString());
+  // Use the full URL here
+  const url = `${
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+  }/api/eventResults?eventId=${eventId}`;
+  console.log("Fetching event results from:", url);
 
   try {
     const res = await fetch(url, {
