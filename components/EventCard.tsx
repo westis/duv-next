@@ -334,13 +334,13 @@ export function EventCard({
           {["C", "P", "S"].includes(event.Results) && (
             <Button
               size="sm"
-              variant="ghost"
-              className="hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
+              variant="default"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
               asChild
             >
               <Link
                 href={`/events/${event.EventID}/results`}
-                className="btn-link"
+                className="btn-link no-underline"
               >
                 <BarChartIcon className="h-4 w-4 mr-1" /> Results
               </Link>

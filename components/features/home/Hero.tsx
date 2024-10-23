@@ -33,14 +33,13 @@ export default function Hero({ title, subtitle }: HeroProps) {
             <div className="grid grid-cols-2 gap-4">
               <Button
                 asChild
-                variant="default"
-                size="lg"
-                className="w-full text-sm sm:text-base"
+                className="w-full text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
               >
                 <Link
                   href={`/events?from=${formatDate(
                     currentDate
                   )}&to=${formatDate(oneYearFromNow)}`}
+                  className="btn-link"
                 >
                   <Calendar className="mr-2 h-5 w-5" />
                   Calendar
@@ -48,14 +47,13 @@ export default function Hero({ title, subtitle }: HeroProps) {
               </Button>
               <Button
                 asChild
-                variant="default"
-                size="lg"
-                className="w-full text-sm sm:text-base"
+                className="w-full text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground text-primary-foreground"
               >
                 <Link
                   href={`/events?from=${formatDate(oneYearAgo)}&to=${formatDate(
                     currentDate
                   )}`}
+                  className="btn-link text-primary-foreground"
                 >
                   <ClipboardList className="mr-2 h-5 w-5" />
                   Results
@@ -63,22 +61,18 @@ export default function Hero({ title, subtitle }: HeroProps) {
               </Button>
               <Button
                 asChild
-                variant="default"
-                size="lg"
-                className="w-full text-sm sm:text-base"
+                className="w-full text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
               >
-                <Link href="/toplists">
+                <Link href="/toplists" className="btn-link">
                   <Trophy className="mr-2 h-5 w-5" />
                   Toplists
                 </Link>
               </Button>
               <Button
                 asChild
-                variant="default"
-                size="lg"
-                className="w-full text-sm sm:text-base"
+                className="w-full text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
               >
-                <Link href="/records">
+                <Link href="/records" className="btn-link">
                   <Award className="mr-2 h-5 w-5" />
                   Records
                 </Link>

@@ -243,7 +243,8 @@ html {
 /* ... (add other dark mode background color classes) */
 
 @layer base {
-  a:not(.btn):not(.nav-link):not([role="button"]) {
+  /* Update the selector to exclude links within buttons */
+  a:not(.btn):not(.nav-link):not([role="button"]):not(button a) {
     @apply text-link underline underline-offset-4 decoration-link/30 hover:decoration-link-hover hover:decoration-2 focus:outline-none focus:ring-2 focus:ring-link focus:ring-offset-2 transition-all duration-200;
   }
 }
@@ -264,5 +265,21 @@ html {
 
   .nav-link[aria-current="page"] {
     @apply bg-primary/20 font-semibold;
+  }
+
+  /* Style for links inside buttons */
+  button a,
+  .btn-link,
+  .button a,
+  .btn a {
+    @apply no-underline text-inherit hover:no-underline !important;
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  /* Ensure button styles take precedence over link styles */
+  button[class*="bg-primary"],
+  a[class*="bg-primary"] {
+    @apply text-primary-foreground hover:text-primary-foreground !important;
   }
 }
