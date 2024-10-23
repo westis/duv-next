@@ -18,14 +18,14 @@ export default function Hero({ title, subtitle }: HeroProps) {
   const formatDate = (date: Date) => date.toISOString().split("T")[0];
 
   return (
-    <div className="py-12 sm:py-16 bg-background">
+    <div className="py-12 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-foreground text-center mb-8">
           {title}
         </h1>
         <div className="lg:flex lg:items-start lg:justify-between">
           <div className="lg:w-1/2 space-y-6 mb-8 lg:mb-0">
-            <p className="text-lg sm:text-xl text-muted-foreground">
+            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
               {subtitle}
             </p>
           </div>
