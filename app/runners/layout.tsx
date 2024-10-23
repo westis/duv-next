@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import DefaultLayout from "@/app/layouts/DefaultLayout";
 
 export default function RunnersLayout({
   children,
@@ -6,8 +7,8 @@ export default function RunnersLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="container mx-auto py-8">
+    <DefaultLayout>
       <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-    </main>
+    </DefaultLayout>
   );
 }

@@ -1,3 +1,4 @@
+import DefaultLayout from "@/app/layouts/DefaultLayout";
 import Hero from "@/components/features/home/Hero";
 import InfoSection from "@/components/features/home/InfoSection";
 
@@ -19,12 +20,14 @@ const pageData = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <Hero title={pageData.hero.title} subtitle={pageData.hero.subtitle} />
-      <InfoSection
-        title={pageData.infoSection.title}
-        content={pageData.infoSection.content}
-      />
-    </main>
+    <DefaultLayout>
+      <div className="container mx-auto py-0">
+        <Hero title={pageData.hero.title} subtitle={pageData.hero.subtitle} />
+        <InfoSection
+          title={pageData.infoSection.title}
+          content={pageData.infoSection.content}
+        />
+      </div>
+    </DefaultLayout>
   );
 }
