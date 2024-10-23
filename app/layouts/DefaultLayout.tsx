@@ -5,5 +5,5 @@ export default function DefaultLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <main className="flex-grow">{children}</main>;
+  return <main className="flex-grow container mx-auto py-8">{children}</main>;
 }

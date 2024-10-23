@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/layout/Providers";
+import { TheNavbar } from "@/components/layout/TheNavbar";
 import { TheFooter } from "@/components/layout/TheFooter";
 import "./globals.css";
 
@@ -49,8 +50,10 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Providers>
-          <header>{/* Add your header content here */}</header>
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          <TheNavbar />
+          <main className="flex-grow">
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          </main>
           <TheFooter />
         </Providers>
       </body>

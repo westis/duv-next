@@ -48,6 +48,17 @@ export function DateRangePicker({
     DateRange | undefined
   >(dateRange);
 
+  React.useEffect(() => {
+    setDateRange({
+      from: initialDateFrom,
+      to: initialDateTo,
+    });
+    setTempDateRange({
+      from: initialDateFrom,
+      to: initialDateTo,
+    });
+  }, [initialDateFrom, initialDateTo]);
+
   const handleDateChange = (newDateRange: DateRange | undefined) => {
     setTempDateRange(newDateRange);
   };

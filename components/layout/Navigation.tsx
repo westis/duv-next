@@ -1,4 +1,8 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -127,6 +131,8 @@ export const navigationItems = [
 ];
 
 export function Navigation() {
+  const router = useRouter();
+
   return (
     <NavigationMenu>
       <NavigationMenuList className="space-x-1 md:space-x-2">
@@ -141,7 +147,14 @@ export function Navigation() {
                   <ListItem
                     key={subItem.href}
                     title={subItem.title}
-                    href={subItem.onClick ? subItem.onClick() : subItem.href}
+                    href={subItem.onClick ? "#" : subItem.href}
+                    onClick={(e) => {
+                      if (subItem.onClick) {
+                        e.preventDefault();
+                        const href = subItem.onClick();
+                        router.push(href);
+                      }
+                    }}
                   >
                     {subItem.description}
                   </ListItem>

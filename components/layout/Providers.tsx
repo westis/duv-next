@@ -1,7 +1,6 @@
 "use client";
 
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { TheNavbar } from "@/components/layout/TheNavbar";
 import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -13,7 +12,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <GlobalKeyboardShortcuts />
-      <TheNavbar />
       {children}
     </ThemeProvider>
   );

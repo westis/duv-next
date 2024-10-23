@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { Event } from "@/lib/eventUtils";
 import { DateRange } from "react-day-picker";
+import { useCallback, useState } from "react";
 
 interface Filters {
   eventType: string;
@@ -68,41 +69,14 @@ export function useEventsFetcher(filters: Filters) {
     }
   );
 
-  const optimisticUpdate = (newFilters: Partial<Filters>) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    const updatedParams = new URLSearchParams();
+  const [filtersState, setFilters] = useState<Filters>(filters);
 
-    Object.entries(updatedFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== "") {
-        if (
-          key === "dateRange" &&
-          value instanceof Object &&
-          "from" in value &&
-          "to" in value
-        ) {
-          updatedParams.set(
-            "from",
-            (value as DateRange).from?.toISOString().split("T")[0] || ""
-          );
-          updatedParams.set(
-            "to",
-            (value as DateRange).to?.toISOString().split("T")[0] || ""
-          );
-        } else if (key === "recordEligible" && value) {
-          updatedParams.set("rproof", "1");
-        } else if (key === "withoutResults" && value) {
-          updatedParams.set("norslt", "1");
-        } else {
-          updatedParams.set(key, value.toString());
-        }
-      }
-    });
-
-    mutate(`/api/events?${updatedParams.toString()}`, {
-      optimisticData: eventsData,
-      revalidate: true,
-    });
-  };
+  const optimisticUpdate = useCallback((newFilters: Partial<Filters>) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      ...newFilters,
+    }));
+  }, []);
 
   return {
     events: eventsData?.events as Event[],

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { DateRange } from "react-day-picker";
 import { EventFilter } from "@/components/EventFilter";
@@ -44,45 +44,28 @@ interface EventListProps {
 export default function EventList({ initialEvents }: EventListProps) {
   const searchParams = useSearchParams();
 
-  const initialEventType = useCallback(
-    () => searchParams.get("dist") || "all",
-    [searchParams]
+  const [eventType, setEventType] = useState(
+    () => searchParams.get("dist") || "all"
   );
-  const initialDateRange = useCallback(() => {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
-    if (from && to) {
-      return { from: new Date(from), to: new Date(to) };
-    }
-    return undefined;
-  }, [searchParams]);
-  const initialCurrentPage = useCallback(
-    () => Number(searchParams.get("page")) || 1,
-    [searchParams]
+    return from && to ? { from: new Date(from), to: new Date(to) } : undefined;
+  });
+  const [currentPage, setCurrentPage] = useState(
+    () => Number(searchParams.get("page")) || 1
   );
-  const initialEventsPerPage = useCallback(
-    () => Number(searchParams.get("perpage")) || 10,
-    [searchParams]
+  const [eventsPerPage, setEventsPerPage] = useState(
+    () => Number(searchParams.get("perpage")) || 10
   );
-  const initialCountry = useCallback(
-    () => searchParams.get("country") || "",
-    [searchParams]
+  const [country, setCountry] = useState(
+    () => searchParams.get("country") || ""
   );
-  const initialSortOrder = useCallback(
-    () => searchParams.get("order") || "asc",
-    [searchParams]
-  );
-
-  const [eventType, setEventType] = useState(initialEventType());
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(
-    initialDateRange()
-  );
-  const [currentPage, setCurrentPage] = useState(initialCurrentPage());
-  const [eventsPerPage, setEventsPerPage] = useState(initialEventsPerPage());
-  const [country, setCountry] = useState(initialCountry());
   const [recordEligible, setRecordEligible] = useState(false);
   const [withoutResults, setWithoutResults] = useState(false);
-  const [sortOrder, setSortOrder] = useState(initialSortOrder());
+  const [sortOrder, setSortOrder] = useState(
+    () => searchParams.get("order") || "asc"
+  );
   const [layout, setLayout] = useState<
     "large" | "normal" | "compact" | "table"
   >("table");
@@ -111,6 +94,45 @@ export default function EventList({ initialEvents }: EventListProps) {
   const { countries, isLoading: isLoadingCountries } = useCountries();
 
   useUrlParamSync(filters);
+
+  useEffect(() => {
+    const newEventType = searchParams.get("dist") || "all";
+    const newFrom = searchParams.get("from");
+    const newTo = searchParams.get("to");
+    const newOrder = searchParams.get("order") || "asc";
+    const newCountry = searchParams.get("country") || "";
+    const newPage = Number(searchParams.get("page")) || 1;
+
+    if (
+      newEventType !== eventType ||
+      newFrom !== dateRange?.from?.toISOString().split("T")[0] ||
+      newTo !== dateRange?.to?.toISOString().split("T")[0] ||
+      newOrder !== sortOrder ||
+      newCountry !== country ||
+      newPage !== currentPage
+    ) {
+      setEventType(newEventType);
+      setDateRange(
+        newFrom && newTo
+          ? { from: new Date(newFrom), to: new Date(newTo) }
+          : undefined
+      );
+      setSortOrder(newOrder);
+      setCountry(newCountry);
+      setCurrentPage(newPage);
+
+      optimisticUpdate({
+        eventType: newEventType,
+        dateRange:
+          newFrom && newTo
+            ? { from: new Date(newFrom), to: new Date(newTo) }
+            : undefined,
+        sortOrder: newOrder,
+        country: newCountry,
+        currentPage: newPage,
+      });
+    }
+  }, [searchParams, optimisticUpdate]);
 
   const handleEventTypeChange = useCallback(
     (value: string) => {
