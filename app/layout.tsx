@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/layout/Providers";
@@ -51,9 +50,7 @@ export default function RootLayout({
       >
         <Providers>
           <TheNavbar />
-          <main className="flex-grow">
-            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-          </main>
+          <main className="grow">{children}</main>
           <TheFooter />
         </Providers>
       </body>

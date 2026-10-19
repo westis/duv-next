@@ -54,11 +54,11 @@ export function EventHeader({ eventInfo }: { eventInfo: EventInfo }) {
       <CardContent className="p-4 sm:pt-6 bg-white dark:bg-[#1c1c1c] text-black dark:text-white">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-2 flex-shrink-0">
+            <div className="flex items-center space-x-2 shrink-0">
               <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
               <span className="text-sm sm:text-base">{eventInfo.EvtDate}</span>
             </div>
-            <div className="flex items-center space-x-2 flex-shrink-0">
+            <div className="flex items-center space-x-2 shrink-0">
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
               <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
                 {eventInfo.City}, {eventInfo.Country}

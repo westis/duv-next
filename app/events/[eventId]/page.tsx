@@ -30,8 +30,8 @@ const loadEvent = cache(async (eventId: string) => {
   try {
     data = await getEventDetail({ event: eventId });
   } catch (error) {
-    // DUV answers HTTP 404 for events it does not have or does not show
-    if (error instanceof DuvApiError && error.status === 404) return null;
+    // DUV answers HTTP 404 for events it does not show and 400 for unknown ids
+    if (error instanceof DuvApiError && (error.status === 404 || error.status === 400)) return null;
     throw error;
   }
   return data?.raceDetails?.EventID ? data : null;

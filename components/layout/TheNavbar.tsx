@@ -112,7 +112,7 @@ const TheNavbar = memo(function TheNavbar() {
           <Navigation />
         </div>
 
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <div className="relative w-[140px] sm:w-[200px] lg:w-80">
             <Button
               variant="outline"

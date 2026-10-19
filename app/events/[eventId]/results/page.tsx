@@ -48,7 +48,8 @@ const loadResults = cache(
         ? { data: { ...fallback, Resultlist: [], Pagination: undefined }, empty: true }
         : null;
     } catch (error) {
-      if (error instanceof DuvApiError && error.status === 404) return null;
+      // DUV answers 404 for hidden events and 400 for unknown ids
+      if (error instanceof DuvApiError && (error.status === 404 || error.status === 400)) return null;
       throw error;
     }
   }

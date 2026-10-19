@@ -18,7 +18,7 @@ function LinkList({ title, entries }: { title: string; entries: EventDetailListE
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-sm text-yellow-600 dark:text-yellow-500 hover:underline break-all"
             >
-              <ExternalLink className="h-3 w-3 flex-shrink-0" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
               {link.label}
             </a>
           </li>

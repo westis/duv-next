@@ -35,7 +35,7 @@ export function CountryNav({ nat, countries }: CountryNavProps) {
             aria-current={current === section.slug ? "page" : undefined}
             className={cn(
               "nav-link inline-flex items-center rounded-sm px-3 py-1.5 text-sm font-medium",
-              current === section.slug && "bg-background shadow-sm",
+              current === section.slug && "bg-background shadow-xs",
             )}
           >
             {section.label}

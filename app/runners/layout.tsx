@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import DefaultLayout from "@/app/layouts/DefaultLayout";
 
 export default function RunnersLayout({
@@ -8,7 +7,7 @@ export default function RunnersLayout({
 }) {
   return (
     <DefaultLayout>
-      <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      {children}
     </DefaultLayout>
   );
 }

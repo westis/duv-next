@@ -47,7 +47,7 @@ export function SearchForm({ query, countries }: SearchFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-4" role="search">
       <div className="flex flex-col gap-2 sm:flex-row">
-        <div className="flex-grow">
+        <div className="grow">
           <Label htmlFor="sname" className="sr-only">
             {showRunnerFields ? "Last name" : "Search term"}
           </Label>

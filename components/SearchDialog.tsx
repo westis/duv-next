@@ -105,7 +105,7 @@ export function SearchDialog({
               placeholder="Search runners, events..."
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
-              className="flex-grow"
+              className="grow"
             />
             <Select value={searchType} onValueChange={onSearchTypeChange}>
               <SelectTrigger className="w-[100px]">
