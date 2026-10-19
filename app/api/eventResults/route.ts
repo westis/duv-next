@@ -1,22 +1,5 @@
 import { NextResponse } from "next/server";
-
-interface RaceResult {
-  RankTotal: string;
-  Performance: string;
-  PerformanceNumeric: number;
-  FirstName: string;
-  LastName: string;
-  Club: string;
-  Nationality: string;
-  YOB: string;
-  DOB: string;
-  Gender: string;
-  AgeGradePerf: string;
-  RankMW: string;
-  Cat: string;
-  RankCat: string;
-  PersonID: string;
-}
+import { getEventResults, type EventResultRow } from "@/lib/duv";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -30,16 +13,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(
-      `https://statistik.d-u-v.org/json/mgetresultevent.php?event=${eventId}&plain=1&Language=EN`,
-      { next: { revalidate: 3600 } }
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
+    const data = await getEventResults({ event: eventId, plain: true });
 
     if (!data || !Array.isArray(data.Resultlist)) {
       console.error("Unexpected data structure:", data);
@@ -49,7 +23,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const formattedResults = data.Resultlist.map((result: RaceResult) => ({
+    const formattedResults = data.Resultlist.map((result: EventResultRow) => ({
       rank: result.RankTotal,
       performance: result.Performance,
       performanceNumeric: result.PerformanceNumeric,

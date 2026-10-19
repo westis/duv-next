@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getRunnerProfile } from "@/lib/duv";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,16 +13,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(
-      `https://statistik.d-u-v.org/json/mgetresultperson.php?runner=${personId}&Language=EN`,
-      { next: { revalidate: 3600 } }
-    );
+    const data = await getRunnerProfile({ runner: personId });
 
-    if (!response.ok) {
+    if (!data) {
       throw new Error("Failed to fetch runner data");
     }
-
-    const data = await response.json();
 
     const filteredPersonHeader = Object.fromEntries(
       Object.entries(data.PersonHeader).filter(([key, value]) => {
