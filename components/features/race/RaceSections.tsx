@@ -101,7 +101,7 @@ function WinnerCell({ raw, locale }: { raw: string | null | undefined; locale: s
   if (!w) return null;
   return (
     <>
-      <span className="font-semibold tabular">{w.perf ? formatPerformanceText(w.perf, locale) : ""}</span>
+      <span className="font-semibold whitespace-nowrap tabular">{w.perf ? formatPerformanceText(w.perf, locale) : ""}</span>
       <span className="block text-xs text-fg-muted md:text-sm">{w.name}</span>
     </>
   );
@@ -268,7 +268,18 @@ function EditionsChart({
   const W = 520;
   const H = 180;
   const pad = { l: 44, r: 10, t: 10, b: 24 };
-  const dated = winners.filter((w) => w.date);
+  // One point per year and gender: the better winning mark when a year had two races on the course.
+  const isTimeCourse = winners[0]?.perf.includes(":");
+  const bestOf = new Map<string, EditionWinner>();
+  for (const w of winners) {
+    if (!w.date) continue;
+    const key = `${w.year ?? w.date}-${w.gender}`;
+    const prev = bestOf.get(key);
+    if (!prev || (isTimeCourse ? w.value < prev.value : w.value > prev.value) || w.eventId === current) {
+      if (!prev || prev.eventId !== current) bestOf.set(key, w);
+    }
+  }
+  const dated = Array.from(bestOf.values()).sort((a, b) => a.date!.localeCompare(b.date!));
   const times = dated.map((w) => Date.parse(w.date!));
   const minT = Math.min(...times);
   const maxT = Math.max(...times);
@@ -310,7 +321,7 @@ function EditionsChart({
         {ticks.map((v) => (
           <g key={v}>
             <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} className="stroke-hair" />
-            <text x={pad.l - 6} y={y(v) + 4} textAnchor="end" className="fill-fg-muted text-[11px] tabular">
+            <text x={pad.l - 6} y={y(v) + 4} textAnchor="end" className="fill-fg-muted text-[12px] tabular">
               {tickText(v)}
             </text>
           </g>
@@ -318,7 +329,7 @@ function EditionsChart({
         {yearTicks.map((yr) => {
           const w = dated.find((d) => d.year === yr)!;
           return (
-            <text key={yr} x={x(w.date!)} y={H - 6} textAnchor="middle" className="fill-fg-muted text-[11px] tabular">
+            <text key={yr} x={x(w.date!)} y={H - 6} textAnchor="middle" className="fill-fg-muted text-[12px] tabular">
               {yr}
             </text>
           );
