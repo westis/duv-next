@@ -1,7 +1,4 @@
-// Helpers for the athlete profile. The DUV API uses "&nbsp;" for empty cells.
-
-export const PROFILE_TABS = ["performances", "pbs", "comparison"] as const;
-export type ProfileTab = (typeof PROFILE_TABS)[number];
+// Helpers for the runner page. The DUV API uses "&nbsp;" for empty cells.
 
 export function clean(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return "";
@@ -28,22 +25,10 @@ export function bestIndex(perfs: string[]): number {
   perfs.forEach((perf, i) => {
     const v = perfValue(perf);
     if (!v) return;
-    if (
-      !bestVal ||
-      (v.kind === "time" ? v.value < bestVal.value : v.value > bestVal.value)
-    ) {
+    if (!bestVal || (v.kind === "time" ? v.value < bestVal.value : v.value > bestVal.value)) {
       best = i;
       bestVal = v;
     }
   });
   return best;
-}
-
-/** True for timed races such as "24h" or "6d". */
-export function isTimedRace(dist: string): boolean {
-  return /\d\s*(h|d)\b/i.test(dist) || /hour|day/i.test(dist);
-}
-
-export function httpsUrl(url: string): string {
-  return url.replace(/^http:\/\//i, "https://");
 }
