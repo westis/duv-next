@@ -23,9 +23,9 @@ export function Place({ row, compact = false }: { row: LedgerRow; compact?: bool
     .join(", ");
   const strong = "font-bold text-brand-ink";
   return (
-    <span className="whitespace-nowrap tabular">
+    <span className="tabular">
       <span className="sr-only">{label}</span>
-      <span aria-hidden>
+      <span aria-hidden className="whitespace-nowrap">
         {overall && <span className={cn("font-medium", win && !showGender && strong)}>{overall}</span>}
         {showGender && (
           <>
@@ -36,12 +36,12 @@ export function Place({ row, compact = false }: { row: LedgerRow; compact?: bool
             </span>
           </>
         )}
-        {!compact && cat && catRank && (
-          <span className="ms-1.5 text-xs text-fg-muted">
-            {cat} {catRank}
-          </span>
-        )}
       </span>
+      {!compact && cat && catRank && (
+        <span aria-hidden className="ms-1.5 inline-block text-xs whitespace-nowrap text-fg-muted">
+          {cat} {catRank}
+        </span>
+      )}
     </span>
   );
 }

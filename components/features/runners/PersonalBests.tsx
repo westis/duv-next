@@ -6,10 +6,12 @@ import { sameMark, type PbLine } from "./ledger";
 const W = 84;
 const H = 26;
 const PAD = 3;
+/** Under three seasons a line says nothing. */
+const MIN_POINTS = 3;
 
 /** Yearly bests across the career, better is higher; the PB dot in red. */
 function Sparkline({ line, first, last }: { line: PbLine; first: number; last: number }) {
-  if (line.bests.length < 2) return null;
+  if (line.bests.length < MIN_POINTS) return null;
   const values = line.bests.map((b) => b.value);
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -63,7 +65,7 @@ export function PersonalBests({
   const t = useTranslations("runner.pbs");
   const locale = useLocale();
   if (!lines.length && !otherCount) return null;
-  const spark = lines.some((l) => l.bests.length >= 2);
+  const spark = lines.some((l) => l.bests.length >= MIN_POINTS);
 
   return (
     <section aria-labelledby="pbs-heading">
@@ -108,7 +110,7 @@ export function PersonalBests({
                 {spark && (
                   <td className="py-1">
                     <Sparkline line={line} first={first} last={last} />
-                    {line.bests.length >= 2 && (
+                    {line.bests.length >= MIN_POINTS && (
                       <span className="sr-only">
                         {line.bests
                           .map((b) => `${b.year}: ${formatPerformanceText(b.perf, locale)}`)

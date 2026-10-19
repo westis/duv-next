@@ -261,6 +261,7 @@
       "events": "{count, plural, one {# event} other {# events}}",
       "km": "{km} km",
       "showSplits": "{count, plural, one {# split} other {# splits}}",
+      "showSplitsPb": "{count, plural, one {# split} other {# splits}}, with a PB",
       "hideSplits": "Hide {count, plural, one {split} other {splits}}",
       "alsoScored": "also scored as {races}",
       "alsoPlace": "{race} ({place})",

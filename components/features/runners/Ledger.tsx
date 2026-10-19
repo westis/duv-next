@@ -67,7 +67,7 @@ function GroupRows({
   const toggle = splits.length > 0 && (
     <SplitToggle
       defaultOpen={open}
-      showLabel={t("showSplits", { count: splits.length })}
+      showLabel={t(splits.some((r) => r.pb) ? "showSplitsPb" : "showSplits", { count: splits.length })}
       hideLabel={t("hideSplits", { count: splits.length })}
     />
   );
