@@ -1,127 +1,122 @@
-import Image from "next/image";
-import { useLocale } from "next-intl";
-import { DateText, formatBirthDate, linkHost } from "@/lib/format";
-import { LinkText, OutLink } from "@/components/design";
-import { Activity, Calendar, Flag, Home, MapPin, Trophy, User } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import type { NlsText, PersonHeader } from "@/lib/duv";
-import { clean, httpsUrl } from "./format";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { DateText, formatBirthDate, formatCount, linkHost } from "@/lib/format";
+import { LinkText, MetaDot, OutLink, PageHeader, StatStrip, StatTile } from "@/components/design";
+import type { PersonHeader } from "@/lib/duv";
+import { clean } from "./format";
 
-const badgeClass =
-  "text-xs sm:text-sm px-2 py-1 rounded-full bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 w-fit";
+export interface CareerFigures {
+  events: number | null;
+  km: number | null;
+  firstSeason: string | null;
+  lastSeason: string | null;
+  wins: number;
+}
 
+/**
+ * Identity and the four big figures (career ledger): kicker with the DUV id,
+ * the name as "Aleksandr SOROKIN", one meta line (nation, birth date,
+ * category, residence, club), then events, kilometres, seasons and wins.
+ */
 export function RunnerHeader({
+  personId,
   header,
-  nls = {},
+  name,
+  figures,
 }: {
+  personId: string;
   header: PersonHeader;
-  nls?: NlsText;
+  name: string;
+  figures: CareerFigures;
 }) {
+  const t = useTranslations("runner");
+  const locale = useLocale();
   const origName = clean(header.OrigName);
   const club = clean(header.Club);
   const residence = clean(header.Residence);
   const homepage = clean(header.Homepage);
   const misc = clean(header.Misc);
-  const homepageUrl = homepage.startsWith("http") ? homepage : `https://${homepage}`;
-  const locale = useLocale();
+  const homepageUrl = homepage && (/^https?:\/\//i.test(homepage) ? homepage : `https://${homepage}`);
   // DUV's unknown "00.00.0000" shows nothing; a known year alone shows the year.
   const born = formatBirthDate(header.DOB, locale) ? header.DOB : header.YOB;
   const hasBorn = !!formatBirthDate(born, locale);
+  const nat = clean(header.NationalityShort);
+  const catNat = clean(header.CatNAT);
+  const catInt = clean(header.CatINT);
+
+  const meta: ReactNode[] = [];
+  if (nat) {
+    meta.push(
+      <Link
+        href={`/countries/${encodeURIComponent(nat)}`}
+        className="font-semibold tracking-[0.04em] text-fg underline-offset-4 hover:underline"
+        title={clean(header.NationalityLong) || undefined}
+      >
+        {nat}
+      </Link>
+    );
+  }
+  if (hasBorn) {
+    meta.push(
+      <span>
+        {t("born")} <DateText value={born} locale={locale} variant="birth" />
+      </span>
+    );
+  }
+  if (catInt || catNat) {
+    meta.push(
+      <span>
+        {catInt && catNat && catInt !== catNat
+          ? t("categories", { intl: catInt, national: catNat })
+          : catInt || catNat}
+      </span>
+    );
+  }
+  if (residence) meta.push(<span>{residence}</span>);
+  if (club) meta.push(<span>{t("club", { club })}</span>);
+  if (homepageUrl) meta.push(<OutLink href={homepageUrl}>{linkHost(homepageUrl)}</OutLink>);
+
+  const seasons =
+    figures.firstSeason && figures.lastSeason
+      ? figures.firstSeason === figures.lastSeason
+        ? figures.firstSeason
+        : `${figures.firstSeason}–${figures.lastSeason}`
+      : "–";
 
   return (
-    <Card>
-      <CardHeader className="bg-yellow-500 text-black p-2 sm:p-3">
-        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-center">
-          {header.PersonName}
-          {origName && (
-            <span className="block text-sm sm:text-base font-normal">
-              {origName}
-            </span>
-          )}
-        </h1>
-      </CardHeader>
-      <CardContent className="p-4 sm:pt-6 bg-white dark:bg-[#1c1c1c] text-black dark:text-white">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-2">
-            {club && (
-              <div className="flex items-center space-x-2">
-                <User className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                <span>{club}</span>
-              </div>
-            )}
-            {residence && (
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                <span>{residence}</span>
-              </div>
-            )}
-            <div className="flex items-center space-x-2">
-              <Flag className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-              <span>
-                {header.NationalityLong} ({header.NationalityShort})
-              </span>
-              {header.Flag && (
-                <Image
-                  src={httpsUrl(header.Flag)}
-                  alt=""
-                  width={24}
-                  height={16}
-                  className="object-contain"
-                />
-              )}
-            </div>
-            {homepage && (
-              <div className="flex items-center space-x-2">
-                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                <OutLink href={homepageUrl}>{linkHost(homepageUrl)}</OutLink>
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col space-y-2">
-            {hasBorn && (
-              <Badge variant="secondary" className={badgeClass}>
-                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline text-yellow-500" />
-                <span>
-                  {nls.nlsBirthday ?? "Born"}: <DateText value={born} locale={locale} variant="birth" />
+    <>
+      <PageHeader
+        kicker={t("kicker", { id: personId })}
+        title={name}
+        subtitle={origName || undefined}
+        meta={
+          meta.length
+            ? meta.map((item, i) => (
+                <span key={i} className="inline-flex items-center gap-x-2">
+                  {i > 0 && <MetaDot />}
+                  {item}
                 </span>
-              </Badge>
-            )}
-            {clean(header.CatNAT) && (
-              <Badge variant="secondary" className={badgeClass}>
-                <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline text-yellow-500" />
-                <span>
-                  {nls.nlsAgeGroupNational ?? "Cat. national"}: {header.CatNAT}
-                </span>
-              </Badge>
-            )}
-            {clean(header.CatINT) && (
-              <Badge variant="secondary" className={badgeClass}>
-                <Trophy className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline text-yellow-500" />
-                <span>
-                  {nls.nlsAgeGroupShortINT ?? "Cat. internat."}: {header.CatINT}
-                </span>
-              </Badge>
-            )}
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-              <span>Total events: {header.TotalEvtCnt}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-              <span>Total distance: {header.TotalKm}</span>
-            </div>
-          </div>
-        </div>
-        {misc && (
-          <p className="mt-4 text-sm text-muted-foreground">
-            <span className="font-medium">{nls.nlsMisc ?? "Miscellaneous"}:</span>{" "}
-            <LinkText value={misc} />
-          </p>
-        )}
-      </CardContent>
-    </Card>
+              ))
+            : undefined
+        }
+        facts={
+          <StatStrip>
+            <StatTile label={t("facts.events")} value={formatCount(figures.events, locale) ?? "–"} />
+            <StatTile
+              label={t("facts.km")}
+              value={figures.km !== null ? formatCount(Math.round(figures.km), locale) : "–"}
+            />
+            <StatTile label={t("facts.seasons")} value={seasons} />
+            <StatTile label={t("facts.wins")} value={formatCount(figures.wins, locale) ?? "0"} />
+          </StatStrip>
+        }
+      />
+      {misc && (
+        <p className="mt-3 max-w-prose text-sm text-fg-muted">
+          <span className="font-medium text-fg">{t("misc")}:</span> <LinkText value={misc} />
+        </p>
+      )}
+    </>
   );
 }
