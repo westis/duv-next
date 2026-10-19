@@ -130,6 +130,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
     ? eventHits.slice(0, PREVIEW_COUNT)
     : eventHits.slice((eventPage - 1) * PER_PAGE, eventPage * PER_PAGE);
   const shownRunners = preview ? runnerHits.slice(0, PREVIEW_COUNT) : runnerHits;
+  // The API stops paging after a few hundred rows (500 by name, 400 fuzzy)
+  const runnerMaxPage = runners?.data?.Pagination?.MaxPage ?? 1;
+  const runnerPage = Math.min(query.page, runnerMaxPage);
+  const runnersCapped = !preview && runnerTotal > runnerMaxPage * PER_PAGE;
 
   const tooShort =
     query.sname.length > 0 && runners === null && events === null;
@@ -193,10 +197,17 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <RunnerResults hits={shownRunners} />
           {!preview && (
             <SearchPagination
-              page={query.page}
-              maxPage={runners?.data?.Pagination?.MaxPage ?? 1}
+              page={runnerPage}
+              maxPage={runnerMaxPage}
               hrefFor={(page) => searchHref({ ...query, page })}
             />
+          )}
+          {runnersCapped && (
+            <p className="text-sm text-muted-foreground">
+              The DUV database only pages through the first{" "}
+              {(runnerMaxPage * PER_PAGE).toLocaleString("en")} matches. Add a
+              first name or country to narrow the search.
+            </p>
           )}
         </section>
       )}
