@@ -158,11 +158,72 @@
   },
   "calendar": {
     "metaTitle": "Race calendar",
-    "title": {
-      "upcoming": "Upcoming races",
-      "range": "Races {range}"
+    "metaDescription": "Ultramarathon races worldwide by day: road, track, indoor and trail, with results.",
+    "heading": "Races",
+    "error": "The calendar could not be loaded right now. Please try again shortly.",
+    "empty": "No races match these filters. Try a longer date range or fewer filters.",
+    "shown": "{first}–{last} of {total} races",
+    "filters": {
+      "sentenceRange": "Races from <from></from> to <to></to> in <country></country>, <format></format>, on <surface></surface>.",
+      "sentenceOnward": "Races from <from></from> onward in <country></country>, <format></format>, on <surface></surface>.",
+      "allCountries": "all countries",
+      "anyFormat": "any format",
+      "anySurface": "any surface",
+      "surfaceWord": {
+        "road": "road",
+        "trail": "trail",
+        "track": "track",
+        "indoor": "indoor"
+      },
+      "countryLabel": "Country",
+      "formatLabel": "Format: distance, time or race type",
+      "surfaceLabel": "Surface",
+      "datesLabel": "Dates, now {date}: change",
+      "dates": "Dates",
+      "from": "From",
+      "to": "To",
+      "showRaces": "Show races",
+      "presets": {
+        "next30": "Next 30 days",
+        "next12m": "Next 12 months",
+        "last14": "Last 14 days",
+        "last12m": "Last 12 months",
+        "thisYear": "{year}",
+        "onward": "From today on"
+      },
+      "iauOnly": "IAU label only",
+      "more": "More filters",
+      "moreCount": "More filters ({count})",
+      "rankingEligible": "Ranking eligible only",
+      "withoutResults": "Without results only",
+      "hideSplits": "Hide splits and stages",
+      "cup": "Cup",
+      "allCups": "All cups",
+      "soonestFirst": "Soonest first",
+      "latestFirst": "Latest first",
+      "reset": "Reset",
+      "loading": "Loading…"
     },
-    "metaDescription": "Upcoming and past ultramarathon races worldwide."
+    "ledger": {
+      "caption": "Races by day",
+      "day": "Day",
+      "format": "Format",
+      "race": "Race",
+      "surface": "Surface",
+      "place": "Place",
+      "nation": "Nat.",
+      "nationFull": "Country",
+      "label": "Label",
+      "results": "Results",
+      "raceCount": "{count, plural, one {# race} other {# races}}"
+    },
+    "running": {
+      "title": "Running now",
+      "subtitle": "{count, plural, one {# race started before {date} and hasn't finished} other {# races started before {date} and haven't finished}}",
+      "dayOf": "day {day} of {total}",
+      "lastDay": "last day",
+      "showMore": "Show {count} more"
+    }
   },
   "dateRange": {
     "fromToday": "From today",
@@ -475,6 +536,50 @@
       "count": "{count, plural, one {# place} other {# places}}",
       "empty": "No top-3 places abroad with these filters.",
       "back": "Back to {country}"
+    }
+  },
+  "home": {
+    "metaTitle": "DUV Ultramarathon Statistics",
+    "metaDescription": "Search ultramarathon results, runners and races worldwide. Results just in, races this week and the year's best marks.",
+    "title": "DUV Ultramarathon Statistics",
+    "search": {
+      "heading": "Ultramarathon results worldwide",
+      "placeholder": "Runner, race, club or event id",
+      "submit": "Search",
+      "try": "Try"
+    },
+    "results": {
+      "title": "Results just in",
+      "all": "Last 14 days",
+      "finishers": "{count, plural, one {# finisher} other {# finishers}}",
+      "winnersOf": "Winners of {race}",
+      "gender": {
+        "M": "Men's winner",
+        "W": "Women's winner"
+      },
+      "genderShort": {
+        "M": "M",
+        "W": "W"
+      }
+    },
+    "week": {
+      "title": "This week",
+      "calendar": "Calendar",
+      "runningNow": "Running now",
+      "all": "All {count} races this week"
+    },
+    "best": {
+      "title": "Best of {year}",
+      "rankings": "Rankings",
+      "gender": {
+        "M": "men",
+        "W": "women"
+      },
+      "rank": "Rank",
+      "performance": "Performance",
+      "runner": "Runner",
+      "nation": "Country",
+      "trailNote": "DUV ranks standard distances only, so trail races have no year list here. Find them in the calendar and on each race's results."
     }
   }
 }

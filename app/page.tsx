@@ -1,30 +1,42 @@
-import Hero from "@/components/features/home/Hero";
-import InfoSection from "@/components/features/home/InfoSection";
+import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { isoToday } from "@/components/features/calendar/params";
+import { BestOfYear, HomeSearch, ResultsJustIn, ThisWeekColumn } from "@/components/features/home/HomeSections";
+import { loadBestOfYear, loadRecentResults, loadThisWeek } from "@/components/features/home/load";
 
-// This data would come from Sanity in the future
-const pageData = {
-  hero: {
-    title: "DUV Ultramarathon Statistics",
-    subtitle:
-      "Discover comprehensive statistics, results, and rankings from 100,523 ultramarathon events, featuring 8,865,545 performances by 2,115,800 runners worldwide.",
-  },
-  infoSection: {
-    title: "About DUV Statistics",
-    content: [
-      "The DUV Ultramarathon Statistics database offers a comprehensive resource for tracking and exploring ultramarathon results worldwide. It provides detailed information about runners, race events, and results, enabling users to view and compare performances across distances, times, and locations.",
-      "Whether you're an athlete, coach, or fan, the DUV platform helps you stay informed about the world of ultrarunning with easily accessible statistics and historical data.",
-    ],
-  },
-};
+// The lists change through the day; rebuild the page at most every ten minutes.
+export const revalidate = 600;
 
-export default function Home() {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("home");
+  return { title: { absolute: t("metaTitle") }, description: t("metaDescription") };
+}
+
+/**
+ * Home (direction A, "search desk"): a large search field first, then three
+ * short columns: results just in, races this week, and the year's best marks.
+ * A column whose data does not come back is left out.
+ */
+export default async function Home() {
+  const locale = await getLocale();
+  const t = await getTranslations("home");
+  const today = isoToday();
+  const year = today.slice(0, 4);
+  const [results, week, best] = await Promise.all([
+    loadRecentResults(today),
+    loadThisWeek(today, locale),
+    loadBestOfYear(year),
+  ]);
+
   return (
-    <div className="container mx-auto py-0">
-      <Hero title={pageData.hero.title} subtitle={pageData.hero.subtitle} />
-      <InfoSection
-        title={pageData.infoSection.title}
-        content={pageData.infoSection.content}
-      />
-    </div>
+    <>
+      <h1 className="sr-only">{t("title")}</h1>
+      <HomeSearch />
+      <div className="container grid gap-10 pt-6 pb-12 md:pt-8 lg:grid-cols-[1.25fr_1fr_0.9fr]">
+        {results && <ResultsJustIn data={results} />}
+        {week && <ThisWeekColumn data={week} />}
+        <BestOfYear lists={best} year={year} />
+      </div>
+    </>
   );
 }

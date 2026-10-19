@@ -4,6 +4,7 @@ import {
   formatDateRange,
   formatDayMonth,
   formatMonthShort,
+  formatWeekday,
   formatMonthYear,
   formatStartTime,
   formatYear,
@@ -145,6 +146,15 @@ describe("formatMonthShort", () => {
     expect(formatMonthShort(6, "ja")).toBe("6月");
     expect(formatMonthShort(0, "en")).toBeNull();
     expect(formatMonthShort(13, "en")).toBeNull();
+  });
+});
+
+describe("formatWeekday", () => {
+  it("gives an uppercase short weekday", () => {
+    expect(formatWeekday("2026-10-22", "en")).toEqual({ text: "THU", dateTime: "2026-10-22" });
+    expect(formatWeekday("22.10.2026", "de")?.text).toBe("DO");
+    expect(formatWeekday("2026-10-22", "ja")?.text).toBe("木");
+    expect(formatWeekday("", "en")).toBeNull();
   });
 });
 
