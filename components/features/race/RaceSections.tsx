@@ -91,13 +91,25 @@ function sizeLabel(w: Pick<WinnerRow, "Length" | "Duration">) {
   return formatRaceLength(cleanDuv(w.Duration) || cleanDuv(w.Length));
 }
 
+/**
+ * DUV's lists write winners "First Last" in one string; the surname is taken as
+ * the last word ("Sarah WEBSTER"), the site's name style. Compound surnames
+ * keep their first part in mixed case.
+ */
+function winnerName(name: string, locale: string) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length < 2) return name;
+  const last = parts.pop()!;
+  return formatRunnerName({ first: parts.join(" "), last }, locale);
+}
+
 function WinnerCell({ raw, locale }: { raw: string | null | undefined; locale: string }) {
   const w = parseWinnerField(raw);
   if (!w) return null;
   return (
     <>
       <span className="font-semibold tabular">{w.perf ? formatPerformanceText(w.perf, locale) : ""}</span>
-      <span className="block text-xs text-fg-muted md:text-sm">{w.name}</span>
+      <span className="block text-xs text-fg-muted md:text-sm">{winnerName(w.name, locale)}</span>
     </>
   );
 }
@@ -280,7 +292,11 @@ function EditionsChart({
     const share = (v - lo) / (hi - lo);
     return pad.t + (isTime ? share : 1 - share) * (H - pad.t - pad.b);
   };
-  const ticks = [0, 1, 2, 3].map((i) => lo + ((hi - lo) * (i + 0.5)) / 4);
+  // Round ticks: whole km steps, or 10 min to 4 h for times; at most five.
+  const steps = isTime ? [600, 900, 1800, 3600, 7200, 14400] : [1, 2, 5, 10, 20, 25, 50, 100, 200];
+  const tickStep = steps.find((st) => (hi - lo) / st <= 5) ?? steps[steps.length - 1];
+  const ticks: number[] = [];
+  for (let v = Math.ceil(lo / tickStep) * tickStep; v <= hi; v += tickStep) ticks.push(v);
   const tickText = (v: number) => {
     if (!isTime) return String(Math.round(v));
     const m = Math.round(v / 60);
