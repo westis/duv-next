@@ -326,7 +326,12 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
         {rows.map((row) => {
           const e = row.entry;
           const c = cat(e);
-          const gap = gapText(row, locale, t, false);
+          // No column header on phones: name the laps ("−4 laps").
+          const bare = gapText(row, locale, t, false);
+          const gap =
+            bare && row.result?.kind === "laps"
+              ? `${bare} ${t("lapsUnit", { count: row.gap ?? 0 })}`
+              : bare;
           return (
             <li
               key={e.PerfID}
