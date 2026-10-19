@@ -9,18 +9,22 @@ export function RankingSummary({
   shown: number;
 }) {
   if (!shown) return null;
-  if (!pagination || pagination.MaxPage <= 1) {
+  // Live data has sent PageSize as a string ("100")
+  const page = Number(pagination?.CurrPage);
+  const maxPage = Number(pagination?.MaxPage);
+  const pageSize = Number(pagination?.PageSize);
+  if (!pagination || !(maxPage > 1) || !page || !pageSize) {
     return (
       <p className="text-sm text-muted-foreground mb-2">
         {shown.toLocaleString("en")} performances
       </p>
     );
   }
-  const from = (pagination.CurrPage - 1) * pagination.PageSize + 1;
+  const from = (page - 1) * pageSize + 1;
   return (
     <p className="text-sm text-muted-foreground mb-2">
       {from.toLocaleString("en")} to {(from + shown - 1).toLocaleString("en")},
-      page {pagination.CurrPage} of {pagination.MaxPage}
+      page {page} of {maxPage.toLocaleString("en")}
     </p>
   );
 }

@@ -15,25 +15,12 @@ interface RankingTableProps {
   variant: "international" | "backyard";
 }
 
-/** The API sends a literal "&nbsp;" for empty fields. */
-function clean(entry: RankingEntry): RankingEntry {
-  const out = { ...entry } as Record<string, unknown>;
-  for (const [key, value] of Object.entries(out)) {
-    if (typeof value === "string" && value.trim() === "&nbsp;") out[key] = "";
-  }
-  return out as unknown as RankingEntry;
-}
-
 function runnerName(entry: RankingEntry) {
   return [entry.LastName, entry.FirstName].filter(Boolean).join(", ");
 }
 
 /** Shared table for the international and backyard rankings. */
-export function RankingTable({
-  entries: rawEntries,
-  variant,
-}: RankingTableProps) {
-  const entries = rawEntries.map(clean);
+export function RankingTable({ entries, variant }: RankingTableProps) {
   const isBackyard = variant === "backyard";
   const showLaps = isBackyard && entries.some((e) => e.Laps);
 
