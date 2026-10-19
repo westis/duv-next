@@ -23,6 +23,8 @@ import { cleanDuv, formatCount, formatDateRange, parseDuvDate } from "@/lib/form
 import { raceTypeOf } from "@/lib/tags";
 
 export const revalidate = 3600;
+/** A cold record cache (IAU, GOMU, DUV lists) can take a while; see `raceMarkers`. */
+export const maxDuration = 60;
 
 interface PageProps {
   params: Promise<{ eventId: string }>;

@@ -1,4 +1,5 @@
 import "server-only";
+import { after } from "next/server";
 import { getTranslations } from "next-intl/server";
 import { formatDate, formatPerformanceText } from "@/lib/format";
 import { getRaceMarkers, markerKey, type MarkRef, type RecordMarkerInfo } from "@/lib/records";
@@ -9,14 +10,18 @@ import type { Finisher } from "./raceModel";
 /**
  * The record sources (IAU page, GOMU sheets, DUV's lists per age band, area
  * and nation) take long to load on a cold cache. The page waits this long for
- * them and renders without markers otherwise; the fetches that finished are in
- * the data cache, so later requests get the markers.
+ * them and renders without markers otherwise, letting the lookups finish after
+ * the response so the next render (revalidation) has them.
  */
-const MARKER_BUDGET_MS = 6000;
+const MARKER_BUDGET_MS = 20000;
 
 function withBudget<T>(work: Promise<T>): Promise<T | null> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => resolve(null), MARKER_BUDGET_MS);
+    const timer = setTimeout(() => {
+      // Let the lookups finish after the response so they land in the data cache.
+      after(() => work.then(() => undefined, () => undefined));
+      resolve(null);
+    }, MARKER_BUDGET_MS);
     work.then(
       (value) => {
         clearTimeout(timer);
