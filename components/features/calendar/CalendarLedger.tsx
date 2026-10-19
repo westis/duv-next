@@ -78,6 +78,8 @@ export function CalendarLedger({ rows, showResults }: { rows: CalendarRow[]; sho
   const tTags = useTranslations("tags");
   const locale = useLocale();
   const days = byDay(rows);
+  // Columns are decided once per list: no Label column when no race has one.
+  const showLabel = rows.some((row) => row.iau);
 
   const surface = (row: CalendarRow) => (row.surface ? tTags(`surface.${row.surface}`) : "");
   const iau = (row: CalendarRow) =>
@@ -114,9 +116,11 @@ export function CalendarLedger({ rows, showResults }: { rows: CalendarRow[]; sho
                 {t("nation")}
               </abbr>
             </th>
-            <th scope="col" className={cn("w-28 pb-1.5 text-start font-semibold", showResults && "pe-4")}>
-              {t("label")}
-            </th>
+            {showLabel && (
+              <th scope="col" className={cn("w-28 pb-1.5 text-start font-semibold", showResults && "pe-4")}>
+                {t("label")}
+              </th>
+            )}
             {showResults && (
               <th scope="col" className="w-36 pb-1.5 text-start font-semibold">
                 {t("results")}
@@ -160,7 +164,7 @@ export function CalendarLedger({ rows, showResults }: { rows: CalendarRow[]; sho
                 <td className="py-2 pe-4 text-fg-muted">{surface(row)}</td>
                 <td className="py-2 pe-4">{row.city}</td>
                 <td className="label-caps py-2 pe-4 text-fg-muted">{row.country}</td>
-                <td className={cn("py-2", showResults && "pe-4")}>{iau(row)}</td>
+                {showLabel && <td className={cn("py-2", showResults && "pe-4")}>{iau(row)}</td>}
                 {showResults && (
                   <td className="py-2 text-sm">
                     <ResultsMark row={row} />

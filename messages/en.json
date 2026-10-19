@@ -169,6 +169,12 @@
       "allCountries": "all countries",
       "anyFormat": "any format",
       "anySurface": "any surface",
+      "surfaceWord": {
+        "road": "road",
+        "trail": "trail",
+        "track": "track",
+        "indoor": "indoor"
+      },
       "countryLabel": "Country",
       "formatLabel": "Format: distance, time or race type",
       "surfaceLabel": "Surface",

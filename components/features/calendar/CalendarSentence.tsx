@@ -59,7 +59,7 @@ export function CalendarSentence({ state, today, formats, countries, cups }: Cal
       : (formats.flatMap((g) => g.options).find((o) => o.value === state.dist)?.label ?? state.dist);
   const countryLabel =
     state.country === "all" ? t("allCountries") : (countries.find((o) => o.value === state.country)?.label ?? state.country);
-  const surfaceLabel = state.surface === "all" ? t("anySurface") : tTags(`surface.${state.surface}`);
+  const surfaceLabel = state.surface === "all" ? t("anySurface") : t(`surfaceWord.${state.surface}`);
 
   const dateField = (which: "from" | "to") => {
     const iso = which === "from" ? (state.from ?? today) : (state.to ?? "");
