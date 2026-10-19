@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRouter } from "next/navigation";
+import { searchHref } from "@/components/features/search/params";
 
 type SearchResult = {
   type: "runner" | "event";
@@ -68,7 +69,16 @@ export function SearchDialog({
     } else if (e.key === "Enter" && selectedIndex >= 0) {
       e.preventDefault();
       handleResultClick(searchResults[selectedIndex]);
+    } else if (e.key === "Enter" && searchTerm.trim()) {
+      // No result highlighted: open the full search page (numeric IDs redirect)
+      e.preventDefault();
+      showAllResults();
     }
+  };
+
+  const showAllResults = () => {
+    onOpenChange(false);
+    router.push(searchHref({ sname: searchTerm.trim(), type: searchType }));
   };
 
   const handleResultClick = (result: SearchResult) => {
@@ -114,9 +124,13 @@ export function SearchDialog({
                 <div className="p-2">Searching...</div>
               ) : searchResults.length > 0 ? (
                 <>
-                  <div className="p-2 bg-blue-50 text-blue-700 font-medium border-b dark:bg-blue-900 dark:text-blue-100">
+                  <button
+                    type="button"
+                    onClick={showAllResults}
+                    className="block w-full text-left p-2 bg-blue-50 text-blue-700 font-medium border-b hover:underline dark:bg-blue-900 dark:text-blue-100"
+                  >
                     Show all results ({totalHits})
-                  </div>
+                  </button>
                   {runners.length > 0 && (
                     <div>
                       <div className="p-2 font-medium bg-gray-50 border-b dark:bg-gray-800 dark:text-gray-200">
