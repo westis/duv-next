@@ -86,27 +86,31 @@ function weight(race: Pick<CalendarRace, "Length" | "Duration">): number {
 }
 
 const UNIT_WORD = /^(?:km|k|mi|mile|miles|meilen|h|hr|hrs|hour|hours|std|stunden|heures|ore|horas|day|days|tage|d)$/i;
-const NUMBERISH = /^[\d.,]+(?:km|k|mi|m|h|hr|hrs|std|d)?$/i;
+/** "24hr", "100km", "50k", "100Miles", "48-Stundenlauf" stays (a word), "6h" goes. */
+const DISTANCE_WORD = /^[\d.,/]+(?:km|k|mi|m|mile|miles|h|hr|hrs|hour|hours|std|d)?$/i;
 const PUNCT = /^[-–—:|/(),.+&]+$/;
 
+/** A race name without its distance words: "24hr Loutraki Festival" → ["Loutraki", "Festival"]. */
+function nameWords(name: string): string[] {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter((w) => !DISTANCE_WORD.test(w) && !UNIT_WORD.test(w) && !PUNCT.test(w));
+}
+
 /**
- * The shared start of sibling race names, cut back to whole words and without
- * a trailing distance ("Glacial Trail 50 Mile Race" + "Glacial Trail 50 km Race"
- * give "Glacial Trail"). Null when what is left is too short to name a race.
+ * What sibling race names share once their distances are taken out
+ * ("Glacial Trail 50 Mile Race" + "Glacial Trail 50 km Race" give "Glacial
+ * Trail Race", "24hr Loutraki Festival" + "12hr Loutraki Festival" give
+ * "Loutraki Festival"). Null when that is too short to name a race.
  */
 export function sharedName(names: string[]): string | null {
-  const words = names.map((n) => n.trim().split(/\s+/));
+  const words = names.map(nameWords);
   const first = words[0] ?? [];
   let n = 0;
   while (n < first.length && words.every((w) => w[n]?.toLowerCase() === first[n].toLowerCase())) n++;
-  const prefix = first.slice(0, n);
-  while (prefix.length) {
-    const last = prefix[prefix.length - 1];
-    if (NUMBERISH.test(last) || UNIT_WORD.test(last) || PUNCT.test(last)) prefix.pop();
-    else break;
-  }
-  const text = prefix.join(" ").replace(/[\s\-–—:|,(]+$/, "");
-  if (prefix.length >= 2 || text.length >= 10) return text;
+  const text = first.slice(0, n).join(" ");
+  if (n >= 2 || text.length >= 10) return text;
   return null;
 }
 

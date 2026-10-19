@@ -60,7 +60,8 @@ export async function loadCalendarPage(state: CalendarFilterState): Promise<Cale
     state.order === "asc" ? a.Startdate.localeCompare(b.Startdate) : b.Startdate.localeCompare(a.Startdate)
   );
   const total = data?.HitCnt ?? races.length;
-  const pageCount = Math.max(1, data?.Pagination?.MaxPage ?? Math.ceil(total / state.perpage));
+  // DUV's Pagination.MaxPage stops at 10 although later pages answer: count from the hits.
+  const pageCount = Math.max(1, Math.ceil(total / state.perpage));
   return { races, total, pageCount };
 }
 

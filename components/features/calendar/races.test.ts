@@ -39,7 +39,11 @@ describe("formatOf", () => {
 
 describe("sharedName", () => {
   it("cuts the shared start back to the race name", () => {
-    expect(sharedName(["Glacial Trail 50 Mile Race", "Glacial Trail 50 km Race"])).toBe("Glacial Trail");
+    expect(sharedName(["Glacial Trail 50 Mile Race", "Glacial Trail 50 km Race"])).toBe("Glacial Trail Race");
+    expect(sharedName(["24hr Loutraki Int. Ultramarathon Festival", "12hr Loutraki Int. Ultramarathon Festival"])).toBe(
+      "Loutraki Int. Ultramarathon Festival"
+    );
+    expect(sharedName(["Chief Ladiga 100", "Chief Ladiga 100 - 50 Miles"])).toBe("Chief Ladiga");
     expect(sharedName(["Hare Mountain 100", "Hare Mountain 50 Mile", "Hare Mountain 60K"])).toBe("Hare Mountain");
     expect(sharedName(["Self-Transcendence 6 hour", "Self-Transcendence 12 hour"])).toBe("Self-Transcendence");
     expect(sharedName(["Rocky Gap 50k", "Bizz Johnson 50 km"])).toBeNull();
