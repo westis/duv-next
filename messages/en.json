@@ -244,10 +244,10 @@
     "emptyHint": "Try another year, or all age groups and countries.",
     "error": "The rankings could not be loaded from the DUV statistics server. Please try again later.",
     "unauthorized": "The DUV statistics server refused the request (API key missing or invalid).",
-    "partialAgeGroup": "DUV's server fails on this list as a whole, so it is put together from one list per age group.",
-    "partialRegion": "DUV's server fails on this list as a whole, so it is put together from one list per region.",
-    "partialMissing": "Missing because the server fails on them too: {parts}.",
-    "partialPages": "The first {count} pages are shown.",
+    "partialAgeGroup": "DUV's server fails on the whole list; this one is rebuilt from the age group lists.",
+    "partialRegion": "DUV's server fails on the whole list; this one is rebuilt from the regional lists.",
+    "partialMissing": "Missing: {parts}.",
+    "partialPages": "First {count} pages only.",
     "unknownAge": "runners without a known age"
   }
 }

@@ -34,7 +34,7 @@ function Result({ row, kind, locale, t, compact }: { row: RankRow; kind: ListKin
     return (
       <>
         {laps !== null ? formatLaps(laps, locale) : <span title={t("noLaps")}>{km?.number}</span>}
-        {laps !== null && km && !compact && <span className="ms-2 text-xs font-normal text-fg-muted">{km.text}</span>}
+        {laps !== null && km && !compact && <span className="block text-xs font-normal text-fg-muted">{km.text}</span>}
       </>
     );
   }
@@ -51,10 +51,10 @@ function Result({ row, kind, locale, t, compact }: { row: RankRow; kind: ListKin
 }
 
 function GapBar({ row, scale }: { row: RankRow; scale: GapScale | null }) {
-  if (row.gap === null || !scale) return <span className="inline-block w-24 lg:w-32" />;
+  if (row.gap === null || !scale) return <span className="inline-block w-24 xl:w-32" />;
   const pct = gapPercent(row.gap, scale);
   return (
-    <span aria-hidden className="relative inline-block h-2.5 w-24 align-middle lg:w-32">
+    <span aria-hidden className="relative inline-block h-2.5 w-24 align-middle xl:w-32">
       <span className="absolute start-0 top-1 h-0.5 bg-border" style={{ width: `${pct}%` }} />
       <span
         className="absolute top-px size-2 rounded-full bg-brand"
@@ -146,7 +146,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
             <th scope="col" className={th}>
               {backyard ? t("lapsBehind") : t("behind")}
               {axis && (
-                <span aria-hidden className="mt-1 flex w-24 justify-between font-normal tracking-normal normal-case tabular lg:w-32">
+                <span aria-hidden className="mt-1 flex w-24 justify-between font-normal tracking-normal normal-case tabular xl:w-32">
                   {axis.map((a, i) => (
                     <span key={i}>{a}</span>
                   ))}
@@ -206,7 +206,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                   )}
                 </td>
                 <td className={cn(td, "whitespace-nowrap")}>
-                  <Link href={`/events/${e.EventID}`} title={e.City} className="inline-block max-w-40 truncate align-bottom xl:max-w-52">
+                  <Link href={`/events/${e.EventID}`} title={e.City} className="inline-block max-w-36 truncate align-bottom xl:max-w-44">
                     {e.City}
                   </Link>{" "}
                   <span className="text-xs text-fg-muted">{e.Country}</span>

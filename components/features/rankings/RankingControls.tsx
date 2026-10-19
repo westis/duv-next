@@ -280,7 +280,7 @@ export function RankingPhoneControls({ m, title }: { m: RankingNavModel; title: 
   const t = useTranslations("rankings");
   const name = "ranking-controls";
   const active = [m.state.cat !== "all", m.state.nat !== "all", !m.backyard && m.state.iau, !m.backyard && m.state.net].filter(Boolean).length;
-  const years = [{ href: rankingHref(m, { year: "all" }), label: t("allTime"), current: m.state.year === "all" }, ...m.years.map((y) => ({ href: rankingHref(m, { year: y }), label: y, current: m.state.year === y }))];
+  const years = m.years.map((y) => ({ href: rankingHref(m, { year: y }), label: y, current: m.state.year === y }));
   return (
     // Re-keyed by the URL so an open panel closes once a link is chosen.
     <div key={rankingHref(m, { page: m.state.page })} className="lg:hidden">
