@@ -45,7 +45,7 @@ export async function GET(req: Request) {
       } catch {
         /* not json */
       }
-      out.push({ c, status: res.status, ms: Date.now() - t0, len: text.length, head: rows === null || q.get("head") ? text.slice(0, 600) : undefined, keys, rows, pag, sample });
+      out.push({ c, status: res.status, ms: Date.now() - t0, len: text.length, head: rows === null || q.get("head") ? (q.get("tail") ? text.slice(-Number(q.get("hl") || 600)) : null) ?? text.slice(0, Number(q.get("hl") || 600)) : undefined, keys, rows, pag, sample });
     } catch (e) {
       out.push({ c, error: String(e) });
     }
