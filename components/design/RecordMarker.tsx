@@ -41,7 +41,7 @@ export function RecordMarker({ kind, category, body, children, className }: Reco
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
-          "inline-flex h-[18px] items-center rounded-sm border px-1 text-[11px] leading-none font-semibold uppercase tabular",
+          "inline-flex h-[18px] items-center border px-1 text-[11px] leading-none font-semibold tracking-[0.04em] uppercase tabular",
           body ? "border-brand bg-transparent text-brand" : solid[kind],
           className
         )}

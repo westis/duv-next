@@ -61,8 +61,9 @@ export interface DataTableProps<TData> {
   className?: string;
 }
 
-const headCell = "border-b border-border bg-surface-muted px-2 py-2 text-xs font-medium text-fg-muted md:px-3";
-const bodyCell = "border-b border-border px-2 py-1.5 align-middle md:px-3";
+// Almanac tables: small-caps heads over an ink rule, hairlines between rows, no fill, no zebra.
+const headCell = "label-caps border-b border-fg bg-bg px-2 py-2 text-fg-muted first:ps-0 md:px-3 md:first:ps-0";
+const bodyCell = "border-b border-hair px-2 py-2 align-baseline first:ps-0 md:px-3 md:first:ps-0";
 
 /**
  * The site's one data table (design spec, "Data table"). Renders on the server
@@ -171,7 +172,7 @@ export function DataTable<TData>({
       const next: SortDirection = sorted ? (sorted === "asc" ? "desc" : "asc") : column.getFirstSortDir();
       const Icon = sorted === "asc" ? ArrowUp : sorted === "desc" ? ArrowDown : ArrowUpDown;
       const control = cn(
-        "group -mx-1 inline-flex min-h-8 items-center gap-1 rounded-sm px-1 font-medium no-underline hover:text-fg",
+        "group -mx-1 inline-flex min-h-8 items-center gap-1 px-1 no-underline hover:text-fg",
         end && "flex-row-reverse",
         sorted ? "text-fg" : "text-fg-muted"
       );
@@ -222,7 +223,7 @@ export function DataTable<TData>({
         bodyCell,
         rowHeight[density],
         columnClasses(cell.column),
-        stickyOffset.has(cell.column.id) && "bg-surface group-data-[highlight]/row:bg-highlight",
+        stickyOffset.has(cell.column.id) && "bg-bg group-data-[highlight]/row:bg-highlight",
         cell.column.columnDef.meta?.className
       )}
     >
@@ -236,7 +237,7 @@ export function DataTable<TData>({
       <dl className="grid grid-cols-[minmax(6rem,auto)_1fr] gap-x-4 gap-y-1 text-sm">
         {hidden.map((cell) => (
           <div key={cell.id} className={cn("contents", detailVisibility[priorityOf(cell.column)])}>
-            <dt className="text-xs leading-5 text-fg-muted">{label(cell.column)}</dt>
+            <dt className="label-caps leading-5 text-fg-muted">{label(cell.column)}</dt>
             <dd className={cn("min-w-0", cell.column.columnDef.meta?.align === "end" && "tabular")}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </dd>
@@ -249,11 +250,11 @@ export function DataTable<TData>({
   const rows = table.getRowModel().rows;
 
   const tableEl = (
-    <table className={cn("w-full border-separate border-spacing-0 text-sm", sticky && "w-max min-w-full")}>
-      <caption className={cn(captionVisible ? "px-3 py-2 text-start text-sm text-fg-muted" : "sr-only")}>
+    <table className={cn("w-full border-separate border-spacing-0", sticky && "w-max min-w-full")}>
+      <caption className={cn(captionVisible ? "py-2 text-start text-sm text-fg-muted" : "sr-only")}>
         {caption}
       </caption>
-      <thead className={cn(!sticky && "md:sticky md:top-[var(--table-sticky-top,3.5rem)] md:z-20")}>
+      <thead className={cn(!sticky && "md:sticky md:top-[var(--table-sticky-top,var(--header-h))] md:z-20")}>
         {table.getHeaderGroups().map((group) => (
           <tr key={group.id}>
             {group.headers.map(renderHeader)}
@@ -265,7 +266,7 @@ export function DataTable<TData>({
           </tr>
         ))}
       </thead>
-      <tbody className="[&>tr:last-child>td]:border-b-0">
+      <tbody>
         {rows.length === 0 ? (
           <tr>
             <td colSpan={colSpan} className="px-3 py-10 text-center text-fg-muted">
@@ -307,7 +308,6 @@ export function DataTable<TData>({
   return (
     <div
       className={cn(
-        "rounded-md border border-border bg-surface",
         sticky ? "overflow-x-auto overscroll-x-contain" : "overflow-clip",
         className
       )}

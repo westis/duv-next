@@ -33,7 +33,8 @@ export interface FilterBarProps {
 const RESET_PARAMS = ["page"];
 
 /**
- * Filters above a table (design spec, "Filter bar"). Every filter writes to the
+ * Filters above a table (design spec, "Filter bar"), Almanac look: selects drawn
+ * as underlined text, no boxes. Every filter writes to the
  * URL query string, so filtered views can be shared, and a change goes back to
  * page 1. Desktop: one row of compact selects. Mobile: a "Filters" button with
  * a count that opens a bottom sheet. Active filters show as removable chips at
@@ -111,9 +112,11 @@ function FilterBarView({
           aria-label={variant === "inline" ? filter.label : undefined}
           onChange={(event) => onChange(filter.param, event.target.value)}
           className={cn(
-            "appearance-none rounded-md border border-border bg-surface ps-3 pe-8 text-fg hover:bg-surface-muted",
-            variant === "inline" ? "h-9 max-w-48 text-sm" : "h-11 w-full text-base",
-            value && "border-fg-muted font-medium"
+            "appearance-none bg-bg text-fg",
+            variant === "inline"
+              ? "h-9 max-w-52 border-0 border-b border-border ps-0 pe-6 text-sm hover:border-fg"
+              : "h-11 w-full border border-border ps-3 pe-8 text-base hover:border-fg-muted",
+            value && (variant === "inline" ? "border-fg font-semibold" : "border-fg font-medium")
           )}
         >
           <option value="">{variant === "inline" ? t("allOf", { label: filter.label }) : t("all")}</option>
@@ -126,7 +129,10 @@ function FilterBarView({
         <ChevronDown
           aria-hidden
           strokeWidth={1.75}
-          className="pointer-events-none absolute end-2.5 top-1/2 size-4 -translate-y-1/2 text-fg-muted"
+          className={cn(
+            "pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-fg-muted",
+            variant === "inline" ? "end-0.5" : "end-2.5"
+          )}
         />
       </span>
     );
@@ -140,13 +146,13 @@ function FilterBarView({
         {children}
 
         {/* md+: one row of compact selects */}
-        <form action={pathname || undefined} method="get" className="hidden flex-wrap items-center gap-2 md:flex">
+        <form action={pathname || undefined} method="get" className="hidden flex-wrap items-center gap-x-5 gap-y-2 md:flex">
           {hiddenInputs}
           {filters.map((filter) => (
             <span key={filter.param}>{select(filter, "inline")}</span>
           ))}
           <noscript>
-            <button type="submit" className="h-9 rounded-md border border-border px-3 text-sm">
+            <button type="submit" className="h-9 border border-fg px-3 text-sm">
               {t("apply")}
             </button>
           </noscript>
@@ -157,7 +163,7 @@ function FilterBarView({
           <SheetTrigger asChild>
             <button
               type="button"
-              className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-medium text-fg hover:bg-surface-muted md:hidden"
+              className="inline-flex h-11 items-center gap-2 border border-border bg-bg px-3 text-sm font-medium text-fg hover:border-fg md:hidden"
               aria-label={active.length ? t("buttonWithCount", { count: active.length }) : undefined}
             >
               <SlidersHorizontal aria-hidden strokeWidth={1.75} className="size-4" />
@@ -165,7 +171,7 @@ function FilterBarView({
               {active.length > 0 && (
                 <span
                   aria-hidden
-                  className="inline-flex min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-xs font-semibold text-brand-fg tabular"
+                  className="inline-flex min-w-5 items-center justify-center bg-fg px-1.5 text-xs font-semibold text-bg tabular"
                 >
                   {active.length}
                 </span>
@@ -174,9 +180,9 @@ function FilterBarView({
           </SheetTrigger>
           <SheetContent
             side="bottom"
-            className="max-h-[85dvh] overflow-y-auto rounded-t-lg border-border bg-surface px-4 pt-5 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            className="max-h-[85dvh] overflow-y-auto border-t border-fg bg-bg px-4 pt-5 pb-[max(1rem,env(safe-area-inset-bottom))]"
           >
-            <SheetTitle className="text-lg font-semibold">{t("title")}</SheetTitle>
+            <SheetTitle className="font-serif text-xl font-semibold">{t("title")}</SheetTitle>
             <SheetDescription className="sr-only">{t("description")}</SheetDescription>
             <form action={pathname || undefined} method="get" className="mt-4 flex flex-col gap-4">
               {hiddenInputs}
@@ -184,7 +190,7 @@ function FilterBarView({
                 const id = `${sheetId}-${filter.param}`;
                 return (
                   <div key={filter.param} className="flex flex-col gap-1.5">
-                    <label htmlFor={id} className="text-sm font-medium">
+                    <label htmlFor={id} className="label-caps text-fg-muted">
                       {filter.label}
                     </label>
                     {select(filter, "sheet", id)}
@@ -202,7 +208,7 @@ function FilterBarView({
                 <SheetClose asChild>
                   <button
                     type="button"
-                    className="inline-flex h-11 items-center rounded-md bg-brand px-4 text-sm font-medium text-brand-fg"
+                    className="inline-flex h-11 items-center bg-fg px-4 text-sm font-medium text-bg"
                   >
                     {t("done")}
                   </button>
@@ -223,7 +229,7 @@ function FilterBarView({
                   href={hrefWith({ [filter.param]: null })}
                   scroll={false}
                   aria-label={t("remove", { label: filter.label, value: label })}
-                  className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-surface-muted ps-3 pe-2 text-xs font-medium text-fg no-underline hover:border-fg-muted [@media(pointer:coarse)]:h-11"
+                  className="inline-flex h-8 items-center gap-1 border border-border ps-2.5 pe-2 text-xs font-medium text-fg no-underline hover:border-fg [@media(pointer:coarse)]:h-11"
                 >
                   <span className="text-fg-muted">{filter.label}:</span> {label}
                   <X aria-hidden strokeWidth={1.75} className="size-3.5" />

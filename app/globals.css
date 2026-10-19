@@ -4,11 +4,18 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
-  Design tokens (docs: design spec, "Visual foundations"). Every colour is an
+  Design tokens: the "Almanac" identity (design direction A). Every colour is an
   OKLCH value defined once per theme in :root / .dark below; components use the
   semantic names (bg-surface, text-fg-muted, border-border), never raw palette
   colours. The shadcn names (background, primary, muted, ...) are aliases of
   the same tokens so older components keep working while pages move over.
+
+  Almanac in short: paper background, ink text, a serif (font-serif, Source
+  Serif 4) for titles, section headings and big figures, Inter for data.
+  Rules instead of boxes: border-fg (ink) under headers and table heads,
+  border-border between blocks, border-hair between rows. Red (brand) is a
+  signature only: the top line, the wordmark, the active section mark, the
+  winner's place and IAU labels; text-brand-ink is the red for small text.
 */
 @theme inline {
   --color-bg: var(--bg);
@@ -19,6 +26,8 @@
   --color-fg-muted: var(--fg-muted);
   --color-brand: var(--brand);
   --color-brand-fg: var(--brand-fg);
+  --color-brand-ink: var(--brand-ink);
+  --color-hair: var(--hair);
   --color-link: var(--link);
   --color-link-hover: var(--link);
   --color-highlight: var(--highlight);
@@ -68,7 +77,8 @@
   --radius-sm: 0.25rem;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-heading: var(--font-source-serif), Georgia, "Times New Roman", serif;
   --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -92,16 +102,21 @@
 
 @layer base {
   :root {
-    --bg: oklch(0.99 0.002 250);
+    /* Sticky height of the site header: it scrolls away on phones and sticks from lg. */
+    --header-h: 0px;
+
+    --bg: oklch(0.995 0.002 90);
     --surface: oklch(1 0 0);
-    --surface-muted: oklch(0.97 0.004 250);
-    --border: oklch(0.91 0.005 250);
+    --surface-muted: oklch(0.965 0.004 250);
+    --border: oklch(0.88 0.005 250);
+    --hair: oklch(0.93 0.004 250);
     --fg: oklch(0.22 0.01 250);
-    --fg-muted: oklch(0.5 0.01 250);
+    --fg-muted: oklch(0.48 0.01 250);
     --brand: oklch(0.53 0.2 27);
+    --brand-ink: oklch(0.47 0.19 27);
     --brand-fg: oklch(1 0 0);
     --link: oklch(0.45 0.13 255);
-    --highlight: oklch(0.96 0.06 95);
+    --highlight: oklch(0.96 0.05 95);
     --success: oklch(0.5 0.13 150);
     --warning: oklch(0.5 0.12 70);
     --danger: oklch(0.5 0.19 27);
@@ -123,17 +138,26 @@
     --pb: oklch(0.5 0.12 70);
   }
 
+  @media (width >= 64rem) {
+    :root {
+      --header-h: 3.75rem;
+    }
+  }
+
   .dark {
-    --bg: oklch(0.16 0.01 250);
-    --surface: oklch(0.2 0.01 250);
-    --surface-muted: oklch(0.24 0.01 250);
-    --border: oklch(0.32 0.01 250);
+    /* Deep slate paper; the red is lifted for the line and again for text marks. */
+    --bg: oklch(0.17 0.008 250);
+    --surface: oklch(0.2 0.009 250);
+    --surface-muted: oklch(0.23 0.01 250);
+    --border: oklch(0.36 0.01 250);
+    --hair: oklch(0.28 0.01 250);
     --fg: oklch(0.94 0.005 250);
     --fg-muted: oklch(0.72 0.01 250);
-    --brand: oklch(0.68 0.17 27);
-    --brand-fg: oklch(0.16 0.01 250);
-    --link: oklch(0.76 0.11 255);
-    --highlight: oklch(0.33 0.06 95);
+    --brand: oklch(0.62 0.18 27);
+    --brand-ink: oklch(0.72 0.16 27);
+    --brand-fg: oklch(0.17 0.008 250);
+    --link: oklch(0.78 0.11 255);
+    --highlight: oklch(0.32 0.06 95);
     --success: oklch(0.75 0.13 150);
     --warning: oklch(0.75 0.12 70);
     --danger: oklch(0.75 0.15 27);
@@ -173,6 +197,11 @@
     overflow-y: scroll;
   }
 
+  html {
+    /* In-page section links land below the sticky header. */
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+  }
+
   body {
     @apply bg-bg text-fg font-sans antialiased;
     font-size: 0.9375rem;
@@ -210,6 +239,24 @@
 @utility tabular {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum", "cv11";
+}
+
+/* Serif figures (facts, podium results) keep lining, tabular digits. */
+@utility serif-figures {
+  font-family: var(--font-serif);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/*
+  The Almanac label: 11 px, semibold, capitals tracked +0.08 em. Breadcrumbs,
+  fact labels, table heads, tags and rail headings all use it.
+*/
+@utility label-caps {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* Content column: 16 / 24 / 32 px gutters, capped at 1280 px. */

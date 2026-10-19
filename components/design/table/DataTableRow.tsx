@@ -59,14 +59,14 @@ export function DataTableRow({
       >
         {children}
         {details && (
-          <td className={cn(cellClassName, "w-11 p-0 text-end", disclosureClass)}>
+          <td className={cn(cellClassName, "w-11 p-0 text-end align-middle", disclosureClass)}>
             <button
               type="button"
               aria-expanded={open}
               aria-controls={detailsId}
               aria-label={detailsLabel}
               onClick={() => setOpen((value) => !value)}
-              className="inline-flex size-11 items-center justify-center rounded-md text-fg-muted hover:bg-surface-muted hover:text-fg"
+              className="inline-flex size-11 items-center justify-center text-fg-muted hover:bg-surface-muted hover:text-fg"
             >
               <ChevronDown
                 aria-hidden

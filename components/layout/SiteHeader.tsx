@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -80,17 +79,36 @@ function useSiteSearch() {
   return { open: useCallback(() => setOpen(true), []), dialog };
 }
 
-function Logo() {
+/** The wordmark: "DUV" in the red serif, the site's name in small capitals beside it. */
+function Wordmark() {
   const t = useTranslations("site");
   return (
-    <Link href="/" className="nav-link relative block h-8 w-[84px] shrink-0 hover:bg-transparent" aria-label={t("home")}>
-      <Image src="/duv_logo_with_name.png" alt="" fill sizes="84px" priority className="logo-light object-contain object-left" />
-      <Image src="/duv_logo_with_name_white.png" alt="" fill sizes="84px" priority className="logo-dark object-contain object-left" />
+    <Link
+      href="/"
+      aria-label={t("home")}
+      className="nav-link flex shrink-0 items-center gap-2 py-1 hover:bg-transparent"
+    >
+      <span aria-hidden className="font-serif text-[1.5rem] leading-none font-bold tracking-[-0.01em] text-brand lg:text-[1.625rem]">
+        DUV
+      </span>
+      <span aria-hidden className="label-caps max-w-[5.5rem] tracking-[0.12em] text-fg sm:hidden">
+        {t("taglineShort")}
+      </span>
+      <span aria-hidden className="label-caps hidden tracking-[0.12em] text-fg sm:inline">
+        {t("tagline")}
+      </span>
     </Link>
   );
 }
 
-/** Sticky 56 px site header (design spec, "Site header"). */
+/**
+ * Site header, Almanac look: a 4 px red line on top, the serif wordmark, the four
+ * sections as plain text (the active one bold with a red underline), a wide
+ * search field with the "/" shortcut, and one ink rule closing it. Phones keep
+ * the four sections visible as a row under the wordmark (no hamburger for them);
+ * the menu button holds the subsections, theme and about links. Sticky from lg
+ * only (`--header-h`), so a phone keeps its whole screen for the page.
+ */
 export function SiteHeader() {
   const t = useTranslations("nav");
   const tTheme = useTranslations("theme");
@@ -98,22 +116,22 @@ export function SiteHeader() {
   const search = useSiteSearch();
 
   return (
-    <header className="sticky top-0 z-40 h-14 border-b border-border bg-surface">
-      <div className="container flex h-full items-center gap-4">
-        <Logo />
+    <header className="z-40 border-t-4 border-b border-t-brand border-b-fg bg-bg lg:sticky lg:top-0">
+      <div className="container flex items-center gap-3 pt-2 pb-1 lg:h-14 lg:gap-7 lg:py-0">
+        <Wordmark />
 
         <nav aria-label={t("mainNavigation")} className="hidden h-full lg:block">
-          <ul className="flex h-full items-stretch gap-1">
+          <ul className="flex h-full items-center gap-6">
             {navSections.map((section) => {
               const active = isSectionActive(section, pathname);
               return (
-                <li key={section.key} className="flex">
+                <li key={section.key}>
                   <Link
                     href={section.href}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "nav-link flex items-center border-b-2 px-3 text-sm font-medium hover:bg-transparent",
-                      active ? "border-brand text-fg" : "border-transparent text-fg-muted hover:text-fg"
+                      "nav-link inline-flex min-h-11 items-center text-sm hover:bg-transparent hover:underline hover:underline-offset-8",
+                      active && "font-semibold shadow-[inset_0_-2px_0_var(--brand)] hover:no-underline"
                     )}
                   >
                     {t(section.key)}
@@ -129,17 +147,17 @@ export function SiteHeader() {
             type="button"
             onClick={search.open}
             aria-label={t("search")}
-            className="hidden h-9 w-64 items-center gap-2 rounded-md border border-border bg-bg px-3 text-sm text-fg-muted hover:text-fg lg:flex xl:w-80"
+            className="hidden h-9 w-72 items-center gap-2 border border-border bg-surface px-3 text-sm text-fg-muted hover:border-fg-muted hover:text-fg lg:flex xl:w-80"
           >
             <Search className="size-4" strokeWidth={1.75} aria-hidden />
             <span className="truncate">{t("searchPlaceholder")}</span>
-            <kbd className="ms-auto rounded-sm border border-border px-1.5 text-xs">/</kbd>
+            <kbd className="ms-auto border border-border px-1.5 font-mono text-xs">/</kbd>
           </button>
           <button
             type="button"
             onClick={search.open}
             aria-label={t("search")}
-            className="inline-flex size-11 items-center justify-center rounded-md text-fg hover:bg-surface-muted lg:hidden"
+            className="inline-flex size-11 items-center justify-center text-fg hover:bg-surface-muted lg:hidden"
           >
             <Search className="size-5" strokeWidth={1.75} aria-hidden />
           </button>
@@ -147,11 +165,11 @@ export function SiteHeader() {
           <Popover>
             <PopoverTrigger
               aria-label={tTheme("label")}
-              className="hidden size-9 items-center justify-center rounded-md text-fg-muted hover:bg-surface-muted hover:text-fg lg:inline-flex"
+              className="hidden size-9 items-center justify-center text-fg-muted hover:bg-surface-muted hover:text-fg lg:inline-flex"
             >
               <Monitor className="size-5" strokeWidth={1.75} aria-hidden />
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto p-2">
+            <PopoverContent align="end" className="w-auto rounded-none p-2">
               <ThemeSwitch showLabels />
             </PopoverContent>
           </Popover>
@@ -159,6 +177,29 @@ export function SiteHeader() {
           <MobileMenu />
         </div>
       </div>
+
+      {/* Phones and tablets: the four sections stay visible as one row. */}
+      <nav aria-label={t("mainNavigation")} className="border-t border-hair lg:hidden">
+        <ul className="container flex justify-between gap-2 sm:justify-start sm:gap-8">
+          {navSections.map((section) => {
+            const active = isSectionActive(section, pathname);
+            return (
+              <li key={section.key}>
+                <Link
+                  href={section.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "nav-link inline-flex min-h-11 items-center text-sm hover:bg-transparent",
+                    active && "font-semibold shadow-[inset_0_-2px_0_var(--brand)]"
+                  )}
+                >
+                  {t(section.key)}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
       {search.dialog}
     </header>
   );
@@ -174,16 +215,16 @@ function MobileMenu() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         aria-label={t("openMenu")}
-        className="inline-flex size-11 items-center justify-center rounded-md text-fg hover:bg-surface-muted lg:hidden"
+        className="inline-flex size-11 items-center justify-center text-fg hover:bg-surface-muted lg:hidden"
       >
         <Menu className="size-5" strokeWidth={1.75} aria-hidden />
       </SheetTrigger>
       <SheetContent side="right" className="flex w-full max-w-sm flex-col gap-0 overflow-y-auto p-0 [&>button:last-child]:hidden">
-        <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
-          <SheetTitle className="text-base font-semibold">{t("menu")}</SheetTitle>
+        <div className="flex h-14 shrink-0 items-center justify-between border-t-4 border-b border-t-brand border-b-fg px-4">
+          <SheetTitle className="font-serif text-xl font-semibold">{t("menu")}</SheetTitle>
           <SheetClose
             aria-label={t("closeMenu")}
-            className="inline-flex size-11 items-center justify-center rounded-md hover:bg-surface-muted"
+            className="inline-flex size-11 items-center justify-center hover:bg-surface-muted"
           >
             <X className="size-5" strokeWidth={1.75} aria-hidden />
           </SheetClose>
@@ -196,18 +237,18 @@ function MobileMenu() {
                   href={section.href}
                   onClick={() => setOpen(false)}
                   aria-current={isSectionActive(section, pathname) ? "page" : undefined}
-                  className="nav-link flex min-h-11 items-center rounded-md px-3 text-base font-semibold"
+                  className="nav-link flex min-h-11 items-center px-3 font-serif text-lg font-semibold aria-[current=page]:shadow-[inset_2px_0_0_var(--brand)]"
                 >
                   {t(section.key)}
                 </Link>
                 {section.children && (
-                  <ul className="ms-3 border-s border-border">
+                  <ul className="ms-3 border-s border-hair">
                     {section.children.map((child) => (
                       <li key={child.href}>
                         <Link
                           href={child.href}
                           onClick={() => setOpen(false)}
-                          className="nav-link flex min-h-11 items-center rounded-md px-3 text-sm text-fg-muted"
+                          className="nav-link flex min-h-11 items-center px-3 text-sm text-fg-muted"
                         >
                           {t(child.key)}
                         </Link>
@@ -219,7 +260,7 @@ function MobileMenu() {
             ))}
           </ul>
         </nav>
-        <div className="mt-auto space-y-4 border-t border-border px-4 py-4">
+        <div className="mt-auto space-y-4 border-t border-fg px-4 py-4">
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {footerLinks.map((link) => (
               <li key={link.href}>

@@ -30,7 +30,7 @@ function pageList(page: number, count: number): (number | "gap")[] {
 }
 
 const item =
-  "inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 text-sm no-underline tabular md:h-9 md:min-w-9";
+  "inline-flex h-11 min-w-11 items-center justify-center gap-1 px-2 text-sm no-underline tabular md:h-9 md:min-w-9";
 
 /** Numbered pages with previous/next as plain links, so they work before JavaScript loads. */
 export function Pagination({ page, pageCount, hrefForPage, showAllHref, className }: PaginationProps) {
@@ -70,7 +70,7 @@ export function Pagination({ page, pageCount, hrefForPage, showAllHref, classNam
                 className={cn(
                   item,
                   n === page
-                    ? "border border-border bg-surface-muted font-semibold text-fg"
+                    ? "font-semibold text-fg shadow-[inset_0_-2px_0_var(--fg)]"
                     : "text-fg hover:bg-surface-muted"
                 )}
               >
