@@ -19,17 +19,6 @@ function hasValue(value?: string) {
   return Boolean(value && value !== "0" && value !== "0000-00-00");
 }
 
-// The API fills unknown values (e.g. YOB, category rank) with "&nbsp;".
-function clean(row: EventResultRow): EventResultRow {
-  const out = { ...row };
-  for (const key of Object.keys(out) as (keyof EventResultRow)[]) {
-    if (typeof out[key] === "string") {
-      out[key] = out[key].replace(/&nbsp;/g, " ").trim();
-    }
-  }
-  return out;
-}
-
 export function ResultsTable({ rows, nls = {}, speedLabel }: ResultsTableProps) {
   const t = (key: string, fallback: string) => nls[key] || fallback;
 
@@ -60,7 +49,7 @@ export function ResultsTable({ rows, nls = {}, speedLabel }: ResultsTableProps) 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(clean).map((row, i) => (
+          {rows.map((row, i) => (
             <TableRow key={`${row.PersonID}-${row.RankTotal}-${i}`}>
               <TableCell className="text-right tabular-nums">{row.RankTotal}</TableCell>
               <TableCell className="whitespace-nowrap font-medium tabular-nums">
