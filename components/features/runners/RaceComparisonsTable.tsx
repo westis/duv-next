@@ -1,3 +1,5 @@
+import { useLocale } from "next-intl";
+import { formatPerformanceText } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -19,6 +21,7 @@ export function RaceComparisonsTable({
   comparisons: PersonCompRow[];
   note?: string;
 }) {
+  const locale = useLocale();
   return (
     <div className="space-y-2">
       {note && <p className="text-sm text-muted-foreground">{note}</p>}
@@ -54,7 +57,7 @@ export function RaceComparisonsTable({
                         }`}
                       >
                         <span className="text-muted-foreground">{year}</span>{" "}
-                        {perf}
+                        {formatPerformanceText(perf, locale)}
                       </li>
                     ))}
                   </ul>

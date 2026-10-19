@@ -2,6 +2,9 @@ import { cache } from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { LinkText } from "@/components/design";
+import { DateText, cleanDuv, formatDate, formatDateRange, formatStartTime } from "@/lib/format";
 import { DuvApiError, getEventResults } from "@/lib/duv";
 import type { EventResultsResponse } from "@/lib/duv";
 import { ResultsFilters } from "@/components/features/results/ResultsFilters";
@@ -70,9 +73,11 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     };
   }
   const h = resolved.data.EvtHeader;
+  const locale = await getLocale();
+  const date = (formatDateRange(h.EvtDate, locale) ?? formatDate(h.StartDate, locale))?.text;
   return {
     title: `Results - ${h.EvtName}`,
-    description: `Results for ${h.EvtName} held on ${h.EvtDate} in ${h.City}, ${h.Country}`,
+    description: `Results for ${h.EvtName}${date ? ` held on ${date}` : ""} in ${h.City}, ${h.Country}`,
   };
 }
 
@@ -170,18 +175,34 @@ function ExternalLinkItem({
   );
 }
 
-function ResultSource({
+async function ResultSource({
   header,
   nls,
 }: {
   header: EventResultsResponse["EvtHeader"];
   nls: Record<string, string>;
 }) {
-  const items = [
-    [nls.nlsResultSource || "Source", header.Resultsource],
-    [nls.nlsRecordingBy || "Recorded by", [header.RecordedBy, header.RecordedAt].filter(Boolean).join(", ")],
-    [nls.nlsValuation || "Status", header.Valuation],
-  ].filter(([, value]) => value);
+  const t = await getTranslations("race");
+  const locale = await getLocale();
+  const source = cleanDuv(header.Resultsource);
+  const recordedBy = cleanDuv(header.RecordedBy);
+  const recordedAt = cleanDuv(header.RecordedAt);
+  const recordedTime = formatStartTime(recordedAt);
+  const items: [string, React.ReactNode][] = [];
+  // A URL source becomes a short "Result source" link instead of the long address.
+  if (source) items.push([nls.nlsResultSource || t("resultSource"), <LinkText key="s" value={source} label={t("resultSource")} />]);
+  if (recordedBy || recordedAt) {
+    items.push([
+      nls.nlsRecordingBy || "Recorded by",
+      <>
+        {recordedBy}
+        {recordedBy && recordedAt && ", "}
+        {recordedAt && <DateText value={recordedAt} locale={locale} />}
+        {recordedTime && ` ${recordedTime}`}
+      </>,
+    ]);
+  }
+  if (cleanDuv(header.Valuation)) items.push([nls.nlsValuation || "Status", header.Valuation]);
   if (!items.length) return null;
 
   return (
@@ -189,7 +210,7 @@ function ResultSource({
       {items.map(([label, value]) => (
         <div key={label} className="contents">
           <dt className="font-medium">{label}</dt>
-          <dd>{value}</dd>
+          <dd className="min-w-0 [overflow-wrap:anywhere]">{value}</dd>
         </div>
       ))}
     </dl>

@@ -7,6 +7,7 @@ import {
   formatStartTime,
   formatYear,
   parseDuvDate,
+  formatBirthDate,
 } from "./dates";
 
 describe("parseDuvDate", () => {
@@ -149,5 +150,31 @@ describe("formatStartTime", () => {
     expect(formatStartTime("2024-04-06")).toBe("");
     expect(formatStartTime(undefined)).toBe("");
     expect(formatStartTime("25:00")).toBe("");
+  });
+});
+
+describe("formatBirthDate", () => {
+  it("prints a known date in full", () => {
+    expect(formatBirthDate("30.09.1981", "en")).toEqual({ text: "30 SEP 1981", dateTime: "1981-09-30" });
+    expect(formatBirthDate("1968-05-27", "en")?.text).toBe("27 MAY 1968");
+  });
+
+  it("prints only the year when that is all DUV knows", () => {
+    expect(formatBirthDate("00.00.1981", "en")).toEqual({ text: "1981", dateTime: "1981" });
+    expect(formatBirthDate("1981-00-00", "en")?.text).toBe("1981");
+    expect(formatBirthDate("1981", "en")?.text).toBe("1981");
+  });
+
+  it("prints nothing for an unknown birth date", () => {
+    expect(formatBirthDate("00.00.0000", "en")).toBeNull();
+    expect(formatBirthDate("0000-00-00", "en")).toBeNull();
+    expect(formatBirthDate("0", "en")).toBeNull();
+    expect(formatBirthDate("&nbsp;", "en")).toBeNull();
+  });
+});
+
+describe("parseDuvDate with a time", () => {
+  it("reads DUV's recorded-at stamp", () => {
+    expect(parseDuvDate("09.04.2024 14:30")).toEqual({ start: "2024-04-09" });
   });
 });

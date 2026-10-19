@@ -1,4 +1,7 @@
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
+import { LinkText, OutLink } from "@/components/design";
+import { cleanDuv, linkHost } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { EventDetails } from "@/lib/duv";
 import { formatEmail, toExternalUrl } from "./eventDetailUtils";
@@ -42,8 +45,8 @@ export function CourseCard({ event, status }: { event: EventDetails; status?: st
             ["Field limit", event.FieldLimit],
             ["Entry fee", event.Fee],
             ["Finishers", finishers],
-            ["Course", event.CourseDesc],
-            ["Further information", event.MoreInfo],
+            ["Course", cleanDuv(event.CourseDesc) && <LinkText value={event.CourseDesc} />],
+            ["Further information", cleanDuv(event.MoreInfo) && <LinkText value={event.MoreInfo} />],
           ]}
         />
       </CardContent>
@@ -52,6 +55,7 @@ export function CourseCard({ event, status }: { event: EventDetails; status?: st
 }
 
 export function OrganizerCard({ event }: { event: EventDetails }) {
+  const t = useTranslations("race");
   const website = toExternalUrl(event.URL);
   const email = formatEmail(event.Email);
   const address = [event.Address, [event.Postcode, event.City].filter(Boolean).join(" ")]
@@ -86,19 +90,13 @@ export function OrganizerCard({ event }: { event: EventDetails }) {
             ],
             [
               "Web page",
-              website && (
-                <a
-                  href={website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-yellow-600 dark:text-yellow-500 hover:underline"
-                >
-                  {event.URL}
-                </a>
-              ),
+              website && <OutLink href={website}>{linkHost(website)}</OutLink>,
             ],
-            ["Miscellaneous", event.Comments],
-            ["Result source", event.ResultSource],
+            ["Miscellaneous", cleanDuv(event.Comments) && <LinkText value={event.Comments} />],
+            [
+              t("resultSource"),
+              cleanDuv(event.ResultSource) && <LinkText value={event.ResultSource} label={t("resultSource")} />,
+            ],
           ]}
         />
       </CardContent>

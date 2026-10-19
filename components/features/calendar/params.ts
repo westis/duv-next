@@ -8,8 +8,7 @@ export type CalendarSearchParams = Record<
 >;
 
 export interface CalendarFilterState {
-  /** "futur", "past1", "all" or a year. Ignored when from/to are set. */
-  year: string;
+  /** ISO dates. Both set, or neither: then the calendar runs from today onward. */
   from?: string;
   to?: string;
   dist: string;
@@ -39,33 +38,54 @@ function positiveInt(value: string | undefined, fallback: number) {
   return Number.isInteger(n) && n > 0 ? n : fallback;
 }
 
-/** Past lists read newest first, future lists soonest first. */
-export function defaultOrder(year: string, to?: string): "asc" | "desc" {
-  if (to) return to < new Date().toISOString().slice(0, 10) ? "desc" : "asc";
-  return year === "futur" ? "asc" : "desc";
+/** Today as yyyy-mm-dd (UTC, like DUV's own "futur"). */
+export function isoToday(now: Date = new Date()): string {
+  return now.toISOString().slice(0, 10);
 }
 
-export function parseCalendarParams(
-  sp: CalendarSearchParams,
-): CalendarFilterState {
-  const from = first(sp.from);
-  const to = first(sp.to);
-  const hasRange = !!from && !!to && ISO_DATE.test(from) && ISO_DATE.test(to);
-  const year = first(sp.year) || "futur";
+function shiftYears(iso: string, years: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(Date.UTC(y + years, m - 1, d));
+  // 29 Feb into a common year rolls to 1 Mar; keep 28 Feb instead.
+  if (date.getUTCMonth() !== m - 1) date.setUTCDate(0);
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Old `?year=` links (the year selector is gone) as a date range: "past1" is
+ * the last 12 months up to today, "2024" the whole year, "all" everything.
+ * "futur" and anything unknown give null: the default, today onward.
+ */
+export function yearToRange(year: string | undefined, now: Date = new Date()): { from: string; to: string } | null {
+  const today = isoToday(now);
+  if (year === "past1") return { from: shiftYears(today, -1), to: today };
+  if (year === "all") return { from: "1800-01-01", to: shiftYears(today, 10) };
+  if (year && /^\d{4}$/.test(year)) return { from: `${year}-01-01`, to: `${year}-12-31` };
+  return null;
+}
+
+/** A range starting before today reads newest first; one from today on, soonest first. */
+export function defaultOrder(from?: string, now: Date = new Date()): "asc" | "desc" {
+  return from && from < isoToday(now) ? "desc" : "asc";
+}
+
+export function parseCalendarParams(sp: CalendarSearchParams, now: Date = new Date()): CalendarFilterState {
+  const fromParam = first(sp.from);
+  const toParam = first(sp.to);
+  const range =
+    fromParam && toParam && ISO_DATE.test(fromParam) && ISO_DATE.test(toParam) && fromParam <= toParam
+      ? { from: fromParam, to: toParam }
+      : yearToRange(first(sp.year), now);
   const order = first(sp.order);
   const perpage = positiveInt(first(sp.perpage), DEFAULT_PER_PAGE);
 
   return {
-    year,
-    from: hasRange ? from : undefined,
-    to: hasRange ? to : undefined,
+    from: range?.from,
+    to: range?.to,
     dist: first(sp.dist) || "all",
     country: first(sp.country) || "all",
     cups: first(sp.cups) || "all",
-    order:
-      order === "asc" || order === "desc"
-        ? order
-        : defaultOrder(year, hasRange ? to : undefined),
+    order: order === "asc" || order === "desc" ? order : defaultOrder(range?.from, now),
     rproof: first(sp.rproof) === "1",
     norslt: first(sp.norslt) === "1",
     splits: first(sp.splits) === "1",
@@ -76,18 +96,16 @@ export function parseCalendarParams(
 }
 
 /** Builds a /events query string, leaving out defaults to keep links short. */
-export function calendarQuery(state: CalendarFilterState): string {
+export function calendarQuery(state: CalendarFilterState, now: Date = new Date()): string {
   const q = new URLSearchParams();
   if (state.from && state.to) {
     q.set("from", state.from);
     q.set("to", state.to);
-  } else if (state.year !== "futur") {
-    q.set("year", state.year);
   }
   if (state.dist !== "all") q.set("dist", state.dist);
   if (state.country !== "all") q.set("country", state.country);
   if (state.cups !== "all") q.set("cups", state.cups);
-  if (state.order !== defaultOrder(state.year, state.to)) {
+  if (state.order !== defaultOrder(state.from, now)) {
     q.set("order", state.order);
   }
   if (state.rproof) q.set("rproof", "1");
@@ -142,11 +160,4 @@ export function zipOptions(values: string[], labels: string[]): Option[] {
   return values
     .filter((v) => v !== "all" && v !== "")
     .map((value) => ({ value, label: labels[values.indexOf(value)] ?? value }));
-}
-
-export function yearLabel(year: string) {
-  if (year === "futur") return "Upcoming";
-  if (year === "past1") return "Past 12 months";
-  if (year === "all") return "All years";
-  return year;
 }

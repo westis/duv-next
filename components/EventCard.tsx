@@ -26,6 +26,8 @@ import {
 import Link from "next/link";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useLocale } from "next-intl";
+import { DateText } from "@/lib/format";
 
 interface EventCardProps {
   event: Event;
@@ -46,6 +48,10 @@ export function EventCard({
   const SurfaceIcon = getSurfaceIcon(mapEventType(event).surface);
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
   const isMediumScreen = useMediaQuery("(min-width: 768px)");
+  const locale = useLocale();
+  const date = (
+    <DateText value={event.Startdate} end={event.Enddate} locale={locale} variant="range" />
+  );
 
   const hasCategoryBadges = ["G", "S", "B"].includes(event.IAULabel);
 
@@ -141,7 +147,7 @@ export function EventCard({
     return (
       <>
         <TableRow>
-          <TableCell>{event.Startdate}</TableCell>
+          <TableCell className="whitespace-nowrap">{date}</TableCell>
           <TableCell>
             <Link
               href={`/events/${event.EventID}`}
@@ -273,7 +279,7 @@ export function EventCard({
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="grow">
               <div className="flex items-center gap-2 mb-1">
-                <div className="text-sm font-medium">{event.Startdate}</div>
+                <div className="text-sm font-medium">{date}</div>
                 {renderCategoryBadges()}
               </div>
               <h3 className="text-base font-semibold mb-1">
@@ -304,7 +310,7 @@ export function EventCard({
             {renderCategoryBadges()}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="text-xs font-medium">{event.Startdate}</div>
+            <div className="text-xs font-medium">{date}</div>
             <p className="text-xs text-muted-foreground">
               {event.City}, {event.Country}
             </p>
@@ -349,7 +355,7 @@ export function EventCard({
           <div className="flex flex-col sm:flex-row">
             <div className="sm:w-48 p-4 bg-primary/10 flex flex-row sm:flex-col items-center justify-between sm:justify-center text-center dark:text-foreground">
               <div className="w-1/3 sm:w-full text-base font-semibold sm:mb-3">
-                {event.Startdate}
+                {date}
               </div>
               <div className="w-2/3 sm:w-full flex items-center text-sm">
                 <div className="w-full">

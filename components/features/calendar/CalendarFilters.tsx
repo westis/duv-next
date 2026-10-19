@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { DateRange } from "react-day-picker";
 import {
-  CalendarDays,
   Filter,
   SortAsc,
   SortDesc,
@@ -37,11 +36,9 @@ import {
   calendarHref,
   defaultOrder,
   parseCalendarParams,
-  yearLabel,
 } from "./params";
 
 export interface CalendarFilterOptions {
-  years: string[];
   distances: OptionGroup[];
   countries: Option[];
   cups: Option[];
@@ -51,8 +48,6 @@ interface CalendarFiltersProps {
   state: CalendarFilterState;
   options: CalendarFilterOptions;
 }
-
-const RANGE_VALUE = "range";
 
 export function CalendarFilters({ state, options }: CalendarFiltersProps) {
   const router = useRouter();
@@ -64,23 +59,15 @@ export function CalendarFilters({ state, options }: CalendarFiltersProps) {
     startTransition(() => router.push(calendarHref(next), { scroll: false }));
   };
 
-  const changeYear = (year: string) => {
-    if (year === RANGE_VALUE) return;
-    update({ year, from: undefined, to: undefined, order: defaultOrder(year) });
-  };
-
+  // The one date filter: a range, or none for "from today onward".
   const changeRange = (range: DateRange | undefined) => {
     if (!range?.from || !range?.to) {
-      update({
-        from: undefined,
-        to: undefined,
-        order: defaultOrder(state.year),
-      });
+      update({ from: undefined, to: undefined, order: defaultOrder() });
       return;
     }
     const from = format(range.from, "yyyy-MM-dd");
     const to = format(range.to, "yyyy-MM-dd");
-    update({ from, to, order: defaultOrder(state.year, to) });
+    update({ from, to, order: defaultOrder(from) });
   };
 
   const hasRange = !!(state.from && state.to);
@@ -96,7 +83,6 @@ export function CalendarFilters({ state, options }: CalendarFiltersProps) {
   const defaults = parseCalendarParams({});
   const isFiltered =
     hasRange ||
-    state.year !== defaults.year ||
     state.dist !== "all" ||
     state.country !== "all" ||
     state.cups !== "all" ||
@@ -117,28 +103,6 @@ export function CalendarFilters({ state, options }: CalendarFiltersProps) {
       aria-busy={isPending}
       data-pending={isPending ? "" : undefined}
     >
-      <Select
-        value={hasRange ? RANGE_VALUE : state.year}
-        onValueChange={changeYear}
-      >
-        <SelectTrigger className="w-[170px] h-10 font-medium" aria-label="Year">
-          <CalendarDays className="mr-2 h-4 w-4" />
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {hasRange && (
-            <SelectItem value={RANGE_VALUE} disabled>
-              Custom dates
-            </SelectItem>
-          )}
-          {options.years.map((year) => (
-            <SelectItem key={year} value={year}>
-              {yearLabel(year)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
       <div className="font-medium">
         <DateRangePicker
           initialDateFrom={rangeFrom}

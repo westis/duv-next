@@ -1,4 +1,7 @@
 import Image from "next/image";
+import { useLocale } from "next-intl";
+import { DateText, formatBirthDate, linkHost } from "@/lib/format";
+import { LinkText, OutLink } from "@/components/design";
 import { Activity, Calendar, Flag, Home, MapPin, Trophy, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -20,7 +23,11 @@ export function RunnerHeader({
   const residence = clean(header.Residence);
   const homepage = clean(header.Homepage);
   const misc = clean(header.Misc);
-  const born = clean(header.DOB) || clean(header.YOB);
+  const homepageUrl = homepage.startsWith("http") ? homepage : `https://${homepage}`;
+  const locale = useLocale();
+  // DUV's unknown "00.00.0000" shows nothing; a known year alone shows the year.
+  const born = formatBirthDate(header.DOB, locale) ? header.DOB : header.YOB;
+  const hasBorn = !!formatBirthDate(born, locale);
 
   return (
     <Card>
@@ -67,23 +74,16 @@ export function RunnerHeader({
             {homepage && (
               <div className="flex items-center space-x-2">
                 <Home className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-                <a
-                  href={homepage.startsWith("http") ? homepage : `https://${homepage}`}
-                  className="hover:underline break-all"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {homepage}
-                </a>
+                <OutLink href={homepageUrl}>{linkHost(homepageUrl)}</OutLink>
               </div>
             )}
           </div>
           <div className="flex flex-col space-y-2">
-            {born && (
+            {hasBorn && (
               <Badge variant="secondary" className={badgeClass}>
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 inline text-yellow-500" />
                 <span>
-                  {nls.nlsBirthday ?? "Born"}: {born}
+                  {nls.nlsBirthday ?? "Born"}: <DateText value={born} locale={locale} variant="birth" />
                 </span>
               </Badge>
             )}
@@ -118,7 +118,7 @@ export function RunnerHeader({
         {misc && (
           <p className="mt-4 text-sm text-muted-foreground">
             <span className="font-medium">{nls.nlsMisc ?? "Miscellaneous"}:</span>{" "}
-            {misc}
+            <LinkText value={misc} />
           </p>
         )}
       </CardContent>

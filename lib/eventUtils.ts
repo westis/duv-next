@@ -17,6 +17,7 @@ export interface Event {
   City: string;
   Country: string;
   Startdate: string;
+  Enddate?: string;
   Length: string;
   Duration: string;
   EventType: string;

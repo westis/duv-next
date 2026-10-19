@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale } from "next-intl";
+import { DateText } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -24,6 +26,7 @@ function finishers(event: EventSearchHit) {
 }
 
 export function EventResults({ hits }: { hits: EventSearchHit[] }) {
+  const locale = useLocale();
   return (
     <Table>
       <TableHeader>
@@ -43,7 +46,7 @@ export function EventResults({ hits }: { hits: EventSearchHit[] }) {
           return (
             <TableRow key={event.EventID}>
               <TableCell className="whitespace-nowrap">
-                {event.Startdate.split(" ")[0]}
+                <DateText value={event.Startdate} end={event.Enddate} locale={locale} variant="range" />
               </TableCell>
               <TableCell>
                 <Link

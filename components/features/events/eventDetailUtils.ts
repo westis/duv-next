@@ -1,4 +1,5 @@
 import type { EventDetailListEntry } from "@/lib/duv";
+import { linkHost } from "@/lib/format";
 
 export interface ParsedWinner {
   rank: string;
@@ -21,37 +22,6 @@ export function parseWinner(value: string | null | undefined): ParsedWinner | nu
   const match = rest.match(/^(.*?)\s+(\d[\d:.,]*(?:\s*(?:h|km|mi|laps?))?)$/i);
   if (!match) return { rank, name: rest, performance: "" };
   return { rank, name: match[1], performance: match[2] };
-}
-
-/** "2024-04-06 12:00:00" and "2024-04-07 12:00:00" -> "6 Apr 2024 – 7 Apr 2024". */
-export function formatEventDates(start: string, end?: string) {
-  const s = toDate(start);
-  if (!s) return start;
-  const e = end ? toDate(end) : null;
-  const fmt = (d: Date) =>
-    d.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-      timeZone: "UTC",
-    });
-  if (!e || sameDay(s, e)) return fmt(s);
-  return `${fmt(s)} – ${fmt(e)}`;
-}
-
-/** Start time "12:00" from "2024-04-06 12:00:00", or "" when it is midnight. */
-export function formatStartTime(start: string) {
-  const time = start.split(" ")[1]?.slice(0, 5);
-  return time && time !== "00:00" ? time : "";
-}
-
-function toDate(value: string) {
-  const d = new Date(value.replace(" ", "T") + "Z");
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function sameDay(a: Date, b: Date) {
-  return a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
 }
 
 /** Old-site links come as "../getresultevent.php?event=1"; make them absolute. */
@@ -90,15 +60,6 @@ export function describeLinkEntry(entry: EventDetailListEntry) {
   const isText = (v: string) => !/^https?:\/\//i.test(v) && !/^\d+$/.test(v.trim());
   const label =
     values.find(([k, v]) => labelKeys.test(k) && isText(v))?.[1] ??
-    (url ? shortUrl(url) : "");
+    (url ? linkHost(url) : "");
   return { url: url ?? null, label };
-}
-
-function shortUrl(url: string) {
-  try {
-    const { hostname, pathname } = new URL(url);
-    return `${hostname.replace(/^www\./, "")}${pathname === "/" ? "" : pathname}`;
-  } catch {
-    return url;
-  }
 }
