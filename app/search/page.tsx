@@ -1,44 +1,40 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  getCalendar,
-  searchEvents,
-  searchRunners,
-  type EventSearchResponse,
-  type RunnerSearchResponse,
-} from "@/lib/duv";
+import { getLocale, getTranslations } from "next-intl/server";
+import { getCalendar } from "@/lib/duv";
+import { formatCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { SearchForm, type CountryOption } from "@/components/features/search/SearchForm";
-import { RunnerResults } from "@/components/features/search/RunnerResults";
-import { EventResults } from "@/components/features/search/EventResults";
-import { SearchPagination } from "@/components/features/search/SearchPagination";
+import { EmptyState, Pagination } from "@/components/design";
+import { SearchSentence, type CountryOption } from "@/components/features/search/SearchSentence";
+import { RaceRows } from "@/components/features/search/RaceRows";
+import { RunnerTable } from "@/components/features/search/RunnerTable";
+import { EditionTable } from "@/components/features/search/EditionTable";
 import {
-  isIdQuery,
-  parseSearchQuery,
-  searchHref,
-  type SearchQuery,
-  type SearchType,
-} from "@/components/features/search/params";
+  findRaces,
+  findRunners,
+  withoutEditions,
+  MIN_EVENT_CHARS,
+  MIN_RUNNER_CHARS,
+} from "@/components/features/search/data";
+import { sortByDate } from "@/components/features/search/races";
+import { headCell, tableClass } from "@/components/features/search/tableStyles";
+import { isIdQuery, parseSearchQuery, searchHref, type SearchQuery } from "@/components/features/search/params";
 
-const PER_PAGE = 50;
-/** Rows per section when showing runners and events together. */
-const PREVIEW_COUNT = 10;
-/** msearchevent.php needs at least 3 characters; runners work with 2. */
-const MIN_EVENT_CHARS = 3;
-const MIN_RUNNER_CHARS = 2;
+const RUNNERS_PER_PAGE = 50;
+const RACES_PER_PAGE = 25;
+const EDITIONS_PER_PAGE = 50;
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export async function generateMetadata({
-  searchParams,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const { sname } = parseSearchQuery(await searchParams);
+  const t = await getTranslations("search");
   return {
-    title: sname ? `Search: ${sname}` : "Search",
-    description: "Search the DUV database for ultra runners and events",
+    title: sname ? t("metaTitleFor", { query: sname }) : t("title"),
+    description: t("metaDescription"),
   };
 }
 
@@ -56,208 +52,201 @@ async function getCountries(): Promise<CountryOption[]> {
   }
 }
 
-type Outcome<T> = { data: T | null; error: boolean } | null;
-
-async function attempt<T>(fn: () => Promise<T | null>): Promise<Outcome<T>> {
-  try {
-    return { data: await fn(), error: false };
-  } catch (error) {
-    console.error("Search failed:", error);
-    return { data: null, error: true };
-  }
+/** Runners are searched by surname; a first name may follow after a comma ("kouros, yiannis"). */
+function runnerName(query: SearchQuery) {
+  if (query.fname) return { sname: query.sname, fname: query.fname };
+  const [last, ...rest] = query.sname.split(",");
+  const fname = rest.join(",").trim();
+  return fname ? { sname: last.trim(), fname } : { sname: query.sname, fname: "" };
 }
 
-function runRunnerSearch(query: SearchQuery, preview: boolean) {
-  if (query.sname.length < MIN_RUNNER_CHARS) return Promise.resolve(null);
-  return attempt<RunnerSearchResponse>(() =>
-    searchRunners({
-      sname: query.sname,
-      fname: query.fname || undefined,
-      nat: query.nat || undefined,
-      exact: query.exact || undefined,
-      fuzzy: query.fuzzy || undefined,
-      page: preview ? 1 : query.page,
-      perpage: preview ? PREVIEW_COUNT : PER_PAGE,
-    })
-  );
-}
+const sectionHead = "flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b-2 border-fg pb-1.5";
+const sectionTitle = "font-serif text-[1.375rem] leading-tight font-semibold md:text-[1.625rem]";
 
-function runEventSearch(query: SearchQuery) {
-  if (query.sname.length < MIN_EVENT_CHARS && !isIdQuery(query.sname)) {
-    return Promise.resolve(null);
-  }
-  return attempt<EventSearchResponse>(() =>
-    searchEvents({
-      sname: query.sname,
-      dist: query.dist || undefined,
-      nat: query.nat || undefined,
-    })
-  );
-}
-
-const TABS: { type: SearchType; label: string }[] = [
-  { type: "all", label: "All" },
-  { type: "runner", label: "Runners" },
-  { type: "event", label: "Events" },
-];
-
+/**
+ * Full search, direction A ("index with time"): the query as one sentence,
+ * then races grouped into one row per race (with finishers per edition) and
+ * runners with their active years on a shared time axis. Both lists page on
+ * their own. A number alone opens the runner or race with that id.
+ */
 export default async function SearchPage({ searchParams }: PageProps) {
   const query = parseSearchQuery(await searchParams);
-  const preview = query.type === "all";
+  const t = await getTranslations("search");
+  const locale = await getLocale();
+  const wantRunners = query.type !== "event";
+  const wantRaces = query.type !== "runner";
+  const name = runnerName(query);
 
-  const [countries, runners, events] = await Promise.all([
+  const [countries, runners, races] = await Promise.all([
     getCountries(),
-    query.type !== "event" ? runRunnerSearch(query, preview) : null,
-    query.type !== "runner" ? runEventSearch(query) : null,
+    wantRunners
+      ? findRunners(name.sname, {
+          fname: name.fname,
+          nat: query.nat,
+          exact: query.exact,
+          fuzzy: query.fuzzy,
+          page: query.page,
+          perpage: RUNNERS_PER_PAGE,
+        })
+      : null,
+    wantRaces ? findRaces(query.sname, { dist: query.dist, nat: query.nat }) : null,
   ]);
 
-  const runnerHits = runners?.data?.Hitlist ?? [];
-  const eventHits = events?.data?.Hitlist ?? [];
-  const runnerTotal = runners?.data?.HitCnt ?? 0;
-  const eventTotal = events?.data?.HitCnt ?? eventHits.length;
-
-  // A numeric query is an ID: go straight to the one runner or event it names
+  // A number typed alone is an id: go straight to the one runner or race it names.
   if (isIdQuery(query.sname)) {
-    const runnerMatch = runnerHits.length === 1 ? runnerHits[0] : null;
-    const eventMatch = eventHits.length === 1 ? eventHits[0] : null;
-    if (runnerMatch && !eventHits.length) redirect(`/runners/${runnerMatch.PersonID}`);
-    if (eventMatch && !runnerHits.length) redirect(`/events/${eventMatch.EventID}`);
+    const runner = runners?.rows.find((r) => r.id === query.sname);
+    const race = races?.editions.find((e) => e.id === query.sname);
+    if (runner && !race) redirect(`/runners/${runner.id}`);
+    if (race && !runner) redirect(`/events/${race.id}`);
   }
 
-  const eventPages = Math.max(1, Math.ceil(eventHits.length / PER_PAGE));
-  const eventPage = Math.min(query.page, eventPages);
-  const shownEvents = preview
-    ? eventHits.slice(0, PREVIEW_COUNT)
-    : eventHits.slice((eventPage - 1) * PER_PAGE, eventPage * PER_PAGE);
-  const shownRunners = preview ? runnerHits.slice(0, PREVIEW_COUNT) : runnerHits;
-  // The API stops paging after a few hundred rows (500 by name, 400 fuzzy)
-  const runnerMaxPage = runners?.data?.Pagination?.MaxPage ?? 1;
+  const groups = sortByDate(races?.groups ?? []);
+  const editions = races?.editions ?? [];
+  const runnerRows = runners?.rows ?? [];
+  const runnerTotal = runners?.total ?? 0;
+  const runnerMaxPage = runners?.maxPage ?? 1;
   const runnerPage = Math.min(query.page, runnerMaxPage);
-  const runnersCapped = !preview && runnerTotal > runnerMaxPage * PER_PAGE;
+  const runnersCapped = runnerTotal > runnerMaxPage * RUNNERS_PER_PAGE;
 
-  const tooShort =
-    query.sname.length > 0 && runners === null && events === null;
-  const failed = Boolean(runners?.error || events?.error);
-  const searched = runners !== null || events !== null;
-  const nothingFound =
-    searched && !failed && runnerHits.length === 0 && eventHits.length === 0;
+  const perPage = query.editions ? EDITIONS_PER_PAGE : RACES_PER_PAGE;
+  const raceItems = query.editions ? editions.length : groups.length;
+  const racePages = Math.max(1, Math.ceil(raceItems / perPage));
+  const racePage = Math.min(query.rpage, racePages);
+  const from = (racePage - 1) * perPage;
+
+  const tooShort = query.sname.length > 0 && runners === null && races === null;
+  const failed = Boolean(runners?.error || races?.error);
+  const searched = runners !== null || races !== null;
+  const showRaces = wantRaces && editions.length > 0;
+  const showRunners = wantRunners && runnerRows.length > 0;
+  const nothingFound = searched && !failed && !showRaces && !showRunners;
+  const count = (n: number) => formatCount(n, locale) ?? String(n);
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <h1 className="text-3xl font-bold">Search</h1>
-
-      <nav className="flex gap-1 border-b" aria-label="Search type">
-        {TABS.map((tab) => (
-          <Link
-            key={tab.type}
-            href={searchHref({ ...query, type: tab.type, page: 1 })}
-            aria-current={tab.type === query.type ? "page" : undefined}
-            className={cn(
-              "px-4 py-2 -mb-px border-b-2 text-sm font-medium",
-              tab.type === query.type
-                ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            )}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </nav>
-
-      <SearchForm key={searchHref(query)} query={query} countries={countries} />
+    <div className="container pb-12">
+      <h1 className="sr-only">{t("title")}</h1>
+      <SearchSentence key={searchHref(query)} query={query} countries={countries} />
 
       {tooShort && (
-        <p className="text-muted-foreground">
-          Type at least {query.type === "event" ? MIN_EVENT_CHARS : MIN_RUNNER_CHARS}{" "}
-          characters to search.
-        </p>
+        <EmptyState className="mt-6">
+          {t("typeMore", { count: query.type === "event" ? MIN_EVENT_CHARS : MIN_RUNNER_CHARS })}
+        </EmptyState>
       )}
-      {failed && (
-        <p className="text-destructive">
-          The DUV database could not be reached. Please try again in a moment.
-        </p>
-      )}
+      {failed && <EmptyState className="mt-6">{t("failed")}</EmptyState>}
       {nothingFound && (
-        <p className="text-muted-foreground">
-          Nothing found for &ldquo;{query.sname}&rdquo;.
+        <EmptyState className="mt-6">
+          {isIdQuery(query.sname) ? t("noId", { id: query.sname }) : t("nothing", { query: query.sname })}
+        </EmptyState>
+      )}
+
+      {(showRaces || showRunners) && (
+        <p className="mt-4 flex flex-wrap gap-x-4 text-sm text-fg-muted">
+          {wantRunners && (
+            <span>
+              {showRunners ? (
+                <a href="#runners" className="font-medium">
+                  {t("tallyRunners", { count: runnerTotal, shown: count(runnerTotal) })}
+                </a>
+              ) : (
+                t("noRunners")
+              )}
+            </span>
+          )}
+          {wantRaces && (
+            <span>
+              {showRaces ? (
+                <a href="#races" className="font-medium">
+                  {t("tallyRaces", { count: groups.length, shown: count(groups.length) })}
+                </a>
+              ) : (
+                t("noRaces")
+              )}
+            </span>
+          )}
         </p>
       )}
 
-      {runnerHits.length > 0 && (
-        <section className="space-y-2">
-          <SectionHeading
-            title="Runners"
-            total={runnerTotal}
-            moreHref={
-              preview && runnerTotal > shownRunners.length
-                ? searchHref({ ...query, type: "runner", page: 1 })
-                : undefined
-            }
-          />
-          <RunnerResults hits={shownRunners} />
-          {!preview && (
-            <SearchPagination
-              page={runnerPage}
-              maxPage={runnerMaxPage}
-              hrefFor={(page) => searchHref({ ...query, page })}
-            />
+      {showRaces && (
+        <section aria-labelledby="races" className="mt-6">
+          <div className={sectionHead}>
+            <h2 id="races" className={sectionTitle}>
+              {t("races")}
+            </h2>
+            <span className="text-sm text-fg-muted">
+              {query.editions
+                ? t("editionsNote", { count: editions.length, shown: count(editions.length) })
+                : t("groupsNote", { count: editions.length, shown: count(editions.length) })}
+            </span>
+            <Link
+              href={`${searchHref({ ...query, editions: !query.editions, rpage: 1 })}#races`}
+              className="ms-auto inline-flex min-h-11 items-center text-sm md:min-h-0"
+            >
+              {query.editions ? t("groupEditions") : t("everyEdition")}
+            </Link>
+          </div>
+          {query.editions ? (
+            <EditionTable rows={editions.slice(from, from + perPage)} />
+          ) : (
+            <table className={tableClass}>
+              <caption className="sr-only">{t("raceCaption")}</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className={cn(headCell, "w-[6.5rem]")}>
+                    {t("col.latestNext")}
+                  </th>
+                  <th scope="col" className={headCell}>
+                    {t("col.race")}
+                  </th>
+                  <th scope="col" className={cn(headCell, "hidden md:table-cell")}>
+                    {t("col.where")}
+                  </th>
+                  <th scope="col" className={cn(headCell, "hidden md:table-cell")}>
+                    {t("col.distances")}
+                  </th>
+                  <th scope="col" className={cn(headCell, "hidden text-end lg:table-cell")}>
+                    {t("col.editions")}
+                  </th>
+                  <th scope="col" className={cn(headCell, "hidden lg:table-cell")}>
+                    {t("col.finishersPerEdition")}
+                  </th>
+                  <th scope="col" className={cn(headCell, "hidden text-end lg:table-cell")}>
+                    {t("col.lastField")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <RaceRows races={groups.slice(from, from + perPage).map(withoutEditions)} />
+              </tbody>
+            </table>
           )}
+          <Pagination
+            page={racePage}
+            pageCount={racePages}
+            hrefForPage={(p) => `${searchHref({ ...query, rpage: p })}#races`}
+            className="mt-4"
+          />
+        </section>
+      )}
+
+      {showRunners && (
+        <section aria-labelledby="runners" className="mt-8">
+          <div className={sectionHead}>
+            <h2 id="runners" className={sectionTitle}>
+              {t("runners")}
+            </h2>
+            <span className="text-sm text-fg-muted tabular">{count(runnerTotal)}</span>
+          </div>
+          <RunnerTable rows={runnerRows} />
+          <Pagination
+            page={runnerPage}
+            pageCount={runnerMaxPage}
+            hrefForPage={(p) => `${searchHref({ ...query, page: p })}#runners`}
+            className="mt-4"
+          />
           {runnersCapped && (
-            <p className="text-sm text-muted-foreground">
-              The DUV database only pages through the first{" "}
-              {(runnerMaxPage * PER_PAGE).toLocaleString("en")} matches. Add a
-              first name or country to narrow the search.
-            </p>
+            <p className="mt-3 text-sm text-fg-muted">{t("capped", { count: count(runnerMaxPage * RUNNERS_PER_PAGE) })}</p>
           )}
         </section>
-      )}
-
-      {eventHits.length > 0 && (
-        <section className="space-y-2">
-          <SectionHeading
-            title="Events"
-            total={eventTotal}
-            moreHref={
-              preview && eventHits.length > shownEvents.length
-                ? searchHref({ ...query, type: "event", page: 1 })
-                : undefined
-            }
-          />
-          <EventResults hits={shownEvents} />
-          {!preview && (
-            <SearchPagination
-              page={eventPage}
-              maxPage={eventPages}
-              hrefFor={(page) => searchHref({ ...query, page })}
-            />
-          )}
-        </section>
-      )}
-    </div>
-  );
-}
-
-function SectionHeading({
-  title,
-  total,
-  moreHref,
-}: {
-  title: string;
-  total: number;
-  moreHref?: string;
-}) {
-  return (
-    <div className="flex items-baseline justify-between">
-      <h2 className="text-xl font-semibold">
-        {title}{" "}
-        <span className="text-base font-normal text-muted-foreground">
-          ({total.toLocaleString("en")})
-        </span>
-      </h2>
-      {moreHref && (
-        <Link href={moreHref} className="text-sm font-medium hover:underline">
-          Show all {title.toLowerCase()}
-        </Link>
       )}
     </div>
   );

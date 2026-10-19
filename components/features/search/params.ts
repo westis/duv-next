@@ -11,7 +11,12 @@ export interface SearchQuery {
   exact: boolean;
   fuzzy: boolean;
   dist: string;
+  /** Runner page (DUV pages runners). */
   page: number;
+  /** Race page (races are grouped here, then paged). */
+  rpage: number;
+  /** Races as one row per edition instead of grouped into races. */
+  editions: boolean;
 }
 
 type RawParams = Record<string, string | string[] | undefined>;
@@ -23,6 +28,7 @@ function first(value: string | string[] | undefined) {
 export function parseSearchQuery(raw: RawParams): SearchQuery {
   const type = first(raw.type);
   const page = Number.parseInt(first(raw.page), 10);
+  const rpage = Number.parseInt(first(raw.rpage), 10);
   return {
     type: type === "runner" || type === "event" ? type : "all",
     // `q` is accepted as an alias so `/search?q=...` works too
@@ -33,6 +39,8 @@ export function parseSearchQuery(raw: RawParams): SearchQuery {
     fuzzy: first(raw.fuzzy) === "1",
     dist: first(raw.dist),
     page: Number.isFinite(page) && page > 0 ? page : 1,
+    rpage: Number.isFinite(rpage) && rpage > 0 ? rpage : 1,
+    editions: first(raw.editions) === "1",
   };
 }
 
@@ -47,6 +55,8 @@ export function searchHref(query: Partial<SearchQuery>) {
   if (query.fuzzy) params.set("fuzzy", "1");
   if (query.dist) params.set("dist", query.dist);
   if (query.page && query.page > 1) params.set("page", String(query.page));
+  if (query.rpage && query.rpage > 1) params.set("rpage", String(query.rpage));
+  if (query.editions) params.set("editions", "1");
   const qs = params.toString();
   return qs ? `/search?${qs}` : "/search";
 }
