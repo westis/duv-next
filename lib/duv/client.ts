@@ -26,6 +26,11 @@ export interface DuvFetchOptions {
   revalidate?: number | false;
   tags?: string[];
   signal?: AbortSignal;
+  /**
+   * Use a JSON body even when the HTTP status is an error. meventdetail.php
+   * answers 404 with the full event for some real events.
+   */
+  acceptErrorStatusWithJson?: boolean;
 }
 
 export class DuvApiError extends Error {
@@ -108,6 +113,15 @@ export function normalizeDuvValues<T>(value: T): T {
   return value;
 }
 
+function looksLikeJsonObject(text: string) {
+  try {
+    const data = parseDuvBody(text);
+    return !!data && typeof data === "object" && !("error" in data);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Fetches a DUV endpoint and returns the parsed JSON, or `null` when the API
  * returns an empty result. Throws `DuvApiError` on HTTP or auth failures.
@@ -115,7 +129,7 @@ export function normalizeDuvValues<T>(value: T): T {
 export async function duvFetch<T>(
   endpoint: DuvEndpoint,
   params: DuvParams = {},
-  { revalidate = 3600, tags, signal }: DuvFetchOptions = {}
+  { revalidate = 3600, tags, signal, acceptErrorStatusWithJson }: DuvFetchOptions = {}
 ): Promise<T | null> {
   const url = buildDuvUrl(endpoint, params);
   const key = getApiKey();
@@ -132,7 +146,7 @@ export async function duvFetch<T>(
 
   const text = await res.text();
 
-  if (!res.ok) {
+  if (!res.ok && !(acceptErrorStatusWithJson && looksLikeJsonObject(text))) {
     throw new DuvApiError(
       `DUV ${endpoint} responded ${res.status}`,
       res.status,

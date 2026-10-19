@@ -93,7 +93,7 @@ export function getEventDetail(
   return duvFetch<EventDetailResponse>(
     "meventdetail.php",
     { ...EN, ...params },
-    { revalidate: 3600, ...opts }
+    { revalidate: 3600, acceptErrorStatusWithJson: true, ...opts }
   );
 }
 

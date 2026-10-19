@@ -30,7 +30,7 @@ const loadEvent = cache(async (eventId: string) => {
   try {
     data = await getEventDetail({ event: eventId });
   } catch (error) {
-    // DUV answers HTTP 404 for events it does not show and 400 for unknown ids
+    // DUV answers 400 for unknown ids (404s with an event body are accepted by the client)
     if (error instanceof DuvApiError && (error.status === 404 || error.status === 400)) return null;
     throw error;
   }
