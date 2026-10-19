@@ -65,9 +65,14 @@ export const navigationItems = [
     title: "Statistics",
     items: [
       {
-        title: "Toplists",
-        href: "/toplists",
+        title: "Rankings",
+        href: "/rankings",
         description: "View rankings for various distances and categories",
+      },
+      {
+        title: "Backyard Rankings",
+        href: "/rankings/backyard",
+        description: "Yearly and all-time backyard ultra rankings",
       },
       {
         title: "Records",
