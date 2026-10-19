@@ -44,34 +44,34 @@ function OpenRecord({ cell, gender, t, locale }: { cell: BoardCell | null; gende
   );
 }
 
-/** One gender's mark in the age table: three lines on phones, three columns from lg. */
+/** One gender's mark in the age table: three lines on phones, three columns from xl. */
 function AgeMark({ cell, row, gender, t, locale }: { cell: BoardCell | null; row: AgeRow; gender: RecordGender; t: RecordsT; locale: string }) {
   if (!cell) return <span className="text-xs text-fg-muted">{t("noMark")}</span>;
   const born = bornText(cell, locale, t);
   const flags = flagText(cell, t);
   return (
-    <div className="min-w-0 lg:grid lg:grid-cols-[6.25rem_minmax(0,1fr)_minmax(0,1fr)] lg:gap-x-3">
+    <div className="min-w-0 xl:grid xl:grid-cols-[5.75rem_minmax(0,1.25fr)_minmax(0,1fr)] xl:gap-x-2.5">
       <p className="flex flex-wrap items-center gap-x-1.5">
         <span className="serif-figures font-semibold">{perfText(cell.perf, cell.dist, locale, t)}</span>
         <CellMarker cell={cell} t={t} locale={locale} context="age" holds={row.holds.includes(gender)} />
       </p>
       <div className="min-w-0">
-        <p className="truncate text-sm">
+        <p className="truncate text-sm xl:overflow-visible xl:whitespace-normal">
           <HolderLink holder={cell} locale={locale} />
         </p>
-        {born && <p className="hidden truncate text-xs text-fg-muted lg:block md:text-sm">{born}</p>}
+        {born && <p className="hidden truncate text-xs text-fg-muted xl:block">{born}</p>}
       </div>
-      <div className="min-w-0 text-xs text-fg-muted lg:text-sm">
+      <div className="min-w-0 text-xs text-fg-muted xl:text-sm">
         <p className="truncate">
           {cell.date && (
-            <span className="lg:hidden">
+            <span className="xl:hidden">
               <DateOf value={cell.date} locale={locale} variant="year" />
               {(cell.place || cell.country) && <span aria-hidden> · </span>}
             </span>
           )}
           <PlaceLink cell={cell} />
         </p>
-        <p className="hidden truncate text-xs text-fg-muted lg:block md:text-sm">
+        <p className="hidden truncate text-xs text-fg-muted xl:block md:text-sm">
           <DateOf value={cell.date} locale={locale} />
           {flags && <span> · {flags}</span>}
         </p>

@@ -15,7 +15,6 @@ import {
   getCountryBests,
   getGomuRecords,
   getIauRecords,
-  getRecordBook,
   getWorldBest,
   isBetter,
   isSameMark,
@@ -247,19 +246,12 @@ function bandOrder(band: string): number {
 /** A discipline's age classes for the scope, women and men paired per band. */
 export async function loadDetail(scope: RecordScopeRef, dist: DisciplineKey, filters: NationFilters): Promise<DistanceDetail> {
   try {
-    let bests: DuvBest[];
-    let ratified: Ratified;
-    if (scope.kind === "world") {
-      // The book adds DUV's world age lists and the ratified marks matched to DUV runners.
-      const book = await getRecordBook(dist);
-      bests = book.duv.filter((d) => d.scope === "world");
-      ratified = { records: book.ratified, updated: book.updated ?? {} };
-    } else {
-      [bests, ratified] = await Promise.all([
-        scopeBests(dist, scope, filters),
-        scope.kind === "area" ? ratifiedSources() : Promise.resolve({ records: [], updated: {} }),
-      ]);
-    }
+    // The world's age classes come from the six continent lists, like its open marks:
+    // DUV's all-time world list answers empty for most cells, and the lists are cached.
+    const [bests, ratified] = await Promise.all([
+      scopeBests(dist, scope, filters),
+      scope.kind === "nation" ? Promise.resolve<Ratified>({ records: [], updated: {} }) : ratifiedSources(),
+    ]);
     const open = {
       W: cellFor(dist, scope, "W", OVERALL, bests, ratified),
       M: cellFor(dist, scope, "M", OVERALL, bests, ratified),

@@ -149,12 +149,13 @@ export async function RecordsView({ scope, searchParams, countryName }: RecordsV
     );
   }
 
-  // Marks set this year, newest first.
+  // Marks set this year, the newest eight.
   const year = String(new Date().getUTCFullYear());
   const thisYear: BoardCell[] = shown
     .flatMap((r) => [r.W, r.M])
     .filter((c): c is BoardCell => !!c && !!c.date?.startsWith(year))
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 8);
 
   const lead =
     scope.kind === "world"

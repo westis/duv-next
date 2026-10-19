@@ -4,6 +4,8 @@ import { getCountryOptions, parseNat } from "@/components/features/countries/dat
 import { RecordsView } from "@/components/features/records/RecordsView";
 
 export const revalidate = 86400;
+// A cold cache reads up to 80 DUV lists plus the IAU and GOMU pages.
+export const maxDuration = 60;
 
 interface PageProps {
   params: Promise<{ nat: string }>;
