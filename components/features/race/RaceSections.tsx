@@ -422,7 +422,7 @@ export async function RaceFacts({
     [t("facts.web"), website && <OutLink href={website}>{linkHost(website)}</OutLink>],
     [
       t("facts.resultSource"),
-      cleanDuv(e.ResultSource) && <LinkText value={e.ResultSource} label={t("resultSource")} />,
+      cleanDuv(e.ResultSource) && <LinkText value={e.ResultSource} />,
     ],
     [
       t("facts.recordedBy"),
