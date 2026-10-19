@@ -87,14 +87,15 @@ export function TagList({ tags, max, className }: { tags: TagSpec[]; max?: numbe
         const label = tag.family === "distance" ? tag.text : t(tag.key);
         return (
           <li key={tag.family === "distance" ? `d-${tag.text}` : tag.key} className="flex items-center gap-1.5">
-            {i > 0 && (
+            <Tag family={tag.family} tone={tag.family === "distance" ? undefined : tag.tone} title={label}>
+              {label}
+            </Tag>
+            {/* The dot trails its tag, so a wrapped line never starts with one. */}
+            {(i < shown.length - 1 || hidden > 0) && (
               <span aria-hidden className="text-xs text-fg-muted">
                 ·
               </span>
             )}
-            <Tag family={tag.family} tone={tag.family === "distance" ? undefined : tag.tone} title={label}>
-              {label}
-            </Tag>
           </li>
         );
       })}

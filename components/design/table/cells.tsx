@@ -48,7 +48,7 @@ export function NameCell({
       {secondary && (
         <span
           className={cn(
-            "truncate text-xs text-fg-muted",
+            "text-xs text-fg-muted",
             secondaryHiddenFrom === "md" && "md:hidden",
             secondaryHiddenFrom === "lg" && "lg:hidden"
           )}
