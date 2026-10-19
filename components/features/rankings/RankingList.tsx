@@ -272,7 +272,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                     <Link
                       href={`/runners/${e.PersonID}`}
                       title={e.OrigName || undefined}
-                      className="font-medium whitespace-nowrap"
+                      className="font-medium"
                     >
                       {name(e, locale)}
                     </Link>{" "}
