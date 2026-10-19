@@ -30,6 +30,15 @@ export async function GET(request: Request) {
       updated: book.updated,
     };
   }
+  if (url.searchParams.has("raw")) {
+    const { getIntBestList } = await import("@/lib/duv");
+    try {
+      const data = await getIntBestList({ year: "all", dist, gender: "M", plain: true, perpage: 5 }, { revalidate: false });
+      out.raw = { keys: data && Object.keys(data), rows: data?.RankingList?.slice(0, 2), pag: data?.Pagination };
+    } catch (e) {
+      out.rawError = String(e);
+    }
+  }
   if (event) {
     const res = await getEventResults({ event, perpage: 200 });
     const rows = (res?.Resultlist ?? []).map((r) => ({ eventId: event, personId: r.PersonID, perf: r.Performance, gender: r.Gender, nat: r.Nationality, cat: r.Cat }));
