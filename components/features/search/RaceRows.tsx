@@ -122,7 +122,7 @@ function EditionStrip({ race }: { race: RaceRowData }) {
     <div>
       <p className="mb-1.5 text-xs text-fg-muted">{t("stripCaption")}</p>
       <ul className="flex items-end gap-0.5 overflow-x-auto overscroll-x-contain pb-1" aria-label={t("stripLabel", { name: race.name })}>
-        {race.years.map((y) => {
+        {race.years.map((y, i) => {
           const height = y.finishers ? Math.max(2, Math.round((y.finishers / max) * BAR_MAX)) : 1;
           const bar = (
             <>
@@ -132,7 +132,7 @@ function EditionStrip({ race }: { race: RaceRowData }) {
                 style={{ height }}
               />
               <span aria-hidden className="mt-1 text-[0.6875rem] text-fg-muted tabular">
-                {String(y.year).slice(2)}
+                {i === 0 || y.year % 100 === 0 ? y.year : String(y.year).slice(2)}
               </span>
             </>
           );
