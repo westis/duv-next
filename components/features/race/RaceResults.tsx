@@ -302,7 +302,7 @@ function ResultRow({
       <td>
         {resultText(r.Performance, kind, f.value, locale)}
         {markers?.length ? (
-          <span className="mt-0.5 flex flex-wrap justify-end gap-1 sm:ms-1 sm:mt-0 sm:inline-flex sm:align-[1px]">
+          <span className="mt-0.5 flex flex-wrap justify-end gap-1 sm:ms-1 sm:mt-0 sm:inline-flex sm:align-[1px] xl:ms-0 xl:mt-0.5 xl:flex">
             {markers.map((m, i) => (
               <RecordMarker key={i} kind={m.kind} category={m.category} body={m.body}>
                 {m.text}
