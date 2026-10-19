@@ -290,6 +290,15 @@ export function formatDayMonth(value: string | null | undefined, locale: string)
   return { text, dateTime: parsed.start };
 }
 
+/** Short month name alone, for chart axes: 1 gives "JAN", fr "JANV", ja "1月". Null outside 1..12. */
+export function formatMonthShort(month: number, locale: string): string | null {
+  if (!Number.isInteger(month) || month < 1 || month > 12) return null;
+  const style = styleFor(locale);
+  if (style.kind === "upper") return style.short[month - 1];
+  if (style.kind === "cjk") return `${month}${style.m}`;
+  return intl(style.locale, { month: "short" }).format(utc({ y: 2024, m: month, d: 15 }));
+}
+
 /**
  * Short weekday for day headings in lists: "THU", de "DO", ru "ЧТ"; scripts
  * without letter case keep Intl's form (ja "木"). `dateTime` is the ISO day.
