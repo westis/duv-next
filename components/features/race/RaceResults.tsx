@@ -19,6 +19,20 @@ import {
 } from "./raceModel";
 import { bandShortText, edgeText, gapText, resultText } from "./raceText";
 
+/** Column styles of a result list, set once on the table instead of on every cell. */
+const SHEET = [
+  "w-full border-collapse text-sm md:text-[0.9375rem]",
+  "[&_td]:py-2 [&_td]:align-baseline [&_tr[data-q]]:border-b [&_tr[data-q]]:border-hair",
+  "[&_td:nth-child(1)]:pe-2 [&_td:nth-child(1)]:text-end [&_td:nth-child(1)]:text-fg-muted [&_td:nth-child(1)]:tabular-nums",
+  "[&_td:nth-child(2)]:pe-3 [&_td:nth-child(2)]:text-end [&_td:nth-child(2)]:font-semibold [&_td:nth-child(2)]:whitespace-nowrap [&_td:nth-child(2)]:tabular-nums",
+  "[&_td:nth-child(3)]:hidden sm:[&_td:nth-child(3)]:table-cell [&_td:nth-child(3)]:pe-3 [&_td:nth-child(3)]:text-end [&_td:nth-child(3)]:text-fg-muted [&_td:nth-child(3)]:whitespace-nowrap [&_td:nth-child(3)]:tabular-nums",
+  "[&_td:nth-child(4)]:min-w-0 [&_td:nth-child(4)]:pe-2 [&_td_a]:font-medium",
+  "[&_td_small]:block [&_td_small]:truncate [&_td_small]:text-xs [&_td_small]:text-fg-muted md:[&_td_small]:hidden [&_td_i]:not-italic sm:[&_td_i]:hidden",
+  "[&_td:nth-child(5)]:hidden md:[&_td:nth-child(5)]:table-cell [&_td:nth-child(5)]:pe-2 [&_td:nth-child(5)]:text-fg-muted",
+  "[&_td:nth-child(6)]:hidden md:[&_td:nth-child(6)]:table-cell [&_td:nth-child(6)]:whitespace-nowrap",
+  "[&_td_b]:ms-1 [&_td_b]:font-normal [&_td_b]:text-fg-muted [&_td_b]:tabular-nums",
+].join(" ");
+
 /** Lists longer than this get a jump row; fields this big get the find field. */
 const JUMP_FROM = 40;
 const FIND_FROM = 60;
@@ -108,7 +122,11 @@ export async function RaceResults({ eventId, lists, kind, markers, trail, trunca
                     : b.to === null && b.from !== null
                       ? t("results.bandOver", { from: edgeText(b.from, kind, locale) })
                       : t("results.bandBetween", {
-                          from: edgeText(b.from ?? 0, kind, locale),
+                          // "200 to 250 km": the unit once, after the upper edge.
+                          from:
+                            kind === "distance"
+                              ? (formatCount(b.from ?? 0, locale) ?? "")
+                              : edgeText(b.from ?? 0, kind, locale),
                           to: edgeText(b.to ?? 0, kind, locale),
                         }),
               }}
@@ -202,7 +220,7 @@ function ResultList({
           </ul>
         </nav>
       )}
-      <table className="w-full border-collapse text-sm md:text-[0.9375rem]">
+      <table className={SHEET}>
         <caption className="sr-only">{labels.caption}</caption>
         <thead>
           <tr className="label-caps text-fg-muted">
@@ -276,11 +294,12 @@ function ResultRow({
   const nat = r.Nationality?.trim();
   const cat = r.Cat?.trim().replace(/^#NA$/i, "");
   const catRank = cat ? r.RankCat?.trim() : "";
-  const sub = [nat, cat && `${cat} ${catRank ?? ""}`.trim(), gap].filter(Boolean);
+  const catText = [nat, cat && `${cat} ${catRank ?? ""}`.trim()].filter(Boolean).join(" · ");
+  // Cells carry no classes: the table styles them by column (SHEET), which keeps big fields light.
   return (
-    <tr data-q={`${name} ${nat ?? ""} ${r.Club ?? ""}`.toLocaleLowerCase()} className="border-b border-hair align-baseline">
-      <td className="py-2 pe-2 text-end text-fg-muted tabular">{f.place ?? ""}</td>
-      <td className="py-2 pe-3 text-end font-semibold whitespace-nowrap tabular">
+    <tr data-q={`${name} ${nat ?? ""} ${r.Club ?? ""}`.toLocaleLowerCase()}>
+      <td>{f.place ?? ""}</td>
+      <td>
         {resultText(r.Performance, kind, f.value, locale)}
         {markers?.length ? (
           <span className="ms-1 inline-flex gap-1 align-[1px]">
@@ -292,22 +311,20 @@ function ResultRow({
           </span>
         ) : null}
       </td>
-      <td className="hidden py-2 pe-3 text-end text-fg-muted whitespace-nowrap tabular sm:table-cell">{gap}</td>
-      <td className="min-w-0 py-2 pe-2">
-        <Link href={`/runners/${r.PersonID}`} className="font-medium">
-          {name}
-        </Link>
-        {sub.length > 0 && (
-          <span className="block truncate text-xs text-fg-muted md:hidden">
-            {[nat, cat && `${cat} ${catRank ?? ""}`.trim()].filter(Boolean).join(" · ")}
-            {gap && <span className="sm:hidden">{` · ${gap}`}</span>}
-          </span>
+      <td>{gap}</td>
+      <td>
+        <Link href={`/runners/${r.PersonID}`}>{name}</Link>
+        {(catText || gap) && (
+          <small>
+            {catText}
+            {gap && <i>{`${catText ? " · " : ""}${gap}`}</i>}
+          </small>
         )}
       </td>
-      <td className="hidden py-2 pe-2 text-fg-muted md:table-cell">{nat}</td>
-      <td className="hidden py-2 whitespace-nowrap md:table-cell">
+      <td>{nat}</td>
+      <td>
         {cat}
-        {catRank && <span className="ms-1 text-fg-muted tabular">{catRank}</span>}
+        {catRank && <b>{catRank}</b>}
       </td>
     </tr>
   );
