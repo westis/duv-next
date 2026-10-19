@@ -127,7 +127,7 @@ const ALSO_SHOWN = 2;
 function Also({ row, locale, t }: { row: RankRow; locale: string; t: T }) {
   if (!row.also.length) return null;
   return (
-    <span className="ms-1.5 text-xs text-fg-muted" title={t("alsoLabel")}>
+    <span className="block text-xs text-fg-muted" title={t("alsoLabel")}>
       {t("also")}{" "}
       {row.also.slice(0, ALSO_SHOWN).map((e, i) => (
         <span key={e.PerfID}>
@@ -272,7 +272,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                     <Link
                       href={`/runners/${e.PersonID}`}
                       title={e.OrigName || undefined}
-                      className="font-medium"
+                      className="font-medium whitespace-nowrap"
                     >
                       {name(e, locale)}
                     </Link>{" "}
@@ -293,13 +293,13 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                     <Link
                       href={`/events/${e.EventID}`}
                       title={e.City}
-                      className="inline-block max-w-36 truncate align-bottom xl:max-w-44"
+                      className="inline-block max-w-28 truncate align-bottom xl:max-w-36"
                     >
                       {e.City}
                     </Link>{" "}
                     <span className="text-xs text-fg-muted">{e.Country}</span>
                     {IAU.has(iau) && (
-                      <span className="ms-1.5 hidden text-xs text-fg-muted xl:inline">
+                      <span className="ms-1.5 hidden text-xs text-fg-muted 2xl:inline">
                         {tags(`iau.${iau as "G" | "S" | "B" | "T"}`)}
                       </span>
                     )}
