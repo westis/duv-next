@@ -63,7 +63,7 @@ export default async function EventResultsPage({ params }: PageProps) {
 
     return (
       <div className="container mx-auto px-4 py-8">
-        <EventHeader eventInfo={eventInfo} />
+        <EventHeader eventInfo={eventInfo} eventId={eventId} />
         <ResultsTable eventId={eventId} />
       </div>
     );

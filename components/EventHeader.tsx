@@ -4,6 +4,7 @@ import {
   MapPin,
   Users,
   Link as LinkIcon,
+  InfoIcon,
   RulerIcon,
   ClockIcon,
 } from "lucide-react";
@@ -34,7 +35,14 @@ interface EventInfo {
   EvtDetailLink: string;
 }
 
-export function EventHeader({ eventInfo }: { eventInfo: EventInfo }) {
+export function EventHeader({
+  eventInfo,
+  eventId,
+}: {
+  eventInfo: EventInfo;
+  /** When set, links to the event detail page. */
+  eventId?: string;
+}) {
   const eventTypeInput: EventTypeInput = {
     EventType: eventInfo.EvtType,
     Length: eventInfo.EvtDist,
@@ -119,6 +127,15 @@ export function EventHeader({ eventInfo }: { eventInfo: EventInfo }) {
           </div>
           <div className="flex flex-wrap justify-between items-center gap-2">
             <div className="flex items-center space-x-2">
+              {eventId && (
+                <Link
+                  href={`/events/${eventId}`}
+                  className="inline-flex items-center gap-1 mr-4 text-sm sm:text-base text-yellow-600 dark:text-yellow-500 hover:underline"
+                >
+                  <InfoIcon className="w-4 h-4" />
+                  <span>Event details</span>
+                </Link>
+              )}
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
               <span className="text-sm sm:text-base">
                 Finishers: {eventInfo.FinisherCnt}
