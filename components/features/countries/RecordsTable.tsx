@@ -45,9 +45,11 @@ interface RecordsTableProps {
   title: string;
   /** Entries keyed by age class, already filtered to one gender. */
   records: [string, BestPerfRecord][];
+  /** Appended to bare performances, e.g. "km" for timed races. */
+  unit?: string;
 }
 
-export function RecordsTable({ title, records }: RecordsTableProps) {
+export function RecordsTable({ title, records, unit }: RecordsTableProps) {
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-semibold">{title}</h2>
@@ -77,7 +79,7 @@ export function RecordsTable({ title, records }: RecordsTableProps) {
                       {categoryLabel(cat)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap tabular-nums">
-                      {r.Perf}
+                      {unit ? `${r.Perf} ${unit}` : r.Perf}
                       {split && (
                         <Badge
                           variant="outline"

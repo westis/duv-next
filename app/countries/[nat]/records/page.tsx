@@ -3,6 +3,7 @@ import { getBestPerfCountry } from "@/lib/duv";
 import type { BestPerfRecord } from "@/lib/duv/types";
 import { FilterSelect } from "@/components/features/countries/FilterSelect";
 import { parseNat } from "@/components/features/countries/data";
+import { text } from "@/components/features/countries/format";
 import {
   RECORD_MARKERS,
   RecordsTable,
@@ -90,6 +91,11 @@ export default async function CountryRecordsPage({
   const women = entries.filter(([key]) => key.startsWith("W"));
   const men = entries.filter(([key]) => key.startsWith("M"));
   const distLabel = DISTANCES.find((d) => d.value === dist)?.label ?? dist;
+  // Timed races report the distance run, as a bare number.
+  const unit = /[hd]$/.test(dist) ? "km" : undefined;
+  // TitleW/TitleM can name the wrong distance (seen: "100 km" for 24h), and the
+  // disclaimer contains HTML.
+  const disclaimer = text(data?.Disclaimer?.replace(/<[^>]*>/g, ""));
 
   return (
     <div className="space-y-8">
@@ -125,13 +131,11 @@ export default async function CountryRecordsPage({
       ) : (
         <div className="grid gap-8 2xl:grid-cols-2">
           <RecordsTable
-            title={data?.TitleW || `Best performances ${distLabel} women`}
+            title={`${distLabel} women`}
             records={women}
+            unit={unit}
           />
-          <RecordsTable
-            title={data?.TitleM || `Best performances ${distLabel} men`}
-            records={men}
-          />
+          <RecordsTable title={`${distLabel} men`} records={men} unit={unit} />
         </div>
       )}
 
@@ -141,7 +145,7 @@ export default async function CountryRecordsPage({
             .map(([code, label]) => `${code} = ${label}`)
             .join(" · ")}
         </p>
-        {data?.Disclaimer && <p>{data.Disclaimer}</p>}
+        {disclaimer && <p>{disclaimer}</p>}
       </footer>
     </div>
   );
