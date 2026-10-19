@@ -219,7 +219,7 @@
     "all": "All performances",
     "pageOf": "page {page} of {count}",
     "lapIs": "one lap is {km}",
-    "trailNote": "DUV ranks road, track and indoor races at standard distances and times; trail races have no rankings.",
+    "trailNote": "Rankings cover road, track and indoor races at standard distances and times, not trail races.",
     "trailLink": "Trail races in the calendar",
     "caption": "{list} {year}: rank, result, gap to the leader, runner, age group, race and date",
     "rank": "Rank",

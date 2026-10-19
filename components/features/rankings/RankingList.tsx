@@ -26,7 +26,7 @@ function cat(e: RankingEntry) {
 const IAU = new Set(["G", "S", "B", "T"]);
 
 /** The result: "6:09:25", "261.170" (km in the header), or backyard laps over their km. */
-function Result({ row, kind, locale, t }: { row: RankRow; kind: ListKind; locale: string; t: T }) {
+function Result({ row, kind, locale, t, compact }: { row: RankRow; kind: ListKind; locale: string; t: T; compact?: boolean }) {
   const e = row.entry;
   if (kind === "backyard") {
     const laps = backyardLaps(e);
@@ -34,7 +34,7 @@ function Result({ row, kind, locale, t }: { row: RankRow; kind: ListKind; locale
     return (
       <>
         {laps !== null ? formatLaps(laps, locale) : <span title={t("noLaps")}>{km?.number}</span>}
-        {laps !== null && km && <span className="ms-2 text-xs font-normal text-fg-muted">{km.text}</span>}
+        {laps !== null && km && !compact && <span className="ms-2 text-xs font-normal text-fg-muted">{km.text}</span>}
       </>
     );
   }
@@ -43,7 +43,7 @@ function Result({ row, kind, locale, t }: { row: RankRow; kind: ListKind; locale
     return (
       <>
         {km?.number}
-        <span className="ms-1 text-xs font-normal text-fg-muted">{km?.unit}</span>
+        {compact ? <span className="sr-only"> {km?.unit}</span> : <span className="ms-1 text-xs font-normal text-fg-muted">{km?.unit}</span>}
       </>
     );
   }
@@ -182,11 +182,10 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                   )}
                 </td>
                 <td className={td}>
-                  <Link href={`/runners/${e.PersonID}`} className="font-medium">
+                  <Link href={`/runners/${e.PersonID}`} title={e.OrigName || undefined} className="font-medium">
                     {name(e, locale)}
                   </Link>{" "}
                   <span className="text-xs text-fg-muted tabular">{e.Nationality}</span>
-                  {e.OrigName && <span className="ms-1.5 hidden text-xs text-fg-muted xl:inline">{e.OrigName}</span>}
                   <Also row={row} locale={locale} t={t} />
                 </td>
                 <td className={cn(td, "whitespace-nowrap tabular")}>
@@ -197,10 +196,12 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                     </>
                   )}
                 </td>
-                <td className={td}>
-                  <Link href={`/events/${e.EventID}`}>{e.City}</Link>{" "}
+                <td className={cn(td, "whitespace-nowrap")}>
+                  <Link href={`/events/${e.EventID}`} title={e.City} className="inline-block max-w-40 truncate align-bottom xl:max-w-52">
+                    {e.City}
+                  </Link>{" "}
                   <span className="text-xs text-fg-muted">{e.Country}</span>
-                  {IAU.has(iau) && <span className="ms-1.5 hidden text-xs text-fg-muted lg:inline">{tags(`iau.${iau as "G" | "S" | "B" | "T"}`)}</span>}
+                  {IAU.has(iau) && <span className="ms-1.5 hidden text-xs text-fg-muted xl:inline">{tags(`iau.${iau as "G" | "S" | "B" | "T"}`)}</span>}
                 </td>
                 <td className={cn(td, "text-end whitespace-nowrap text-fg-muted")}>
                   <DateText value={e.EvtdateShort || e.EvtdateShortIso} locale={locale} />
@@ -215,7 +216,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
         {rows.map((row) => {
           const e = row.entry;
           const c = cat(e);
-          const gap = gapText(row, kind, locale, t, true);
+          const gap = gapText(row, kind, locale, t, false);
           return (
             <li key={e.PerfID} className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-baseline gap-x-2 border-b border-hair py-2">
               <span className="text-end text-sm text-fg-muted tabular">
@@ -224,7 +225,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
               <div className="min-w-0">
                 <div className="flex min-w-0 items-baseline gap-2">
                   <b className={cn("shrink-0 text-[0.9375rem] tabular", row.repeat ? "font-normal" : "font-semibold")}>
-                    <Result row={row} kind={kind} locale={locale} t={t} />
+                    <Result row={row} kind={kind} locale={locale} t={t} compact />
                   </b>
                   <Link href={`/runners/${e.PersonID}`} className="truncate font-medium">
                     {name(e, locale)}
@@ -240,7 +241,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                 {gap && (
                   <>
                     <span aria-hidden>{gap}</span>
-                    <span className="sr-only">{t("behindLeader", { gap })}</span>
+                    <span className="sr-only">{t("behindLeader", { gap: gapText(row, kind, locale, t, true) })}</span>
                   </>
                 )}
               </span>

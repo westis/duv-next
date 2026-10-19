@@ -36,7 +36,7 @@ export async function rankingMetadata(searchParams: Promise<SearchParams>, backy
       ? t("metaTitle", { list, year })
       : t("metaTitleGender", { list, year, gender: genderLabel(t, state.gender).toLowerCase() });
   return {
-    title: `${title} | DUV Ultramarathon Statistics`,
+    title,
     description: backyard ? t("metaDescriptionBackyard", { year }) : t("metaDescription", { list, year }),
   };
 }
@@ -124,8 +124,8 @@ export async function RankingPage({ searchParams, backyard = false }: { searchPa
           <p className="flex flex-wrap items-center gap-x-2 text-sm text-fg-muted md:text-[0.9375rem]">
             {meta.map((item, i) => (
               <span key={item} className="inline-flex items-center gap-2">
-                {i > 0 && <MetaDot />}
                 {item}
+                {i < meta.length - 1 && <MetaDot />}
               </span>
             ))}
           </p>
