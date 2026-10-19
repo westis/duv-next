@@ -11,6 +11,7 @@ const NAMED: Record<string, string> = {
   ndash: "–",
   mdash: "—",
   rsquo: "’",
+  sbquo: ",",
   lsquo: "‘",
   szlig: "ß",
   aelig: "æ",
@@ -48,7 +49,8 @@ export function decodeEntities(raw: string): string {
 
 /** "Van Zyl, Irvette" → "Irvette Van Zyl"; names without a comma stay as written. */
 export function holderName(raw: string): string {
-  const name = raw.replace(/\s+/g, " ").trim();
+  // Some cells use a look-alike of the comma (low quote, full-width comma).
+  const name = raw.replace(/[\u201a\uff0c]/g, ",").replace(/\s+/g, " ").trim();
   const comma = name.indexOf(",");
   if (comma < 0) return name;
   const last = name.slice(0, comma).trim();

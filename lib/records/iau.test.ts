@@ -102,6 +102,7 @@ describe("parseIauRecords", () => {
         ["WR", "Current", "6:05:35", "Sorokin, Aleksandr", "LTU", "30.05.1981", "Vilnius", "LTU", "14.05.2023", ""],
         ["North America", "Current", "6:27:44", "Max King", "USA", "24.02.1980", "Doha", "QAT", "21.11.2014", ""],
         ["35", "N.A.", "N.A.", "", "", "", "", "", "", ""],
+        ["South America", "Current", "6:59:00", "Campos&sbquo; Denise Lucas", "BRA", "", "", "", "29.11.2009", ""],
         ["Antarctica", "Current", "9:00:00", "X, Y", "ATA", "", "", "", "01.01.2020", ""],
       ],
       "24 hours Women": [
@@ -119,6 +120,7 @@ describe("parseIauRecords", () => {
     const ar = parsed.records.find((r) => r.scope === "area" && r.scopeCode === "NAM");
     expect(ar).toMatchObject({ dist: "100km", gender: "M", value: 6 * 3600 + 27 * 60 + 44, holder: "Max King" });
     expect(parsed.records.some((r) => r.dist === "100km" && r.category === "35")).toBe(false);
+    expect(parsed.records.find((r) => r.scopeCode === "SAM")?.holder).toBe("Denise Lucas Campos");
   });
 
   it("reads distances, WBP and country aliases", () => {
