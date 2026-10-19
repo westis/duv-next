@@ -33,8 +33,26 @@ export async function GET(request: Request) {
   if (url.searchParams.has("raw")) {
     const { getIntBestList } = await import("@/lib/duv");
     try {
-      const data = await getIntBestList({ year: "all", dist, gender: "M", plain: true, perpage: 5 }, { revalidate: false });
-      out.raw = { keys: data && Object.keys(data), rows: data?.RankingList?.slice(0, 2), pag: data?.Pagination };
+      const variants: Record<string, Record<string, string | number | boolean>> = {
+        a: { year: "all", dist, gender: "M", plain: true, perpage: 5 },
+        b: { year: "all", dist, gender: "M", cat: "all", plain: true, perpage: 5 },
+        c: { year: "all", dist, gender: "M", cat: "all", nat: "all", perpage: 5 },
+        d: { year: "all", dist, gender: "M" },
+        e: { year: "all", dist, gender: "M", perpage: 100 },
+        f: { year: "all", dist, gender: "M", cat: "M", perpage: 5 },
+        g: { year: 2024, dist, gender: "M", perpage: 5 },
+      };
+      const raw: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(variants)) {
+        try {
+          const data = (await getIntBestList(v, { revalidate: false })) as unknown as Record<string, unknown> | null;
+          const list = (data?.RankingList as unknown[] | undefined) ?? [];
+          raw[k] = { keys: data && Object.keys(data).slice(0, 12), n: list.length, first: list[0], pag: data?.Pagination };
+        } catch (e) {
+          raw[k] = String(e);
+        }
+      }
+      out.raw = raw;
     } catch (e) {
       out.rawError = String(e);
     }
