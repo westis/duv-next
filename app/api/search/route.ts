@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  searchEvents as searchDuvEvents,
+  searchRunners as searchDuvRunners,
+  type EventSearchHit,
+  type RunnerSearchHit,
+} from "@/lib/duv";
 
 type SearchResult = {
   type: "runner" | "event";
@@ -8,24 +14,6 @@ type SearchResult = {
   gender?: string;
   activeRange?: string;
 };
-
-interface Runner {
-  PersonID: string;
-  FirstName: string;
-  LastName: string;
-  Nationality: string;
-  YOB: string;
-  Gender: string;
-  ActivRange: string;
-}
-
-interface Event {
-  EventID: string;
-  EventName: string;
-  City: string;
-  Country: string;
-  Startdate: string;
-}
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -72,23 +60,17 @@ export async function GET(request: NextRequest) {
 async function searchRunners(
   query: string
 ): Promise<{ results: SearchResult[]; totalHits: number }> {
-  const encodedQuery = query.replace(/\s+/g, "+");
-  const url = `https://statistik.d-u-v.org/json/msearchrunner.php?sname=${encodedQuery}&plain=1&Language=EN`;
-  console.log(`Fetching runners from: ${url}`);
   try {
-    const response = await fetch(url);
-    const text = await response.text();
-    console.log(`Runner API response:`, text);
-    const data = JSON.parse(text);
-    const mappedResults = (data.Hitlist || []).map((runner: Runner) => ({
-      type: "runner",
+    const data = await searchDuvRunners({ sname: query, plain: true });
+    const mappedResults = (data?.Hitlist || []).map((runner: RunnerSearchHit) => ({
+      type: "runner" as const,
       id: runner.PersonID,
       name: `${runner.FirstName} ${runner.LastName}`,
       details: `${runner.Nationality}, ${runner.YOB}`,
       gender: runner.Gender,
       activeRange: runner.ActivRange,
     }));
-    return { results: mappedResults, totalHits: data.HitCnt };
+    return { results: mappedResults, totalHits: data?.HitCnt ?? 0 };
   } catch (error) {
     console.error(`Error fetching runners:`, error);
     return { results: [], totalHits: 0 };
@@ -98,23 +80,17 @@ async function searchRunners(
 async function searchEvents(
   query: string
 ): Promise<{ results: SearchResult[]; totalHits: number }> {
-  const encodedQuery = query.replace(/\s+/g, "+");
-  const url = `https://statistik.d-u-v.org/json/msearchevent.php?sname=${encodedQuery}&plain=1&Language=EN`;
-  console.log(`Fetching events from: ${url}`);
   try {
-    const response = await fetch(url);
-    const text = await response.text();
-    console.log(`Event API response:`, text);
-    const data = JSON.parse(text);
-    const mappedResults = (data.Hitlist || []).map((event: Event) => ({
-      type: "event",
+    const data = await searchDuvEvents({ sname: query, plain: true });
+    const mappedResults = (data?.Hitlist || []).map((event: EventSearchHit) => ({
+      type: "event" as const,
       id: event.EventID,
       name: event.EventName,
       details: `${event.Startdate.split(" ")[0]} • ${event.City}, ${
         event.Country
       }`,
     }));
-    return { results: mappedResults, totalHits: data.HitCnt };
+    return { results: mappedResults, totalHits: data?.HitCnt ?? 0 };
   } catch (error) {
     console.error(`Error fetching events:`, error);
     return { results: [], totalHits: 0 };

@@ -1,35 +1,5 @@
-// File path: app/api/events/route.ts
-
 import { NextResponse } from "next/server";
-import { getBaseUrl } from "@/lib/utils";
-
-async function fetchEvents(baseUrl: string, dist: string) {
-  // Remove getBaseUrl() from here as it's not needed for external URLs
-  const url = `${baseUrl}&dist=${dist}`;
-  console.log("Fetching from URL:", url);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  const text = await response.text();
-  console.log("Raw response:", text.slice(0, 200) + "...");
-  try {
-    if (!text.trim() || text.trim() === "null") {
-      return { events: [], hitCount: 0, pagination: null };
-    }
-    const data = JSON.parse(text);
-    const events = data.Races
-      ? data.Races.map((race: Record<string, unknown>) => ({
-          ...race,
-          Results: race.Results || "N",
-        }))
-      : [];
-    return { events, hitCount: data.HitCnt || 0, pagination: data.Pagination };
-  } catch (error) {
-    console.error("Error parsing JSON:", error);
-    return { events: [], hitCount: 0, pagination: null };
-  }
-}
+import { getCalendar, type CalendarParams } from "@/lib/duv";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -63,32 +33,33 @@ export async function GET(request: Request) {
 
   const order = searchParams.get("order") || "asc";
 
-  let baseUrl = `https://statistik.d-u-v.org/json/mcalendar.php?plain=1&perpage=${perpage}&page=${page}&Language=EN`;
+  const params: CalendarParams = {
+    plain: true,
+    perpage: Number(perpage),
+    page: Number(page),
+    order: order === "desc" ? "desc" : "asc",
+    dist: dist || "all",
+    country: country || undefined,
+    rproof: rproof === "1" || undefined,
+    norslt: norslt === "1" || undefined,
+  };
 
   if (from && to) {
-    baseUrl += `&from=${from}&to=${to}&order=${order}`;
+    params.from = from;
+    params.to = to;
   } else {
-    baseUrl += `&year=${year || "futur"}&order=${order}`;
+    params.year = year || "futur";
   }
 
-  if (country) baseUrl += `&country=${country}`;
-  if (rproof) baseUrl += `&rproof=${rproof}`;
-  if (norslt) baseUrl += `&norslt=${norslt}`;
-
-  const distValues: string[] = dist && dist !== "all" ? [dist] : ["all"];
-
   try {
-    const allEventsData = await Promise.all(
-      distValues.map((dist) => fetchEvents(baseUrl, dist))
-    );
+    const data = await getCalendar(params);
+    const events = (data?.Races ?? []).map((race) => ({
+      ...race,
+      Results: race.Results || "N",
+    }));
+    const totalHitCount = data?.HitCnt ?? 0;
 
-    const events = allEventsData.flatMap((data) => data.events);
-    const totalHitCount = allEventsData.reduce(
-      (sum, data) => sum + data.hitCount,
-      0
-    );
-
-    const pagination = allEventsData[0].pagination || {
+    const pagination = data?.Pagination || {
       CurrPage: 1,
       MaxPage: 1,
     };

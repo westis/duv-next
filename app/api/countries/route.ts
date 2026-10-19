@@ -1,20 +1,17 @@
 import { NextResponse } from "next/server";
+import { getCalendar } from "@/lib/duv";
 
 export async function GET() {
   try {
-    const response = await fetch(
-      "https://statistik.d-u-v.org/json/mcalendar.php"
-    );
-    if (!response.ok) {
-      throw new Error(`Failed to fetch countries: ${response.status}`);
-    }
-    const data = await response.json();
+    const data = await getCalendar({ perpage: 1 }, { revalidate: 86400 });
+    const values = data?.FltCountryValues ?? [];
+    const labels = data?.FltCountryLabels ?? [];
 
-    const countries = data.FltCountryValues.map(
+    const countries = values.map(
       (value: string, index: number) => ({
         value,
-        label: data.FltCountryLabels[index],
-        searchTerms: `${value} ${data.FltCountryLabels[index]}`.toLowerCase(),
+        label: labels[index],
+        searchTerms: `${value} ${labels[index]}`.toLowerCase(),
       })
     );
 
