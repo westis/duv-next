@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { getTranslations } from "next-intl/server";
-import { DateText, formatBirthDate, formatDate, formatPerformanceText, formatRunnerName, formatYear } from "@/lib/format";
+import { DateText, formatBirthDate, formatDate, formatDuration, formatPerformanceText, formatRunnerName, formatYear } from "@/lib/format";
+import { discipline } from "@/lib/records/disciplines";
+import { parseTimeValue } from "@/lib/records/perf";
 import type { DisciplineKey, RecordScope } from "@/lib/records/types";
 import { flagWords, type BoardCell, type MarkHolder } from "./cells";
 import { MarkTag } from "./MarkTag";
@@ -12,6 +14,12 @@ export function perfText(perf: string, dist: DisciplineKey, locale: string, t: R
   if (dist === "backyard") {
     const laps = Number.parseInt(perf, 10);
     return Number.isFinite(laps) ? t("laps", { count: laps }) : perf;
+  }
+  if (discipline(dist).kind === "time") {
+    // The IAU page writes some times with dots ("2.59.54"); multi-day times can carry days ("5d 12:00:00").
+    const seconds = parseTimeValue(perf.trim().replace(/^(\d+)\.(\d\d)\.(\d\d)$/, "$1:$2:$3"));
+    const text = seconds === null ? null : formatDuration(seconds);
+    if (text) return text;
   }
   return formatPerformanceText(perf, locale);
 }

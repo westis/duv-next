@@ -274,7 +274,7 @@
     "ratifiedRecord": "Ratified record",
     "bestInDuv": "Best in DUV",
     "raceResult": "race result",
-    "shaded": "Shaded: the age class that holds the record.",
+    "shaded": "Shaded: the mark that is also the open record.",
     "ageOnRaceDay": "Age on race day.",
     "ageByYear": "Age by year of birth.",
     "noAgeClasses": "DUV keeps no age class lists here.",

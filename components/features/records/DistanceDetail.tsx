@@ -51,7 +51,7 @@ function AgeMark({ cell, row, gender, t, locale }: { cell: BoardCell | null; row
   const flags = flagText(cell, t);
   return (
     <div className="min-w-0 xl:grid xl:grid-cols-[5.75rem_minmax(0,1.25fr)_minmax(0,1fr)] xl:gap-x-2.5">
-      <p className="flex flex-wrap items-center gap-x-1.5">
+      <p className="flex flex-wrap items-center gap-x-1.5 xl:flex-col xl:items-start xl:gap-y-1">
         <span className="serif-figures font-semibold">{perfText(cell.perf, cell.dist, locale, t)}</span>
         <CellMarker cell={cell} t={t} locale={locale} context="age" holds={row.holds.includes(gender)} />
       </p>
@@ -145,12 +145,12 @@ export async function DistanceDetail({
               </thead>
               <tbody>
                 {detail.ages.map((row) => (
-                  <tr key={row.band} className={cn("border-b border-hair align-top", row.holds.length > 0 && "bg-highlight")}>
+                  <tr key={row.band} className="border-b border-hair align-top">
                     <th scope="row" className="ps-1.5 pt-2 pb-2.5 text-sm font-semibold tabular">
                       {row.band}
                     </th>
                     {GENDERS.map((g) => (
-                      <td key={g} className={cn("px-2 pt-2 pb-2.5", g === "M" && "border-s border-hair")}>
+                      <td key={g} className={cn("px-2 pt-2 pb-2.5", g === "M" && "border-s border-hair", row.holds.includes(g) && "bg-highlight")}>
                         <AgeMark cell={row[g]} row={row} gender={g} t={t} locale={locale} />
                       </td>
                     ))}
