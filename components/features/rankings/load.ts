@@ -95,11 +95,12 @@ async function loadInParts(state: RankingState, backyard: boolean): Promise<Load
     return { by, loaded, missing };
   };
 
-  // Age groups first: a whole year usually breaks on one runner without an age (#NA).
+  // A year's list usually breaks on one runner without an age (#NA): split it by
+  // age group. The all-time lists break in most age groups, and asking for all
+  // of them is slow: split those by the six regions straight away.
   const sexes = state.gender === "all" ? ["M", "W"] : [state.gender];
   const groups = [...sexes.flatMap((s) => AGE_GROUPS.map((g) => s + g)), "#NA"];
-  let split = state.cat === "all" ? await attempt("ageGroup", groups, "cat") : null;
-  // The all-time lists break in most age groups: fall back to the six regions.
+  let split = state.cat === "all" && state.year !== "all" ? await attempt("ageGroup", groups, "cat") : null;
   if ((!split || split.missing.length > 2) && state.nat === "all") {
     split = await attempt("region", REGIONS, "nat");
   }
