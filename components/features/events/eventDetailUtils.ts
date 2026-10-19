@@ -1,5 +1,15 @@
 import type { EventDetailListEntry } from "@/lib/duv";
 
+/** Live data uses a literal "&nbsp;" for empty fields. */
+const EMPTY_FIELD = /^\s*(?:&(?:amp;)?nbsp;\s*)*$/i;
+
+/** Returns a copy of `record` with "&nbsp;"-only string fields set to "". */
+export function blankEmptyFields<T extends object>(record: T): T {
+  return Object.fromEntries(
+    Object.entries(record).map(([k, v]) => [k, typeof v === "string" && EMPTY_FIELD.test(v) ? "" : v])
+  ) as T;
+}
+
 export interface ParsedWinner {
   rank: string;
   name: string;
@@ -86,9 +96,19 @@ export function describeLinkEntry(entry: EventDetailListEntry) {
   );
   const url = values.find(([, v]) => /^https?:\/\//i.test(v.trim()))?.[1].trim();
   const labelKeys = /title|name|desc|text|author|source|by/i;
+  // Skip codes such as a GPS source type "1"
+  const isText = (v: string) => !/^https?:\/\//i.test(v) && !/^\d+$/.test(v.trim());
   const label =
-    values.find(([k, v]) => labelKeys.test(k) && !/^https?:\/\//i.test(v))?.[1] ??
-    url ??
-    "";
+    values.find(([k, v]) => labelKeys.test(k) && isText(v))?.[1] ??
+    (url ? shortUrl(url) : "");
   return { url: url ?? null, label };
+}
+
+function shortUrl(url: string) {
+  try {
+    const { hostname, pathname } = new URL(url);
+    return `${hostname.replace(/^www\./, "")}${pathname === "/" ? "" : pathname}`;
+  } catch {
+    return url;
+  }
 }

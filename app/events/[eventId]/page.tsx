@@ -9,7 +9,11 @@ import {
   EventLinksCard,
   type OldSiteLink,
 } from "@/components/features/events/EventLinksCard";
-import { formatEventDates, resolveDuvLink } from "@/components/features/events/eventDetailUtils";
+import {
+  blankEmptyFields,
+  formatEventDates,
+  resolveDuvLink,
+} from "@/components/features/events/eventDetailUtils";
 
 export const revalidate = 3600;
 
@@ -27,7 +31,15 @@ const oldSiteLinkLabels: Record<string, string> = {
 const loadEvent = cache(async (eventId: string) => {
   if (!/^\d+$/.test(eventId)) return null;
   const data = await getEventDetail({ event: eventId });
-  return data?.raceDetails?.EventID ? data : null;
+  if (!data?.raceDetails?.EventID) return null;
+  return {
+    ...data,
+    raceDetails: blankEmptyFields(data.raceDetails),
+    winnerList: data.winnerList?.map(blankEmptyFields) ?? null,
+    raceReports: data.raceReports?.map(blankEmptyFields) ?? null,
+    gpsTracks: data.gpsTracks?.map(blankEmptyFields) ?? null,
+    valuation: data.valuation?.map(blankEmptyFields) ?? null,
+  };
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
