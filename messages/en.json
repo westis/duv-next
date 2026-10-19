@@ -177,5 +177,105 @@
     "nextYear": "Next 12 months",
     "lastMonth": "Last month",
     "nextMonth": "Next month"
+  },
+  "countries": {
+    "metaTitle": "Countries",
+    "metaDescription": "Every nation with ultra results in DUV: best runners, podiums abroad, races and national records.",
+    "continents": {
+      "europe": "Europe",
+      "asia": "Asia",
+      "africa": "Africa",
+      "northAmerica": "North and Central America",
+      "southAmerica": "South America",
+      "oceania": "Oceania and Antarctica",
+      "other": "Other"
+    },
+    "directory": {
+      "title": "Countries",
+      "subtitle": "{count} nations with ultra results in DUV. Pick one for its best runners, podiums abroad, races and records.",
+      "filterLabel": "Find a country",
+      "filterPlaceholder": "Type a name or code, e.g. SWE",
+      "matches": "{count, plural, one {# country} other {# countries}}",
+      "noMatch": "No country matches “{query}”.",
+      "loadError": "The country list could not be loaded from DUV. Please try again later."
+    },
+    "page": {
+      "metaTitle": "{country}: ultra running {year}",
+      "metaDescription": "Best runners, podiums abroad, races and national records of {country} in {year}.",
+      "breadcrumb": "Countries",
+      "sections": "Country sections",
+      "contents": "This country",
+      "anotherCountry": "Another country",
+      "searchCountry": "Search country",
+      "noCountry": "No country found.",
+      "year": "Year",
+      "loadError": "This part could not be loaded from DUV. Please try again later.",
+      "facts": {
+        "races": "Races in {year}",
+        "racesWithResults": "{count} with results",
+        "podiums": "Top-3 places abroad",
+        "wins": "Wins abroad",
+        "winsSplit": "{women} women, {men} men",
+        "fastest": "Best {dist}"
+      },
+      "best": {
+        "title": "Best runners {year}",
+        "deck": "The top three women and men from {country} per distance in {year}, result first. From the international rankings with the country filter.",
+        "counts": "{women} W · {men} M",
+        "countsLabel": "{women} women and {men} men in the {year} list",
+        "women": "Women",
+        "men": "Men",
+        "fullList": "Full {dist} list {year}",
+        "alsoRanked": "Also in the {year} rankings:",
+        "trailNote": "The rankings cover the standard road, track and indoor distances. Trail races differ in course and climb, so they are compared within each race: see the podiums abroad and the races below.",
+        "empty": "No runner from {country} is in the international rankings for {year}."
+      },
+      "abroad": {
+        "title": "Podiums abroad",
+        "deck": "Runners from {country} in the top 3 of their gender in races outside {country}, {year}: {count, plural, one {# place} other {# places}} in {hosts, plural, one {# country} other {# countries}}.",
+        "where": "Where",
+        "latest": "Latest",
+        "hostLabel": "{country}: {count, plural, one {# place} other {# places}}",
+        "moreHosts": "+ {count, plural, one {# more country} other {# more countries}}",
+        "all": "All {count} podiums abroad",
+        "place": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} {gender, select, W {woman} other {man}} of {count}",
+        "placeNoCount": "{place, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} {gender, select, W {woman} other {man}}",
+        "empty": "No runner from {country} finished in the top 3 of a race abroad in {year}."
+      },
+      "races": {
+        "title": "Races in {country}",
+        "deck": "{count, plural, one {# race} other {# races}} in {year}, {results} with results.",
+        "ahead": "Hatched months are still ahead.",
+        "surface": "Surface",
+        "all": "All",
+        "monthBar": "{month}: {count, plural, one {# race} other {# races}}",
+        "byMonth": "Races per month, {year}",
+        "nextUp": "Next up",
+        "date": "Date",
+        "course": "Course",
+        "race": "Race",
+        "calendar": "Calendar for {country}",
+        "noUpcoming": "No upcoming races in DUV's calendar for this filter.",
+        "empty": "DUV lists no races in {country} in {year}.",
+        "emptyFiltered": "No races of this kind in {country} in {year}."
+      },
+      "records": {
+        "link": "National records",
+        "xref": "National records and best performances by age class"
+      }
+    },
+    "abroadPage": {
+      "metaTitle": "{country}: podiums abroad {year}",
+      "metaDescription": "Runners from {country} in the top 3 of their gender in races outside {country}, {year}.",
+      "title": "Podiums abroad",
+      "deck": "Runners from {country} in the top 3 of their gender in races outside {country}.",
+      "distance": "Distance",
+      "gender": "Gender",
+      "women": "Women",
+      "men": "Men",
+      "count": "{count, plural, one {# place} other {# places}}",
+      "empty": "No top-3 places abroad with these filters.",
+      "back": "Back to {country}"
+    }
   }
 }
