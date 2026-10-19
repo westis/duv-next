@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calendarQuery, defaultOrder, parseCalendarParams, yearToRange } from "./params";
+import { apiDist, presetRange, calendarQuery, defaultOrder, groupDistances, parseCalendarParams, yearToRange } from "./params";
 
 const NOW = new Date("2026-10-19T10:00:00Z");
 
@@ -45,5 +45,33 @@ describe("defaultOrder", () => {
     expect(defaultOrder("2026-01-01", NOW)).toBe("desc");
     expect(defaultOrder("2026-10-19", NOW)).toBe("asc");
     expect(defaultOrder(undefined, NOW)).toBe("asc");
+  });
+});
+
+describe("surface", () => {
+  it("reads old dist=Trail links as the surface filter", () => {
+    const state = parseCalendarParams({ dist: "Trail" }, NOW);
+    expect(state).toMatchObject({ dist: "all", surface: "trail" });
+    expect(calendarQuery(state, NOW)).toBe("?surface=trail");
+    expect(apiDist(state)).toBe("Trail");
+  });
+
+  it("sends the format when both are chosen", () => {
+    const state = parseCalendarParams({ dist: "100mi", surface: "trail" }, NOW);
+    expect(apiDist(state)).toBe("100mi");
+    expect(calendarQuery(state, NOW)).toBe("?dist=100mi&surface=trail");
+  });
+
+  it("leaves surfaces out of the format list", () => {
+    const groups = groupDistances(["all", "", "100km", "", "Road", "Trail", "Backy"], ["all", "-", "100 km", "-", "road", "trail", "Backyard"]);
+    expect(groups.flatMap((g) => g.options.map((o) => o.value))).toEqual(["100km", "Backy"]);
+  });
+});
+
+describe("presetRange", () => {
+  it("fills in both dates", () => {
+    expect(presetRange("last14", "2026-10-19")).toEqual({ from: "2026-10-05", to: "2026-10-19" });
+    expect(presetRange("next30", "2026-10-19")).toEqual({ from: "2026-10-19", to: "2026-11-18" });
+    expect(presetRange("thisYear", "2026-10-19")).toEqual({ from: "2026-01-01", to: "2026-12-31" });
   });
 });

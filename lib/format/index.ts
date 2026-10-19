@@ -7,6 +7,7 @@ export {
   formatMonthYear,
   formatYear,
   formatDayMonth,
+  formatWeekday,
   formatStartTime,
   formatDateVariant,
   formatBirthDate,
