@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import { getCalendar, getEventDetail, getIntBestList, getTopRankAbroad } from "@/lib/duv";
+import { DuvApiError, getCalendar, getEventDetail, getIntBestList, getTopRankAbroad } from "@/lib/duv";
 import type { CalendarRace, RankingEntry, TopRankAbroadRow } from "@/lib/duv/types";
 import { continentOf, type Continent } from "./continents";
 
@@ -122,33 +122,48 @@ export interface DistanceBest {
   total: number;
 }
 
-async function bestList(nat: string, year: number, dist: BestDistance, gender: "W" | "M"): Promise<GenderList> {
-  const data = await getIntBestList({ nat, year, dist, gender, perpage: BEST_PER_PAGE, plain: true });
-  const list = data?.RankingList ?? [];
-  // The list holds every result; the top three are three different runners.
-  const seen = new Set<string>();
-  const top = list.filter((e) => !seen.has(e.PersonID) && seen.add(e.PersonID)).slice(0, 3);
-  return {
-    top,
-    count: list.length,
-    more: (data?.Pagination?.MaxPage ?? 1) > 1,
-  };
+/** DUV answers an empty list with 404. */
+function isEmptyAnswer(error: unknown) {
+  return error instanceof DuvApiError && error.status === 404;
 }
 
-/** Best women and men of a country per standard distance in a year; distances with nobody left out. */
-export async function loadBestRunners(nat: string, year: number): Promise<DistanceBest[] | null> {
+const EMPTY_LIST: GenderList = { top: [], count: 0, more: false };
+
+/** One national list; null when DUV failed. DUV answers 404 for an empty list. */
+async function bestList(nat: string, year: number, dist: BestDistance, gender: "W" | "M"): Promise<GenderList | null> {
   try {
-    const lists = await Promise.all(
-      BEST_DISTANCES.map(async (dist) => {
-        const [women, men] = await Promise.all([bestList(nat, year, dist, "W"), bestList(nat, year, dist, "M")]);
-        return { dist, women, men, total: women.count + men.count };
-      })
-    );
-    return lists.filter((d) => d.total > 0);
+    const data = await getIntBestList({ nat, year, dist, gender, perpage: BEST_PER_PAGE, plain: true });
+    const list = data?.RankingList ?? [];
+    // The list holds every result; the top three are three different runners.
+    const seen = new Set<string>();
+    const top = list.filter((e) => !seen.has(e.PersonID) && seen.add(e.PersonID)).slice(0, 3);
+    return { top, count: list.length, more: (data?.Pagination?.MaxPage ?? 1) > 1 };
   } catch (error) {
-    console.error(`[countries] best runners ${nat} ${year} failed`, error);
+    if (isEmptyAnswer(error)) return EMPTY_LIST;
+    console.error(`[countries] best list ${nat} ${year} ${dist} ${gender} failed`, error);
     return null;
   }
+}
+
+/**
+ * Best women and men of a country per standard distance in a year; distances
+ * with nobody left out. Null only when every list failed.
+ */
+export async function loadBestRunners(nat: string, year: number): Promise<DistanceBest[] | null> {
+  const lists = await Promise.all(
+    BEST_DISTANCES.map(async (dist) => {
+      const [women, men] = await Promise.all([bestList(nat, year, dist, "W"), bestList(nat, year, dist, "M")]);
+      return { dist, women, men };
+    })
+  );
+  if (lists.every((d) => d.women === null && d.men === null)) return null;
+  return lists
+    .map(({ dist, women, men }) => {
+      const w = women ?? EMPTY_LIST;
+      const m = men ?? EMPTY_LIST;
+      return { dist, women: w, men: m, total: w.count + m.count };
+    })
+    .filter((d) => d.total > 0);
 }
 
 /** Top-3 places (within gender) of a country's runners in races abroad, newest first. */
@@ -172,6 +187,7 @@ export async function loadPodiumsAbroad(
       })
       .sort((a, b) => (b.Date ?? "").localeCompare(a.Date ?? ""));
   } catch (error) {
+    if (isEmptyAnswer(error)) return [];
     console.error(`[countries] podiums abroad ${nat} ${year} failed`, error);
     return null;
   }
@@ -207,6 +223,7 @@ export async function loadRacesInYear(nat: string, year: number): Promise<Countr
     // Only races that start in the year.
     return races.filter((r) => (r.Startdate ?? "").startsWith(String(year)));
   } catch (error) {
+    if (isEmptyAnswer(error)) return [];
     console.error(`[countries] races ${nat} ${year} failed`, error);
     return null;
   }
@@ -218,6 +235,7 @@ export async function loadUpcomingRaces(nat: string): Promise<CountryRace[] | nu
     const data = await getCalendar({ country: nat, year: "futur", order: "asc", perpage: 80, plain: true, splits: true });
     return (data?.Races ?? []) as CountryRace[];
   } catch (error) {
+    if (isEmptyAnswer(error)) return [];
     console.error(`[countries] upcoming races ${nat} failed`, error);
     return null;
   }
