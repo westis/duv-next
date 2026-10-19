@@ -6,6 +6,30 @@ import type { MarkerKind } from "@/components/design";
 import { formatRaceLength } from "@/lib/tags";
 import type { Finisher } from "./raceModel";
 
+/**
+ * The record sources (IAU page, GOMU sheets, DUV's lists per age band, area
+ * and nation) take long to load on a cold cache. The page waits this long for
+ * them and renders without markers otherwise; the fetches that finished are in
+ * the data cache, so later requests get the markers.
+ */
+const MARKER_BUDGET_MS = 6000;
+
+function withBudget<T>(work: Promise<T>): Promise<T | null> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => resolve(null), MARKER_BUDGET_MS);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+}
+
 /** One marker as the lists draw it: the label parts and the popover text. */
 export interface RowMarker {
   kind: MarkerKind;
@@ -29,7 +53,7 @@ export async function raceMarkers(
   const out = new Map<string, RowMarker[]>();
   let found;
   try {
-    found = await getRaceMarkers(
+    found = await withBudget(getRaceMarkers(
       eventId,
       finishers.map((f) => ({
         eventId,
@@ -40,11 +64,12 @@ export async function raceMarkers(
         cat: f.row.Cat,
         date,
       }))
-    );
+    ));
   } catch (error) {
     console.error(`[race] markers for ${eventId} failed`, error);
     return out;
   }
+  if (!found) return out;
   const t = await getTranslations("race");
 
   const mark = (m: MarkRef) => `${formatPerformanceText(m.perf, locale)}, ${m.holder}${m.year ? ` (${m.year})` : ""}`;
