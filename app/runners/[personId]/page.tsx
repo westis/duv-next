@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { getRunnerProfile } from "@/lib/duv";
+import { DuvApiError, getRunnerProfile } from "@/lib/duv";
 import { RunnerHeader } from "@/components/features/runners/RunnerHeader";
 import { PerformancesList } from "@/components/features/runners/PerformancesList";
 import { PersonalBestsTable } from "@/components/features/runners/PersonalBestsTable";
@@ -25,11 +25,18 @@ interface PageProps {
 
 const loadProfile = cache(async (personId: string, label: boolean) => {
   if (!/^\d+$/.test(personId)) return null;
-  const data = await getRunnerProfile({
-    runner: personId,
-    label: label || undefined,
-  });
-  return data?.PersonHeader ? data : null;
+  try {
+    const data = await getRunnerProfile({
+      runner: personId,
+      label: label || undefined,
+    });
+    return data?.PersonHeader ? data : null;
+  } catch (error) {
+    // The live API answers an unknown runner ID with a body that is not
+    // valid JSON, which the client reports as a 502.
+    if (error instanceof DuvApiError && error.status === 502) return null;
+    throw error;
+  }
 });
 
 export async function generateMetadata({
