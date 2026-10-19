@@ -53,15 +53,17 @@ export async function CountryHeader({ country, countries, year, yearAction, titl
               <YearSelect action={yearAction} label={t("page.year")} applyLabel={tf("apply")} value={year} years={years} />
             </>
           )}
-          <MetaDot />
-          <CountryPicker
-            value={country.code}
-            countries={countries}
-            label={t("page.anotherCountry")}
-            searchLabel={t("page.searchCountry")}
-            emptyLabel={t("page.noCountry")}
-          />
         </>
+      }
+      titleAside={
+        <CountryPicker
+          value={country.code}
+          countries={countries}
+          label={t("page.anotherCountry")}
+          searchLabel={t("page.searchCountry")}
+          emptyLabel={t("page.noCountry")}
+          className="font-sans md:ms-auto"
+        />
       }
       facts={facts ? <StatStrip className="sm:flex-nowrap">{facts}</StatStrip> : undefined}
     />

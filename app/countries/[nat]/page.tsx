@@ -12,18 +12,22 @@ import {
   loadPodiumsAbroad,
   loadRacesInYear,
   loadUpcomingRaces,
+  withClimb,
   parseYear,
   type DistanceBest,
 } from "@/components/features/countries/data";
 import { HostBars, PodiumFeed } from "@/components/features/countries/PodiumFeed";
 import { RacesInCountry, parseSurface } from "@/components/features/countries/RacesInCountry";
 import type { RankingEntry } from "@/lib/duv/types";
+import { raceTypeOf } from "@/lib/tags";
 import { formatCount, formatCourseLength, formatPerformanceText, formatRunnerName, parsePerformance } from "@/lib/format";
 
 export const revalidate = 3600;
 
 /** Podiums shown on the page; the rest are on /countries/[nat]/abroad. */
 const FEED_ROWS = 8;
+/** Races under "Next up". */
+const NEXT_ROWS = 8;
 
 interface PageProps {
   params: Promise<{ nat: string }>;
@@ -81,6 +85,9 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
     loadRacesInYear(nat, year),
     isCurrentYear ? loadUpcomingRaces(nat) : Promise.resolve(null),
   ]);
+  const nextRaces = upcoming
+    ? await withClimb(upcoming.filter((r) => !surface || raceTypeOf(r.EventType)?.surface === surface).slice(0, NEXT_ROWS))
+    : null;
   const names = Object.fromEntries(countries.map((c) => [c.value, c.label]));
 
   const wins = podiums?.filter((r) => Number(r.RankMW) === 1) ?? [];
@@ -207,7 +214,7 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
               countryName={country.name}
               year={year}
               races={races}
-              upcoming={upcoming}
+              upcoming={nextRaces}
               surface={surface}
             />
           )}

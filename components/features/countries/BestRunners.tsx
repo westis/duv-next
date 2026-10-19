@@ -4,7 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { RankingEntry } from "@/lib/duv/types";
 import { DateText, cleanDuv, formatCount, formatCourseLength, formatPerformanceText, formatRunnerName } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { DistanceBest, GenderList } from "./data";
+import { BEST_DISTANCES, type DistanceBest, type GenderList } from "./data";
 
 /** Distances drawn as small multiples; the rest are listed as links. */
 const SHOWN = 4;
@@ -19,8 +19,8 @@ function Entry({ entry, nat, first, locale }: { entry: RankingEntry; nat: string
     .join(" ");
   const cat = cleanDuv(entry.CatInt);
   return (
-    <li className="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-x-2 border-b border-dotted border-border py-1">
-      <span className={cn("text-end font-semibold tabular", first && "text-brand-ink")}>
+    <li className="grid grid-cols-[6.25rem_minmax(0,1fr)] gap-x-2 border-b border-dotted border-border py-1">
+      <span className={cn("text-end font-semibold whitespace-nowrap tabular", first && "text-brand-ink")}>
         {formatPerformanceText(entry.Perf, locale)}
       </span>
       <Link href={`/runners/${entry.PersonID}`} className="min-w-0 font-medium text-fg">
@@ -57,8 +57,10 @@ function GenderBlock({ label, list, nat, locale }: { label: string; list: Gender
 export async function BestRunners({ best, nat, year }: { best: DistanceBest[]; nat: string; year: number }) {
   const t = await getTranslations("countries.page.best");
   const locale = await getLocale();
+  // The busiest distances are drawn, in the usual order (100 km before 24 h...).
   const ordered = [...best].sort((a, b) => b.total - a.total);
-  const shown = ordered.slice(0, SHOWN);
+  const position = (d: DistanceBest) => BEST_DISTANCES.indexOf(d.dist);
+  const shown = ordered.slice(0, SHOWN).sort((a, b) => position(a) - position(b));
   const others = ordered.slice(SHOWN);
   const count = (list: GenderList) => `${formatCount(list.count, locale)}${list.more ? "+" : ""}`;
 

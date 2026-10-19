@@ -222,7 +222,7 @@
         "title": "Best runners {year}",
         "deck": "The top three women and men from {country} per distance in {year}, result first. From the international rankings with the country filter.",
         "counts": "{women} W · {men} M",
-        "countsLabel": "{women} women and {men} men in the {year} list",
+        "countsLabel": "{women} results by women and {men} by men in the {year} list",
         "women": "Women",
         "men": "Men",
         "fullList": "Full {dist} list {year}",

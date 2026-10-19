@@ -145,7 +145,7 @@ export async function RacesInCountry({ nat, countryName, year, races, upcoming, 
             : t("emptyFiltered", { country: countryName, year })}
         </EmptyState>
       ) : (
-        <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+        <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
           <figure className="min-w-0">
             <figcaption className="sr-only">{t("byMonth", { year })}</figcaption>
             <ol className="grid h-28 grid-cols-12 items-end gap-1 pt-4">
@@ -175,11 +175,16 @@ export async function RacesInCountry({ nat, countryName, year, races, upcoming, 
               })}
             </ol>
             <div aria-hidden className="mt-1 grid grid-cols-12 gap-1 text-center text-[0.6875rem] font-semibold text-fg-muted">
-              {months.map((m) => (
-                <span key={m} className="truncate">
-                  {formatMonthShort(m, locale)}
-                </span>
-              ))}
+              {months.map((m) => {
+                const name = formatMonthShort(m, locale) ?? String(m);
+                return (
+                  <span key={m}>
+                    {/* Three letters do not fit twelve columns on a phone. */}
+                    <span className="sm:hidden">{Array.from(name)[0]}</span>
+                    <span className="hidden sm:inline">{name}</span>
+                  </span>
+                );
+              })}
             </div>
             {kindList.length > 0 && (
               <p className="mt-3 text-sm">
@@ -195,12 +200,13 @@ export async function RacesInCountry({ nat, countryName, year, races, upcoming, 
 
           {next && (
             <div className="min-w-0">
-              <h3 className="label-caps mb-1 text-fg-muted">{t("nextUp")}</h3>
+              <h3 id="next-up" className="label-caps mb-1 text-fg-muted">
+                {t("nextUp")}
+              </h3>
               {next.length === 0 ? (
                 <p className="border-t border-hair py-3 text-sm text-fg-muted">{t("noUpcoming")}</p>
               ) : (
-                <table className="w-full border-collapse text-sm">
-                  <caption className="sr-only">{t("nextUp")}</caption>
+                <table aria-labelledby="next-up" className="w-full border-collapse text-sm">
                   <thead className="sr-only">
                     <tr>
                       <th scope="col">{t("date")}</th>

@@ -2,7 +2,7 @@ import "server-only";
 
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import { getCalendar, getIntBestList, getTopRankAbroad } from "@/lib/duv";
+import { getCalendar, getEventDetail, getIntBestList, getTopRankAbroad } from "@/lib/duv";
 import type { CalendarRace, RankingEntry, TopRankAbroadRow } from "@/lib/duv/types";
 import { continentOf, type Continent } from "./continents";
 
@@ -110,7 +110,7 @@ const BEST_PER_PAGE = 100;
 
 export interface GenderList {
   top: RankingEntry[];
-  /** Entries on the list; `more` when the list runs past one page of 100. */
+  /** Results on the list; `more` when the list runs past one page of 100. */
   count: number;
   more: boolean;
 }
@@ -125,8 +125,11 @@ export interface DistanceBest {
 async function bestList(nat: string, year: number, dist: BestDistance, gender: "W" | "M"): Promise<GenderList> {
   const data = await getIntBestList({ nat, year, dist, gender, perpage: BEST_PER_PAGE, plain: true });
   const list = data?.RankingList ?? [];
+  // The list holds every result; the top three are three different runners.
+  const seen = new Set<string>();
+  const top = list.filter((e) => !seen.has(e.PersonID) && seen.add(e.PersonID)).slice(0, 3);
   return {
-    top: list.slice(0, 3),
+    top,
     count: list.length,
     more: (data?.Pagination?.MaxPage ?? 1) > 1,
   };
@@ -218,4 +221,23 @@ export async function loadUpcomingRaces(nat: string): Promise<CountryRace[] | nu
     console.error(`[countries] upcoming races ${nat} failed`, error);
     return null;
   }
+}
+
+/**
+ * The calendar sends no climb, so trail races among the next ones get it from
+ * their event details (cached an hour). Others are returned as they are.
+ */
+export async function withClimb(races: CountryRace[]): Promise<CountryRace[]> {
+  return Promise.all(
+    races.map(async (race) => {
+      if (race.AltitudeDiff || race.EventType !== "2") return race;
+      try {
+        const detail = await getEventDetail({ event: race.EventID });
+        const climb = detail?.raceDetails?.AltitudeDiff;
+        return climb ? { ...race, AltitudeDiff: climb } : race;
+      } catch {
+        return race;
+      }
+    })
+  );
 }
