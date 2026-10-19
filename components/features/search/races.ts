@@ -20,7 +20,7 @@ export interface RaceEdition {
   /** Normalised length in km, for ordering distances. */
   normKm: number;
   trail: boolean;
-  /** Men + women finishers; null when DUV lists no results. */
+  /** Men + women finishers; null when DUV lists none. */
   finishers: number | null;
   upcoming: boolean;
 }
@@ -65,10 +65,11 @@ function isoDay(value: string | null | undefined): string | null {
   return m && m[1] !== "0000" ? `${m[1]}-${m[2]}-${m[3]}` : null;
 }
 
+/** Men + women finishers. DUV sends 0 for a race without results (upcoming, cancelled): null then. */
 function finisherCount(hit: EventSearchHit): number | null {
   if (hit.FinisherM == null && hit.FinisherW == null) return null;
   const n = Number(hit.FinisherM ?? 0) + Number(hit.FinisherW ?? 0);
-  return Number.isFinite(n) ? n : null;
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 /** A hit as an edition; null for a split (PartOf) or an event without a readable date. */
