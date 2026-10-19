@@ -140,7 +140,9 @@ export interface EventResultsParams extends ListParams {
   event: string | number;
   cat?: string;
   country?: string;
-  speed?: boolean;
+  /** 1 = km/h, 2 = min/km (FltSpeedTypeValue) */
+  speed?: number;
+  /** 1 = German, 2 = international, 3 = event-specific (FltCatTypeValue) */
   aktype?: number;
   jsonescape?: boolean;
 }

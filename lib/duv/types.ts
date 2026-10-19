@@ -334,7 +334,7 @@ export interface PersonCompRow {
   EvtID: number | string;
   EvtName: string;
   EvtCnt: number | string;
-  /** Year columns; "&nbsp;" when no result. */
+  /** Year columns; "" when no result. */
   [year: string]: number | string;
 }
 
