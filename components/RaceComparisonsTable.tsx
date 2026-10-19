@@ -43,7 +43,7 @@ export default function RaceComparisonsTable({
 
   const getValidYears = (comparison: RaceComparison) => {
     return Object.entries(comparison)
-      .filter(([key, value]) => !isNaN(Number(key)) && value !== "&nbsp;")
+      .filter(([key, value]) => !isNaN(Number(key)) && value !== "&nbsp;" && value !== "")
       .sort(([a], [b]) => Number(b) - Number(a))
       .map(([year]) => year);
   };
