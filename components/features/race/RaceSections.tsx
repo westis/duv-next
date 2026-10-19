@@ -92,24 +92,17 @@ function sizeLabel(w: Pick<WinnerRow, "Length" | "Duration">) {
 }
 
 /**
- * DUV's lists write winners "First Last" in one string; the surname is taken as
- * the last word ("Sarah WEBSTER"), the site's name style. Compound surnames
- * keep their first part in mixed case.
+ * DUV's lists write winners as one "First Last" string, so the surname can't
+ * be told apart reliably ("Marlene Saint Martin", "Iker Karrera Aranburu"):
+ * the name is shown as DUV writes it rather than with a wrongly capitalised surname.
  */
-function winnerName(name: string, locale: string) {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length < 2) return name;
-  const last = parts.pop()!;
-  return formatRunnerName({ first: parts.join(" "), last }, locale);
-}
-
 function WinnerCell({ raw, locale }: { raw: string | null | undefined; locale: string }) {
   const w = parseWinnerField(raw);
   if (!w) return null;
   return (
     <>
       <span className="font-semibold tabular">{w.perf ? formatPerformanceText(w.perf, locale) : ""}</span>
-      <span className="block text-xs text-fg-muted md:text-sm">{winnerName(w.name, locale)}</span>
+      <span className="block text-xs text-fg-muted md:text-sm">{w.name}</span>
     </>
   );
 }
