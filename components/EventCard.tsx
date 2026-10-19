@@ -138,15 +138,6 @@ export function EventCard({
   );
 
   if (variant === "table") {
-    console.log(`Rendering event ${event.EventID}:`, {
-      hasExpandableContent,
-      isExpanded,
-      city: event.City,
-      country: event.Country,
-      showSurface: shouldShowSurface(event.EventType),
-      iauLabel: event.IAULabel,
-    });
-
     return (
       <>
         <TableRow>
