@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDuvBaseUrl, getEventDetail } from "@/lib/duv";
+import { DuvApiError, getDuvBaseUrl, getEventDetail } from "@/lib/duv";
 import { EventDetailHeader } from "@/components/features/events/EventDetailHeader";
 import { CourseCard, OrganizerCard } from "@/components/features/events/EventInfoCards";
 import { WinnersTable } from "@/components/features/events/WinnersTable";
@@ -30,7 +30,14 @@ const oldSiteLinkLabels: Record<string, string> = {
 
 const loadEvent = cache(async (eventId: string) => {
   if (!/^\d+$/.test(eventId)) return null;
-  const data = await getEventDetail({ event: eventId });
+  let data;
+  try {
+    data = await getEventDetail({ event: eventId });
+  } catch (error) {
+    // DUV answers HTTP 404 for events it does not have or does not show
+    if (error instanceof DuvApiError && error.status === 404) return null;
+    throw error;
+  }
   if (!data?.raceDetails?.EventID) return null;
   return {
     ...data,
