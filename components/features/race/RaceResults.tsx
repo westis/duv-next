@@ -21,7 +21,7 @@ import { bandShortText, edgeText, gapText, resultText } from "./raceText";
 
 /** Column styles of a result list, set once on the table instead of on every cell. */
 const SHEET = [
-  "w-full border-collapse text-sm md:text-[0.9375rem]",
+  "w-full border-collapse text-sm md:text-[0.9375rem] xl:text-sm",
   "[&_td]:py-2 [&_td]:align-baseline [&_tr[data-q]]:border-b [&_tr[data-q]]:border-hair",
   "[&_td:nth-child(1)]:pe-2 [&_td:nth-child(1)]:text-end [&_td:nth-child(1)]:text-fg-muted [&_td:nth-child(1)]:tabular-nums",
   "[&_td:nth-child(2)]:pe-3 [&_td:nth-child(2)]:text-end [&_td:nth-child(2)]:font-semibold [&_td:nth-child(2)]:whitespace-nowrap [&_td:nth-child(2)]:tabular-nums",
