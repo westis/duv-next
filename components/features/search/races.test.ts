@@ -146,3 +146,22 @@ describe("groupRaces, distances of one event", () => {
     expect(croft.distances.map((d) => d.id)).toEqual(["1", "2"]);
   });
 });
+
+describe("groupRaces, a meeting over several days", () => {
+  it("counts distances started a day apart as one edition and shows the longest", async () => {
+    const { groupRaces } = await import("./races");
+    const [g] = groupRaces(
+      [
+        hit({ EventID: "80", ParentID: "1", EventName: "Lavaredo Ultra Trail - 80K", Startdate: "2026-06-27", NormLen: "80", Length: "80km", EventType: "2", AltitudeDiff: "4600Hm" }),
+        hit({ EventID: "120", ParentID: "1", EventName: "Lavaredo Ultra Trail - 120K", Startdate: "2026-06-26", NormLen: "120", Length: "120km", EventType: "2", AltitudeDiff: "5800Hm" }),
+        hit({ EventID: "119", ParentID: "1", EventName: "Lavaredo Ultra Trail - 120K", Startdate: "2025-06-27", NormLen: "120", Length: "120km", EventType: "2" }),
+      ],
+      TODAY
+    );
+    expect(g.editionCount).toBe(2);
+    expect(g.shown.id).toBe("120");
+    expect(g.distances.map((d) => d.id)).toEqual(["120", "80"]);
+    expect(g.name).toBe("Lavaredo Ultra Trail");
+    expect(g.lastField).toBe(30);
+  });
+});

@@ -38,11 +38,11 @@ export interface RaceGroup {
   name: string;
   city: string;
   country: string;
-  /** The next edition when one is coming, else the latest. */
+  /** The next edition when one is coming, else the latest; its longest distance. */
   shown: RaceEdition;
-  /** The distances run on the shown edition's day, longest first. */
+  /** The distances of the shown edition (run within a week), longest first. */
   distances: RaceEdition[];
-  /** Days the race was held (several distances on one day count once). */
+  /** Times the race was held (its distances within a week count once). */
   editionCount: number;
   firstYear: number;
   lastYear: number;
@@ -179,15 +179,16 @@ function buildGroup(items: { edition: RaceEdition; place: Place }[]): RaceGroup 
     (a, b) => b.edition.date.localeCompare(a.edition.date) || b.edition.normKm - a.edition.normKm
   );
   const editions = byDateDesc.map((i) => i.edition);
+  const meeting = meetings(editions);
   const upcoming = editions.filter((e) => e.upcoming);
   // The next edition: the earliest of the upcoming ones; else the latest held.
-  const shown = upcoming.length ? upcoming[upcoming.length - 1] : editions[0];
-  const shownPlace = byDateDesc.find((i) => i.edition === shown)!.place;
+  const next = upcoming.length ? upcoming[upcoming.length - 1] : editions[0];
+  // Its distances (run over a few days: a 120 km start the day before the 80 km), longest first.
   const distances = editions
-    .filter((e) => e.date === shown.date)
-    .sort((a, b) => b.normKm - a.normKm);
-
-  const days = new Set(editions.map((e) => e.date));
+    .filter((e) => meeting.get(e) === meeting.get(next))
+    .sort((a, b) => b.normKm - a.normKm || a.date.localeCompare(b.date));
+  const shown = distances[0];
+  const shownPlace = byDateDesc.find((i) => i.edition === shown)!.place;
   const years = editions.map((e) => e.year);
   const firstYear = Math.min(...years);
   const lastYear = Math.max(...years);
@@ -209,11 +210,13 @@ function buildGroup(items: { edition: RaceEdition; place: Place }[]): RaceGroup 
     strip.push(entry ? { year: y, id: entry.id, finishers: entry.finishers } : { year: y, id: null, finishers: null });
   }
 
-  const lastHeldDate = editions.find((e) => !e.upcoming && e.finishers !== null)?.date;
+  const lastHeld = editions.find((e) => !e.upcoming && e.finishers !== null);
   const lastField =
-    lastHeldDate === undefined
+    lastHeld === undefined
       ? null
-      : editions.filter((e) => e.date === lastHeldDate).reduce((sum, e) => sum + (e.finishers ?? 0), 0);
+      : editions
+          .filter((e) => meeting.get(e) === meeting.get(lastHeld))
+          .reduce((sum, e) => sum + (e.finishers ?? 0), 0);
 
   return {
     key: shown.id,
@@ -222,7 +225,7 @@ function buildGroup(items: { edition: RaceEdition; place: Place }[]): RaceGroup 
     country: shownPlace.country,
     shown,
     distances,
-    editionCount: days.size,
+    editionCount: new Set(meeting.values()).size,
     firstYear,
     lastYear,
     lastField,
@@ -230,6 +233,24 @@ function buildGroup(items: { edition: RaceEdition; place: Place }[]): RaceGroup 
     editions,
     trail: distances.some((d) => d.trail),
   };
+}
+
+/** Editions starting within a week of each other are one meeting (one edition with several distances). */
+const MEETING_DAYS = 7;
+
+function meetings(editions: RaceEdition[]): Map<RaceEdition, number> {
+  const asc = [...editions].sort((a, b) => a.date.localeCompare(b.date));
+  const out = new Map<RaceEdition, number>();
+  let id = -1;
+  let start = "";
+  for (const e of asc) {
+    if (!start || (Date.parse(e.date) - Date.parse(start)) / 86_400_000 > MEETING_DAYS) {
+      id += 1;
+      start = e.date;
+    }
+    out.set(e, id);
+  }
+  return out;
 }
 
 /** "Camp Croft" from "Camp Croft 100 Miler" and "Camp Croft 50 km"; "" when they share no word. */
