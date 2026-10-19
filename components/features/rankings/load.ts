@@ -48,17 +48,25 @@ function apiQuery(state: RankingState, backyard: boolean): Query {
   return q;
 }
 
-function fetchList(query: Query, backyard: boolean) {
-  return backyard ? getBackyardRanking(query) : getIntBestList(query);
+/** Marks a response that is a PHP error page rather than a list (see `isServerFailure`). */
+class ServerFailure extends Error {}
+
+async function fetchList(query: Query, backyard: boolean) {
+  const data = await (backyard ? getBackyardRanking(query) : getIntBestList(query));
+  // The client drops PHP warnings printed before the JSON; after a fatal error
+  // nothing is left but "{}". A real list, even an empty one, has RankingList.
+  if (data && !("RankingList" in data)) throw new ServerFailure("DUV returned a PHP error instead of a list");
+  return data;
 }
 
 /**
  * DUV's server answers some lists with a PHP fatal error instead of JSON (a
  * division by zero while it works out age grading for a runner without a usable
- * age): 2026 100 km women, the all-time 100 km list. Those come back as a 502.
+ * age): 2026 100 km women, the all-time 100 km list. The body is PHP warnings
+ * and a fatal error, which reads as invalid JSON (502) or as an empty object.
  */
 function isServerFailure(e: unknown) {
-  return e instanceof DuvApiError && e.status === 502;
+  return e instanceof ServerFailure || (e instanceof DuvApiError && e.status === 502);
 }
 
 /** Splits the failing list into parts that DUV can send, then merges them. */
