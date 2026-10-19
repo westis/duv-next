@@ -291,6 +291,21 @@ export function formatDayMonth(value: string | null | undefined, locale: string)
 }
 
 /**
+ * Short weekday for day headings in lists: "THU", de "DO", ru "ЧТ"; scripts
+ * without letter case keep Intl's form (ja "木"). `dateTime` is the ISO day.
+ */
+export function formatWeekday(value: string | null | undefined, locale: string): FormattedDate | null {
+  const parsed = parseDuvDate(value);
+  if (!parsed) return null;
+  const loc = resolveLocale(locale);
+  const name = intl(loc, { weekday: "short" })
+    .format(utc(fromIso(parsed.start)))
+    .replace(/\./g, "")
+    .trim();
+  return { text: hasLetterCase(loc) ? name.toLocaleUpperCase(loc) : name, dateTime: parsed.start };
+}
+
+/**
  * Start time as 24-hour "12:00" in every locale, from "2024-04-06 12:00:00",
  * "12:00:00" or "9:30". DUV stores an unknown start time as midnight, so
  * "00:00" gives "" unless `keepMidnight` is set. Missing or unreadable time gives "".
