@@ -63,16 +63,16 @@ export default function Hero({ title, subtitle }: HeroProps) {
                 asChild
                 className="w-full text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
               >
-                <Link href="/toplists" className="btn-link">
+                <Link href="/rankings" className="btn-link">
                   <Trophy className="mr-2 h-5 w-5" />
-                  Toplists
+                  Rankings
                 </Link>
               </Button>
               <Button
                 asChild
                 className="w-full text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground dark:hover:bg-primary/70 dark:hover:text-primary-foreground"
               >
-                <Link href="/records" className="btn-link">
+                <Link href="/countries" className="btn-link">
                   <Award className="mr-2 h-5 w-5" />
                   Records
                 </Link>

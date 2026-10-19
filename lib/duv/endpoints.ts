@@ -73,6 +73,8 @@ export interface CalendarParams extends ListParams {
   to?: string;
   /** Exclude splits/stages. */
   splits?: boolean;
+  /** "IAU" for IAU label races only. */
+  label?: string;
   order?: "asc" | "desc";
 }
 

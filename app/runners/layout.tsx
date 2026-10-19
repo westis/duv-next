@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import DefaultLayout from "@/app/layouts/DefaultLayout";
 
 export default function RunnersLayout({

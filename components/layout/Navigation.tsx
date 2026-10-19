@@ -2,7 +2,6 @@
 
 import React from "react";
 // import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -47,29 +46,13 @@ export const navigationItems = [
     items: [
       {
         title: "Calendar",
-        href: "/events/calendar",
+        href: "/events",
         description: "View upcoming ultramarathon events",
-        onClick: () => {
-          const today = new Date();
-          const oneYearLater = new Date(today);
-          oneYearLater.setFullYear(today.getFullYear() + 1);
-          return `/events?from=${today.toISOString().split("T")[0]}&to=${
-            oneYearLater.toISOString().split("T")[0]
-          }&order=asc`;
-        },
       },
       {
         title: "Results",
-        href: "/events/results",
+        href: "/events?year=past1",
         description: "Check results from past events",
-        onClick: () => {
-          const today = new Date();
-          const oneYearAgo = new Date(today);
-          oneYearAgo.setFullYear(today.getFullYear() - 1);
-          return `/events?from=${oneYearAgo.toISOString().split("T")[0]}&to=${
-            today.toISOString().split("T")[0]
-          }&order=desc`;
-        },
       },
       {
         title: "Championships",
@@ -82,19 +65,24 @@ export const navigationItems = [
     title: "Statistics",
     items: [
       {
-        title: "Toplists",
-        href: "/toplists",
+        title: "Rankings",
+        href: "/rankings",
         description: "View rankings for various distances and categories",
       },
       {
+        title: "Backyard Rankings",
+        href: "/rankings/backyard",
+        description: "Yearly and all-time backyard ultra rankings",
+      },
+      {
         title: "Records",
-        href: "/records",
-        description: "Explore world and national records in ultrarunning",
+        href: "/countries",
+        description: "National records and best performances by age class",
       },
       {
         title: "Country Stats",
-        href: "/countrystats",
-        description: "Analyze ultrarunning statistics by country",
+        href: "/countries?view=abroad",
+        description: "Top rankings of each country's runners abroad",
       },
     ],
   },
@@ -131,8 +119,6 @@ export const navigationItems = [
 ];
 
 export function Navigation() {
-  const router = useRouter();
-
   return (
     <NavigationMenu>
       <NavigationMenuList className="space-x-1 md:space-x-2">
@@ -147,14 +133,7 @@ export function Navigation() {
                   <ListItem
                     key={subItem.href}
                     title={subItem.title}
-                    href={subItem.onClick ? "#" : subItem.href}
-                    onClick={(e) => {
-                      if (subItem.onClick) {
-                        e.preventDefault();
-                        const href = subItem.onClick();
-                        router.push(href);
-                      }
-                    }}
+                    href={subItem.href}
                   >
                     {subItem.description}
                   </ListItem>

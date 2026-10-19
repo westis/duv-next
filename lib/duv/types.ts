@@ -11,7 +11,8 @@ export type NlsText = Record<string, string>;
 export interface Pagination {
   CurrPage: number;
   MaxPage: number;
-  PageSize: number;
+  /** Live mrankingbackyard.php sends this as a string. */
+  PageSize: number | string;
   NextPageURL: string;
 }
 
@@ -137,6 +138,15 @@ export interface EventDetails {
   ChangedBy: string;
   ChangedOn: string;
   DisplayPrio: string;
+  // Seen in the meventdetail.php sample, not in msearchevent.php
+  BinCat?: string;
+  NormLen?: string;
+  MethodVersion?: string;
+  /** Start date as dd.mm.yyyy. */
+  SDate?: string;
+  CountryName?: string;
+  /** Human-readable race type, e.g. "road race on a loop < 5km/3mi". */
+  RaceType?: string;
 }
 
 export interface EventWinnerRow {
@@ -155,14 +165,20 @@ export interface EventWinnerRow {
   Winner_W: string;
 }
 
+/**
+ * Shapes of `valuation`, `gpsTracks` and `raceReports` entries are not known
+ * yet (every sample so far has empty arrays), so they are typed loosely.
+ */
+export type EventDetailListEntry = Record<string, string | number | null>;
+
 export interface EventDetailResponse {
   nlsText?: NlsText;
-  raceDetails: EventDetails;
-  valuation: unknown[];
-  LinkURLs: Record<string, string>;
-  winnerList: EventWinnerRow[];
-  gpsTracks: unknown[];
-  raceReports: unknown[];
+  raceDetails: EventDetails | null;
+  valuation: EventDetailListEntry[] | null;
+  LinkURLs: Record<string, string> | null;
+  winnerList: EventWinnerRow[] | null;
+  gpsTracks: EventDetailListEntry[] | null;
+  raceReports: EventDetailListEntry[] | null;
 }
 
 // mgetintbestlist.php and mrankingbackyard.php
@@ -330,6 +346,7 @@ export type PersonPBsForDistance = { PB: string } & Record<
 >;
 
 export interface PersonCompRow {
+  /** Race series ID (the editions' ParentID), not a single EventID. */
   EvtID: number | string;
   EvtName: string;
   EvtCnt: number | string;
@@ -347,7 +364,13 @@ export interface RunnerProfileResponse {
 }
 
 // msearchevent.php
-export type EventSearchHit = EventDetails;
+export type EventSearchHit = EventDetails & {
+  BinCat?: string;
+  /** Normalised length in km, e.g. "160.934". */
+  NormLen?: string;
+  MethodVersion?: string | null;
+  Year?: string;
+};
 
 export interface EventSearchResponse {
   HitCnt: number;
