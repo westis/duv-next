@@ -5,5 +5,5 @@ export default function DefaultLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <main className="grow container mx-auto py-8">{children}</main>;
+  return <div className="container py-8">{children}</div>;
 }

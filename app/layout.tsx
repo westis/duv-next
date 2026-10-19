@@ -1,58 +1,44 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/layout/Providers";
-import { TheNavbar } from "@/components/layout/TheNavbar";
-import { TheFooter } from "@/components/layout/TheFooter";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { localeDirection } from "@/i18n/config";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin", "latin-ext", "cyrillic", "greek"], variable: "--font-inter" });
 
-export const metadata: Metadata = {
-  title: "DUV Ultramarathon Statistics",
-  description: "Comprehensive ultramarathon statistics and results",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("site");
+  return {
+    title: { default: t("name"), template: `%s · DUV` },
+    description: t("description"),
+  };
+}
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+  const t = await getTranslations("site");
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            (function() {
-              function getInitialColorMode() {
-                const persistedColorPreference = window.localStorage.getItem('theme');
-                const hasPersistedPreference = typeof persistedColorPreference === 'string';
-                if (hasPersistedPreference) {
-                  return persistedColorPreference;
-                }
-                const mql = window.matchMedia('(prefers-color-scheme: dark)');
-                const hasMediaQueryPreference = typeof mql.matches === 'boolean';
-                if (hasMediaQueryPreference) {
-                  return mql.matches ? 'dark' : 'light';
-                }
-                return 'light';
-              }
-              const colorMode = getInitialColorMode();
-              document.documentElement.classList.add(colorMode);
-            })();
-          `,
-          }}
-        />
-      </head>
-      <body
-        className={`${inter.className} flex flex-col min-h-screen`}
-        suppressHydrationWarning
-      >
-        <Providers>
-          <TheNavbar />
-          <main className="grow">{children}</main>
-          <TheFooter />
-        </Providers>
+    <html lang={locale} dir={localeDirection(locale)} className={inter.variable} suppressHydrationWarning>
+      <body className="flex min-h-screen flex-col">
+        <a
+          href="#main"
+          className="sr-only z-50 rounded-md bg-surface px-3 py-2 focus:not-sr-only focus:fixed focus:start-2 focus:top-2"
+        >
+          {t("skipToContent")}
+        </a>
+        <NextIntlClientProvider>
+          <Providers>
+            <SiteHeader />
+            <main id="main" className="grow">
+              {children}
+            </main>
+            <SiteFooter />
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );
