@@ -106,6 +106,8 @@ describe("helpers", () => {
   it("splits an IAU holder into given name and surname", () => {
     expect(splitHolder("Aleksandr Sorokin")).toEqual({ first: "Aleksandr", last: "Sorokin" });
     expect(splitHolder("Sorokin")).toEqual({ first: "", last: "Sorokin" });
+    expect(splitHolder("Desiree LINDEN")).toEqual({ first: "Desiree", last: "LINDEN" });
+    expect(splitHolder("LINDEN Desiree")).toEqual({ first: "Desiree", last: "LINDEN" });
   });
 
   it("writes DUV's flags as words", () => {
