@@ -1,82 +1,59 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Menu, Monitor, Search, X } from "lucide-react";
-import { SearchDialog } from "@/components/SearchDialog";
+import { QuickSearch } from "@/components/features/search/QuickSearch";
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
 import { footerLinks, isSectionActive, navSections } from "./navItems";
 import { ThemeSwitch } from "./ThemeSwitch";
 
-type SearchResult = { type: "runner" | "event"; id: string; name: string; details: string };
-type SearchType = "all" | "runner" | "event";
-
+/**
+ * Quick search state: "/" or Cmd/Ctrl+K opens it from anywhere (except "/" while
+ * typing). Open, it takes over the header (`QuickSearch`); closing returns focus
+ * to where it was, and moving to another page closes it.
+ */
 function useSiteSearch() {
-  const [open, setOpen] = useState(false);
-  const [term, setTerm] = useState("");
-  const [type, setType] = useState<SearchType>("all");
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [totalHits, setTotalHits] = useState(0);
-  const debounced = useDebounce(term, 300);
-  const active = debounced.length >= 3;
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const returnFocus = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    if (debounced.length < 3) return;
-    let cancelled = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- shows the spinner while the request runs
-    setLoading(true);
-    fetch(`/api/search?q=${encodeURIComponent(debounced)}&type=${type}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (cancelled) return;
-        setResults(data.results ?? []);
-        setTotalHits(data.totalHits ?? 0);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setResults([]);
-        setTotalHits(0);
-      })
-      .finally(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [debounced, type]);
+  const open = useCallback(() => {
+    if (document.activeElement?.closest("[data-quick-search]")) return;
+    returnFocus.current = document.activeElement as HTMLElement | null;
+    setIsOpen(true);
+  }, []);
+  const close = useCallback(() => {
+    setIsOpen(false);
+    requestAnimationFrame(() => returnFocus.current?.focus?.());
+  }, []);
 
-  // "/" or Cmd/Ctrl+K opens search from anywhere, except while typing.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       const typing = target?.closest("input, textarea, select, [contenteditable=true]");
       if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") || (e.key === "/" && !typing)) {
         e.preventDefault();
-        setOpen(true);
+        open();
       }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, []);
+  }, [open]);
 
-  const dialog = (
-    <SearchDialog
-      open={open}
-      onOpenChange={setOpen}
-      searchTerm={term}
-      onSearchTermChange={setTerm}
-      searchType={type}
-      onSearchTypeChange={setType}
-      searchResults={active ? results : []}
-      loading={active && loading}
-      totalHits={active ? totalHits : 0}
-    />
-  );
-  return { open: useCallback(() => setOpen(true), []), dialog };
+  // A new page closes the search.
+  const [shownFor, setShownFor] = useState(pathname);
+  if (shownFor !== pathname) {
+    setShownFor(pathname);
+    if (isOpen) setIsOpen(false);
+  }
+
+  const panel = isOpen ? <QuickSearch onClose={close} /> : null;
+  return { isOpen, open, panel };
 }
 
 /** The wordmark: "DUV" in the red serif, the site's name in small capitals beside it. */
@@ -117,7 +94,8 @@ export function SiteHeader() {
 
   return (
     <header className="z-40 border-t-4 border-b border-t-brand border-b-fg bg-bg lg:sticky lg:top-0">
-      <div className="container flex items-center gap-3 pt-2 pb-1 lg:h-14 lg:gap-7 lg:py-0">
+      {search.panel}
+      <div className={cn("container flex items-center gap-3 pt-2 pb-1 lg:h-14 lg:gap-7 lg:py-0", search.isOpen && "lg:hidden")}>
         <Wordmark />
 
         <nav aria-label={t("mainNavigation")} className="hidden h-full lg:block">
@@ -200,7 +178,6 @@ export function SiteHeader() {
           })}
         </ul>
       </nav>
-      {search.dialog}
     </header>
   );
 }

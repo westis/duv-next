@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronsUpDown, Globe } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Check, Search } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -11,72 +11,63 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { CountryOption } from "./data";
 
 interface CountryPickerProps {
+  /** The country now shown. */
   value?: string;
   countries: CountryOption[];
-  onSelect: (value: string) => void;
-  placeholder?: string;
+  label: string;
+  searchLabel: string;
+  emptyLabel: string;
+  className?: string;
 }
 
-/** Searchable country select; matches on code and name. */
-export function CountryPicker({
-  value,
-  countries,
-  onSelect,
-  placeholder = "Choose country",
-}: CountryPickerProps) {
+/** "Another country": a searchable list (name or code) that opens that country's page. */
+export function CountryPicker({ value, countries, label, searchLabel, emptyLabel, className }: CountryPickerProps) {
   const [open, setOpen] = useState(false);
-  const selected = countries.find((c) => c.value === value);
+  const router = useRouter();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
+        <button
+          type="button"
           aria-expanded={open}
-          className="w-[220px] justify-between h-10"
+          aria-haspopup="dialog"
+          className={cn(
+            "inline-flex min-h-11 items-center gap-2 border-b border-border text-sm text-fg-muted hover:border-fg hover:text-fg md:min-h-9",
+            className
+          )}
         >
-          <span className="flex items-center truncate font-medium">
-            <Globe className="mr-2 h-4 w-4 shrink-0" />
-            {selected ? `${selected.label} (${selected.value})` : placeholder}
-          </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+          <Search aria-hidden strokeWidth={1.75} className="size-4" />
+          {label}
+        </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[260px] p-0" align="end">
+      <PopoverContent className="w-[280px] p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search country..." />
+          <CommandInput placeholder={searchLabel} aria-label={searchLabel} />
           <CommandList>
-            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandEmpty>{emptyLabel}</CommandEmpty>
             <CommandGroup>
               {countries.map((c) => (
                 <CommandItem
                   key={c.value}
                   value={`${c.value} ${c.label}`}
                   onSelect={() => {
-                    onSelect(c.value);
                     setOpen(false);
+                    if (c.value !== value) router.push(`/countries/${c.value}`);
                   }}
                 >
                   <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === c.value ? "opacity-100" : "opacity-0",
-                    )}
+                    aria-hidden
+                    strokeWidth={1.75}
+                    className={cn("me-2 size-4", value === c.value ? "opacity-100" : "opacity-0")}
                   />
                   <span className="truncate">{c.label}</span>
-                  <span className="ml-auto pl-2 text-xs text-muted-foreground">
-                    {c.value}
-                  </span>
+                  <span className="ms-auto ps-2 text-xs text-fg-muted tabular">{c.value}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
