@@ -282,19 +282,19 @@ export default function ResultsTable({ eventId }: { eventId: string }) {
               placeholder="Filter names..."
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
-              className="border p-2 rounded flex-grow min-w-[200px]"
+              className="border p-2 rounded grow min-w-[200px]"
             />
             <input
               placeholder="Filter nationalities..."
               value={nationalityFilter}
               onChange={(e) => setNationalityFilter(e.target.value)}
-              className="border p-2 rounded flex-grow min-w-[200px]"
+              className="border p-2 rounded grow min-w-[200px]"
             />
             <input
               placeholder="Filter clubs..."
               value={clubFilter}
               onChange={(e) => setClubFilter(e.target.value)}
-              className="border p-2 rounded flex-grow min-w-[200px]"
+              className="border p-2 rounded grow min-w-[200px]"
             />
           </div>
         )}

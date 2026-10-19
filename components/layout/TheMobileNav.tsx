@@ -77,7 +77,7 @@ function MobileLink({
       className={cn(
         "nav-link block py-2 px-3 rounded-md transition-colors duration-200",
         "hover:bg-primary/10 focus:bg-primary/10",
-        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+        "focus:outline-hidden focus:ring-2 focus:ring-primary focus:ring-offset-2",
         pathname === href && "bg-primary/20 font-semibold",
         className
       )}

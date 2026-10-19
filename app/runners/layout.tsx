@@ -8,7 +8,7 @@ export default function RunnersLayout({
 }) {
   return (
     <DefaultLayout>
-      <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+      {children}
     </DefaultLayout>
   );
 }

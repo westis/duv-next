@@ -280,7 +280,7 @@ export function EventCard({
       <Card className="overflow-hidden">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-grow">
+            <div className="grow">
               <div className="flex items-center gap-2 mb-1">
                 <div className="text-sm font-medium">{event.Startdate}</div>
                 {renderCategoryBadges()}
@@ -307,7 +307,7 @@ export function EventCard({
   if (variant === "compact") {
     return (
       <div className="bg-background px-4 py-2 flex flex-col sm:flex-row items-start sm:items-center gap-2 hover:bg-muted/50">
-        <div className="flex-grow">
+        <div className="grow">
           <div className="flex flex-wrap items-center gap-2 mb-1 sm:mb-0">
             <h3 className="text-sm font-semibold">{event.EventName}</h3>
             {renderCategoryBadges()}
@@ -372,7 +372,7 @@ export function EventCard({
                 </div>
               </div>
             </div>
-            <div className="flex-grow p-4">
+            <div className="grow p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center flex-wrap">
                   <h3 className="text-lg font-semibold text-foreground mr-2 mb-1">
