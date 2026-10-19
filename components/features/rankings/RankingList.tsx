@@ -75,12 +75,15 @@ function Rank({ row, t }: { row: RankRow; t: T }) {
   );
 }
 
+/** Folded performances named in a row; the rest are counted. */
+const ALSO_SHOWN = 2;
+
 function Also({ row, locale, t }: { row: RankRow; locale: string; t: T }) {
   if (!row.also.length) return null;
   return (
     <span className="ms-1.5 text-xs text-fg-muted" title={t("alsoLabel")}>
       {t("also")}{" "}
-      {row.also.map((e, i) => (
+      {row.also.slice(0, ALSO_SHOWN).map((e, i) => (
         <span key={e.PerfID}>
           {i > 0 && ", "}
           <Link href={`/events/${e.EventID}`} className="tabular">
@@ -88,6 +91,7 @@ function Also({ row, locale, t }: { row: RankRow; locale: string; t: T }) {
           </Link>
         </span>
       ))}
+      {row.also.length > ALSO_SHOWN && <> {t("alsoMore", { count: row.also.length - ALSO_SHOWN })}</>}
     </span>
   );
 }

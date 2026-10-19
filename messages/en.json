@@ -236,6 +236,7 @@
     "leader": "Leader",
     "also": "also",
     "alsoLabel": "Other performances of this runner on this page",
+    "alsoMore": "+{count}",
     "repeat": "Performance {n} of this runner in the list",
     "lapsUnit": "{count, plural, one {lap} other {laps}}",
     "noLaps": "DUV has no lap count for this result",
