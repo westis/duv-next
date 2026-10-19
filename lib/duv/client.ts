@@ -92,6 +92,22 @@ export function parseDuvBody(text: string): unknown {
   }
 }
 
+/** The API fills empty fields with a literal "&nbsp;"; turn those into "". */
+export function normalizeDuvValues<T>(value: T): T {
+  if (typeof value === "string") {
+    return (value.includes("&nbsp;")
+      ? value.replace(/&nbsp;/g, " ").trim()
+      : value) as T;
+  }
+  if (Array.isArray(value)) return value.map(normalizeDuvValues) as T;
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([k, v]) => [k, normalizeDuvValues(v)])
+    ) as T;
+  }
+  return value;
+}
+
 /**
  * Fetches a DUV endpoint and returns the parsed JSON, or `null` when the API
  * returns an empty result. Throws `DuvApiError` on HTTP or auth failures.
@@ -140,5 +156,5 @@ export async function duvFetch<T>(
     throw new DuvApiError(`DUV ${endpoint}: unauthorized`, 401, endpoint);
   }
 
-  return data as T | null;
+  return normalizeDuvValues(data) as T | null;
 }
