@@ -19,7 +19,7 @@ function Entry({ entry, nat, first, locale }: { entry: RankingEntry; nat: string
     .join(" ");
   const cat = cleanDuv(entry.CatInt);
   return (
-    <li className="grid grid-cols-[6.25rem_minmax(0,1fr)] gap-x-2 border-b border-dotted border-border py-1">
+    <li className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-2 border-b border-dotted border-border py-1 text-sm">
       <span className={cn("text-end font-semibold whitespace-nowrap tabular", first && "text-brand-ink")}>
         {formatPerformanceText(entry.Perf, locale)}
       </span>

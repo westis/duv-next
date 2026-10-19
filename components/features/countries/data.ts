@@ -122,9 +122,13 @@ export interface DistanceBest {
   total: number;
 }
 
-/** DUV answers an empty list with 404. */
+/**
+ * DUV answers an empty list with 404, and an empty calendar (a country with
+ * no races that year, seen for FIJ) with a body that is not JSON.
+ */
 function isEmptyAnswer(error: unknown) {
-  return error instanceof DuvApiError && error.status === 404;
+  if (!(error instanceof DuvApiError)) return false;
+  return error.status === 404 || (error.endpoint === "mcalendar.php" && /invalid JSON/.test(error.message));
 }
 
 const EMPTY_LIST: GenderList = { top: [], count: 0, more: false };
