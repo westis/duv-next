@@ -22,6 +22,7 @@ export async function GET(request: Request) {
     out.book = {
       duv: book.duv.length,
       worldOpen: book.duv.filter((d) => d.scope === "world" && d.category === "Overall").map((d) => `${d.gender} ${d.eventId}:${d.personId} ${d.perfRaw} ${d.lastName}`),
+      worldBands: book.duv.filter((d) => d.scope === "world" && d.category !== "Overall").map((d) => `${d.gender}${d.category} ${d.eventId}:${d.personId} ${d.perfRaw} ${d.lastName}`),
       nationOpen: book.duv.filter((d) => d.scope === "nation" && d.category === "Overall").map((d) => `${d.scopeCode} ${d.gender} ${d.eventId}:${d.personId} ${d.perfRaw} ${d.lastName}`),
       ratified: book.ratified.length,
       matchedRun: book.ratified.filter((r) => r.matchedBy === "run").length,

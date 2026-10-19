@@ -131,6 +131,8 @@ function refOfRatified(r: RatifiedMark): MarkRef {
   };
 }
 
+const SENIOR_BAND = "23";
+
 interface Cell {
   kind: RecordMarkerInfo["kind"];
   scope: RecordScope;
@@ -157,7 +159,8 @@ function rowFacts(row: MarkerRow, dist: DisciplineKey): RowFacts {
     personId: String(row.personId).trim(),
     value: parseDuvPerf(row.perf ?? null, dist),
     gender,
-    band: cat && cat.band !== OVERALL ? cat.band : null,
+    // "23" (23 to 34) is the senior class: its best is the open record, so no age marker.
+    band: cat && cat.band !== OVERALL && cat.band !== SENIOR_BAND ? cat.band : null,
     nat: row.nat ? String(row.nat).trim().toUpperCase() : null,
     date: row.date ?? null,
   };
@@ -211,18 +214,27 @@ function evaluateCell(book: RecordBook, row: RowFacts, gender: RecordGender, cel
   if (ratified) {
     const own = isRatifiedRun(ratified, row, dist);
     const beats = row.value !== null && isBetter(row.value, ratified.value, dist);
-    if (own || beats) {
+    if (!own && !beats) return null;
+    // Outlined only when DUV knows a better mark; otherwise this run is the best known.
+    const betterKnown = !!best && (row.value === null || isBetter(best.value, row.value, dist));
+    if (!betterKnown) {
       return {
         ...base,
-        tier: "outlined",
-        body: ratifiedBy!,
-        status: own ? "ratified" : "beatsRatified",
+        tier: "solid",
+        status: own ? "ratified" : "duvBest",
         ratified: own ? undefined : refOfRatified(ratified),
-        best: best ? refOfDuv(best) : undefined,
         split: false,
       };
     }
-    return null;
+    return {
+      ...base,
+      tier: "outlined",
+      body: ratifiedBy!,
+      status: own ? "ratified" : "beatsRatified",
+      ratified: own ? undefined : refOfRatified(ratified),
+      best: refOfDuv(best!),
+      split: false,
+    };
   }
 
   if (pendingOwn && ratifiedBy) {
@@ -251,7 +263,7 @@ function cellsFor(book: RecordBook, row: RowFacts, gender: RecordGender): { open
 
   const age: Cell[] = [];
   // The band: the row's category, else the band of a list entry holding the run.
-  const ownBand = book.duv.find((d) => d.category !== OVERALL && d.gender === gender && isOwnRun(d, row, book.dist, !!d.split, d.value));
+  const ownBand = book.duv.find((d) => d.category !== OVERALL && d.category !== SENIOR_BAND && d.gender === gender && isOwnRun(d, row, book.dist, !!d.split, d.value));
   const band = row.band ?? ownBand?.category ?? null;
   if (band) {
     age.push({ kind: "WR", scope: "world", scopeCode: WORLD, category: band });

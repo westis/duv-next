@@ -70,6 +70,13 @@ describe("evaluateRow", () => {
     expect(m).toMatchObject({ kind: "AR", tier: "outlined", status: "ratified", best: { perf: "6:07:10" } });
   });
 
+  it("solid when the ratified run is the best known mark but DUV's list misses it", () => {
+    const noList: RecordBook = { ...book, duv: book.duv.filter((d) => d.category !== "50") };
+    const [m] = evaluateRow(noList, { eventId: "500", personId: "5", perf: "6:38:51", gender: "M", cat: "M50", date: "2010-01-01" });
+    expect(m).toMatchObject({ category: "M50", tier: "solid", status: "ratified" });
+    expect(markerLabel(m)).toBe("WR M50");
+  });
+
   it("no marker for a run below every mark", () => {
     expect(evaluateRow(book, { eventId: "800", personId: "8", perf: "6:50:00", gender: "M", nat: "USA" })).toEqual([]);
   });
@@ -84,6 +91,11 @@ describe("evaluateRow", () => {
     const [m] = evaluateRow(book, { eventId: "400", personId: "4", gender: "M", cat: "M50", nat: "SWE" });
     expect(markerLabel(m)).toBe("NR M50");
     expect(m.status).toBe("duvBest");
+  });
+
+  it("no age marker for the senior class", () => {
+    const senior: RecordBook = { ...book, duv: [...book.duv, duv({ scope: "nation", scopeCode: "SWE", category: "23", value: T(6, 40, 0), personId: "3", eventId: "300" })] };
+    expect(evaluateRow(senior, { eventId: "300", personId: "3", gender: "M", cat: "M23", nat: "SWE" }).map(markerLabel)).toEqual(["NR"]);
   });
 
   it("an application under ratification with no record yet", () => {
