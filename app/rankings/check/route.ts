@@ -21,7 +21,7 @@ const CASES: Record<string, string>[] = [
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   const endpoint = q.get("ep") === "backyard" ? "mrankingbackyard.php" : "mgetintbestlist.php";
-  const cases = q.get("p") ? [Object.fromEntries(new URLSearchParams(q.get("p")!))] : CASES;
+  const cases = q.getAll("p").length ? q.getAll("p").map((p) => Object.fromEntries(new URLSearchParams(p))) : CASES;
   const out = [];
   for (const c of cases) {
     const url = buildDuvUrl(endpoint, { language: "EN", page: 1, perpage: Number(q.get("pp") || 5), ...c });
