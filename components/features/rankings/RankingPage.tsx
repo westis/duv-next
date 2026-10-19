@@ -140,7 +140,7 @@ export async function RankingPage({ searchParams, backyard = false }: { searchPa
         </div>
         {!backyard && (
           <p className="mt-1 text-sm text-fg-muted">
-            {t("trailNote")} <Link href="/events?dist=Trail">{t("trailLink")}</Link>
+            {t("trailNote")} <Link href="/events?surface=trail">{t("trailLink")}</Link>
           </p>
         )}
 
