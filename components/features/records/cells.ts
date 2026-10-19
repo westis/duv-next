@@ -67,7 +67,7 @@ export function splitHolder(holder: string): { first: string; last: string } {
   const tokens = holder.trim().split(/\s+/).filter(Boolean);
   if (tokens.length < 2) return { first: "", last: tokens[0] ?? "" };
   // Some rows write the surname in capitals, before or after the given name ("LINDEN Desiree").
-  const upper = (w: string) => w.length > 1 && /\p{L}/u.test(w) && w === w.toUpperCase() && w !== w.toLowerCase();
+  const upper = (w: string) => w.length > 1 && w === w.toUpperCase() && w !== w.toLowerCase();
   const caps = tokens.filter(upper);
   if (caps.length > 0 && caps.length < tokens.length) {
     return { first: tokens.filter((w) => !upper(w)).join(" "), last: caps.join(" ") };
