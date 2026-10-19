@@ -10,7 +10,10 @@ export function formatDistances(distances: Pick<RaceEdition, "length" | "climb" 
   const texts = distances.flatMap((d) =>
     d.trail ? [formatLengthAndClimb({ length: d.length, climb: d.climb }, locale)] : lengths(d.length, locale)
   );
-  return Array.from(new Set(texts.filter(Boolean))).join(", ");
+  // Each distance stays on one line; a long list wraps only between distances.
+  return Array.from(new Set(texts.filter(Boolean)))
+    .map((text) => text.replace(/ /g, "\u00a0"))
+    .join(", ");
 }
 
 /**

@@ -206,10 +206,10 @@ export default async function SearchPage({ searchParams }: PageProps) {
                   <th scope="col" className={cn(headCell, "hidden text-end lg:table-cell")}>
                     {t("col.editions")}
                   </th>
-                  <th scope="col" className={cn(headCell, "hidden lg:table-cell")}>
+                  <th scope="col" className={cn(headCell, "hidden whitespace-nowrap lg:table-cell")}>
                     {t("col.finishersPerEdition")}
                   </th>
-                  <th scope="col" className={cn(headCell, "hidden text-end lg:table-cell")}>
+                  <th scope="col" className={cn(headCell, "hidden text-end whitespace-nowrap lg:table-cell")}>
                     {t("col.lastField")}
                   </th>
                 </tr>

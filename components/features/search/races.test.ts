@@ -119,10 +119,10 @@ describe("formatDistances", () => {
   it("keeps the readable lengths of a combined field and names a trail race's climb", async () => {
     const { formatDistances } = await import("./raceText");
     expect(formatDistances([{ length: "24h,12h,6h,100mi,100", climb: "", trail: false }], "en")).toBe(
-      "24 h, 12 h, 6 h, 100 mi"
+      "24\u00a0h, 12\u00a0h, 6\u00a0h, 100\u00a0mi"
     );
-    expect(formatDistances([{ length: "117km", climb: "6500Hm", trail: true }], "en")).toBe("117 km · 6\u00a0500\u00a0m+");
-    expect(formatDistances([{ length: "246km", climb: "2600m", trail: false }], "en")).toBe("246 km");
+    expect(formatDistances([{ length: "117km", climb: "6500Hm", trail: true }], "en")).toBe("117\u00a0km\u00a0·\u00a06\u00a0500\u00a0m+");
+    expect(formatDistances([{ length: "246km", climb: "2600m", trail: false }], "en")).toBe("246\u00a0km");
   });
 });
 
