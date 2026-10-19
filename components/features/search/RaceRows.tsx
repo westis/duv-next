@@ -43,52 +43,45 @@ function RaceRow({ race }: { race: RaceRowData }) {
       : "";
   const history = race.editionCount > 1 ? t("editionsSince", { count: race.editionCount, year: race.firstYear }) : "";
   const many = race.editionCount > 1;
+  const fieldText = race.shown.upcoming
+    ? t("upcoming")
+    : race.lastField !== null
+      ? t("lastField", { count: formatCount(race.lastField, locale) ?? "" })
+      : "";
+  const toggle = (
+    <button
+      type="button"
+      aria-expanded={open}
+      aria-controls={stripId}
+      onClick={() => setOpen((v) => !v)}
+      className="inline-flex min-h-11 items-center gap-0.5 align-baseline text-sm text-fg-muted hover:text-fg md:min-h-8"
+    >
+      {t("editionsToggle")}
+      <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} strokeWidth={1.75} aria-hidden />
+      <span className="sr-only">{race.name}</span>
+    </button>
+  );
 
   return (
     <Fragment>
       <tr className={cn("hover:bg-surface-muted/60", open && "bg-surface-muted")}>
-        <td className={cn(bodyCell, "w-[6.5rem] whitespace-nowrap text-fg-muted tabular")}>
+        <td className={cn(bodyCell, "hidden w-[6.5rem] whitespace-nowrap text-fg-muted tabular md:table-cell")}>
           <DateText value={race.shown.date} locale={locale} />
         </td>
         <td className={bodyCell}>
           <Link href={`/events/${race.shown.id}`} className="font-semibold">
             {race.name}
           </Link>
-          {many && (
-            <button
-              type="button"
-              aria-expanded={open}
-              aria-controls={stripId}
-              onClick={() => setOpen((v) => !v)}
-              className="ms-2 inline-flex min-h-11 items-center gap-0.5 align-middle text-sm text-fg-muted hover:text-fg md:min-h-8"
-            >
-              {t("editionsToggle")}
-              <ChevronDown
-                className={cn("size-3.5 transition-transform", open && "rotate-180")}
-                strokeWidth={1.75}
-                aria-hidden
-              />
-              <span className="sr-only">{race.name}</span>
-            </button>
-          )}
+          {many && <span className="hidden lg:inline"> {toggle}</span>}
           <span className="block text-sm text-fg-muted md:hidden">
-            {[place, distances].filter(Boolean).join(" · ")}
+            <DateText value={race.shown.date} locale={locale} />
+            {[place, distances].filter(Boolean).map((part) => ` · ${part}`)}
           </span>
-          {(history || field) && (
+          {(history || field || many) && (
             <span className="mt-0.5 flex flex-wrap items-center gap-x-3 text-sm text-fg-muted lg:hidden">
               <FinisherSparkline years={race.years} locale={locale} />
-              <span className="tabular">
-                {[
-                  history,
-                  race.shown.upcoming
-                    ? t("upcoming")
-                    : race.lastField !== null
-                      ? t("lastField", { count: formatCount(race.lastField, locale) ?? "" })
-                      : "",
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
+              <span className="tabular">{[history, fieldText].filter(Boolean).join(" · ")}</span>
+              {many && toggle}
             </span>
           )}
         </td>

@@ -114,3 +114,35 @@ describe("parseActiveRange and spanAxis", () => {
     expect(spanAxis([{ from: null, to: null }])).toBeNull();
   });
 });
+
+describe("formatDistances", () => {
+  it("keeps the readable lengths of a combined field and names a trail race's climb", async () => {
+    const { formatDistances } = await import("./raceText");
+    expect(formatDistances([{ length: "24h,12h,6h,100mi,100", climb: "", trail: false }], "en")).toBe(
+      "24 h, 12 h, 6 h, 100 mi"
+    );
+    expect(formatDistances([{ length: "117km", climb: "6500Hm", trail: true }], "en")).toBe("117 km · 6\u00a0500\u00a0m+");
+    expect(formatDistances([{ length: "246km", climb: "2600m", trail: false }], "en")).toBe("246 km");
+  });
+});
+
+describe("groupRaces, distances of one event", () => {
+  it("joins differently named distances held in one place and year", async () => {
+    const { groupRaces, nameStem } = await import("./races");
+    expect(nameStem("Camp Croft 100 Miler")).toBe("camp croft");
+    expect(nameStem("Spartanion 24-Hour Race")).toBe("spartanion");
+    const groups = groupRaces(
+      [
+        hit({ EventID: "1", ParentID: "1", EventName: "Camp Croft 100 Miler", Startdate: "2027-03-20", NormLen: "160.9", Length: "100mi" }),
+        hit({ EventID: "2", ParentID: "2", EventName: "Camp Croft 50 km", Startdate: "2027-03-20", NormLen: "50", Length: "50km" }),
+        hit({ EventID: "3", ParentID: "1", EventName: "Camp Croft 100 Miler", Startdate: "2026-03-21", NormLen: "160.9", Length: "100mi" }),
+        hit({ EventID: "4", ParentID: "4", EventName: "Prisoner of War 50 km", Startdate: "2026-10-24" }),
+      ],
+      TODAY
+    );
+    expect(groups).toHaveLength(2);
+    const croft = groups.find((g) => g.name === "Camp Croft")!;
+    expect(croft.editionCount).toBe(2);
+    expect(croft.distances.map((d) => d.id)).toEqual(["1", "2"]);
+  });
+});

@@ -1,4 +1,5 @@
-import { cleanDuv, formatCourseLength, formatLengthAndClimb } from "@/lib/format";
+import { formatCourseLength, formatLengthAndClimb } from "../../../lib/format/course";
+import { cleanDuv } from "../../../lib/format/locale";
 import type { RaceEdition } from "./races";
 
 /**
@@ -6,10 +7,25 @@ import type { RaceEdition } from "./races";
  * race names its climb with each length: "117 km · 6 500 m+".
  */
 export function formatDistances(distances: Pick<RaceEdition, "length" | "climb" | "trail">[], locale: string): string {
-  const texts = distances.map((d) =>
-    d.trail ? formatLengthAndClimb({ length: d.length, climb: d.climb }, locale) : formatCourseLength(d.length, locale)
+  const texts = distances.flatMap((d) =>
+    d.trail ? [formatLengthAndClimb({ length: d.length, climb: d.climb }, locale)] : lengths(d.length, locale)
   );
   return Array.from(new Set(texts.filter(Boolean))).join(", ");
+}
+
+/**
+ * One event may list several lengths in one field ("24h,12h,6h,100mi,100");
+ * each readable one is kept, a bare number without a unit is dropped.
+ */
+function lengths(raw: string, locale: string): string[] {
+  const whole = formatCourseLength(raw, locale);
+  if (whole !== cleanDuv(raw) || !raw.includes(",")) return [whole];
+  return raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => !/^\d+([.,]\d+)?$/.test(part))
+    .map((part) => formatCourseLength(part, locale))
+    .filter(Boolean);
 }
 
 /** "Athens GRE", the place as search rows write it. */

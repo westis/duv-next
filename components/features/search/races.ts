@@ -102,11 +102,30 @@ function nameKey(hit: EventSearchHit) {
   return [hit.EventName, hit.City, hit.Country].map((s) => cleanDuv(s).toLowerCase()).join("|");
 }
 
+/** Words that name a distance or format, not the race: "Camp Croft 100 Miler" → "camp croft". */
+const FORMAT_WORDS = new Set(["km", "k", "mi", "mile", "miles", "miler", "milers", "h", "hour", "hours", "race", "run", "lauf"]);
+
+export function nameStem(name: string): string {
+  return cleanDuv(name)
+    .toLowerCase()
+    .split(/[\s\-–—:,/()]+/)
+    .filter((w) => w && !/\d/.test(w) && !FORMAT_WORDS.has(w))
+    .join(" ");
+}
+
+/** The distances of one event held the same year in the same place, whatever DUV calls each. */
+function eventKey(hit: EventSearchHit, year: number) {
+  const stem = nameStem(hit.EventName);
+  return stem ? `e:${stem}|${cleanDuv(hit.City).toLowerCase()}|${cleanDuv(hit.Country).toLowerCase()}|${year}` : null;
+}
+
 /**
  * Groups msearchevent hits into races. Editions join when DUV gives them the
- * same series (ParentID, which survives sponsor renames) or when they share a
- * name and place (the distances of one event, which DUV keeps as separate
- * series). Splits (PartOf) are left out.
+ * same series (ParentID, which survives sponsor renames), when they share a
+ * name and place, or when they are the distances of one event (same place and
+ * year, same name once distance words are dropped: "Camp Croft 100 Miler" and
+ * "Camp Croft 50 km"), which DUV keeps as separate series. Splits (PartOf)
+ * are left out.
  */
 export function groupRaces(hits: EventSearchHit[], today: string): RaceGroup[] {
   const parent = new Map<string, string>();
@@ -135,6 +154,11 @@ export function groupRaces(hits: EventSearchHit[], today: string): RaceGroup[] {
     add(node);
     add(byName);
     union(node, byName);
+    const byEvent = eventKey(hit, edition.year);
+    if (byEvent) {
+      add(byEvent);
+      union(node, byEvent);
+    }
     editions.push({ edition, node, place: { city: cleanDuv(hit.City), country: cleanDuv(hit.Country) } });
   }
 
@@ -192,7 +216,7 @@ function buildGroup(items: { edition: RaceEdition; place: Place }[]): RaceGroup 
 
   return {
     key: shown.id,
-    name: shown.name,
+    name: commonName(distances.map((d) => d.name)) || shown.name,
     city: shownPlace.city,
     country: shownPlace.country,
     shown,
@@ -205,6 +229,21 @@ function buildGroup(items: { edition: RaceEdition; place: Place }[]): RaceGroup 
     editions,
     trail: distances.some((d) => d.trail),
   };
+}
+
+/** "Camp Croft" from "Camp Croft 100 Miler" and "Camp Croft 50 km"; "" when they share no word. */
+function commonName(names: string[]): string {
+  const unique = Array.from(new Set(names));
+  if (unique.length < 2) return unique[0] ?? "";
+  const words = unique.map((n) => n.split(/\s+/));
+  const shared: string[] = [];
+  for (let i = 0; i < words[0].length; i++) {
+    const w = words[0][i];
+    if (!words.every((ws) => ws[i]?.toLowerCase() === w.toLowerCase())) break;
+    shared.push(w);
+  }
+  while (shared.length && (/\d/.test(shared[shared.length - 1]) || /^[-–—:,]$/.test(shared[shared.length - 1]))) shared.pop();
+  return shared.join(" ");
 }
 
 /** Newest first by the shown (next or latest) edition: the full page's order. */

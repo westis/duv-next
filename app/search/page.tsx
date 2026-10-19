@@ -191,7 +191,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
               <caption className="sr-only">{t("raceCaption")}</caption>
               <thead>
                 <tr>
-                  <th scope="col" className={cn(headCell, "w-[6.5rem]")}>
+                  <th scope="col" className={cn(headCell, "hidden w-[6.5rem] md:table-cell")}>
                     {t("col.latestNext")}
                   </th>
                   <th scope="col" className={headCell}>
