@@ -125,16 +125,17 @@ export function bestFromRanking(
 }
 
 /**
- * The open world best per gender, as the best of the area lists' open marks
- * (DUV's all-time world list answers empty without a category).
+ * World bests per gender and age class as the best of the six area lists.
+ * DUV's all-time world list answers empty for big cells (no category, or the
+ * crowded bands 35 to 65), so the areas are the reliable source.
  */
 export function worldFromAreas(areaBests: DuvBest[]): DuvBest[] {
-  const out: DuvBest[] = [];
-  for (const gender of ["W", "M"] as const) {
-    const open = areaBests.filter((d) => d.scope === "area" && d.category === OVERALL && d.gender === gender);
-    if (!open.length) continue;
-    const best = open.reduce((a, b) => (isBetter(b.value, a.value, b.dist) ? b : a));
-    out.push({ ...best, scope: "world", scopeCode: WORLD });
+  const best = new Map<string, DuvBest>();
+  for (const d of areaBests) {
+    if (d.scope !== "area") continue;
+    const key = `${d.gender}:${d.category}`;
+    const held = best.get(key);
+    if (!held || isBetter(d.value, held.value, d.dist)) best.set(key, d);
   }
-  return out;
+  return Array.from(best.values()).map((d) => ({ ...d, scope: "world" as const, scopeCode: WORLD }));
 }

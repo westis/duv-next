@@ -55,8 +55,9 @@ describe("DUV lists", () => {
     const eur = bestsFromCountryList(COUNTRY, "100km", "area", "EUR");
     const nam = eur.map((d) => ({ ...d, scopeCode: "NAM", value: d.value - 60, personId: "x" }));
     const world = worldFromAreas([...eur, ...nam]);
-    expect(world).toHaveLength(1);
-    expect(world[0]).toMatchObject({ scope: "world", scopeCode: "WORLD", gender: "W", personId: "x" });
+    expect(world).toHaveLength(2);
+    expect(world[0]).toMatchObject({ scope: "world", scopeCode: "WORLD", gender: "W", category: "Overall", personId: "x" });
+    expect(world[1]).toMatchObject({ gender: "M", category: "40", personId: "x" });
   });
 
   it("reads dates", () => {

@@ -251,9 +251,8 @@ async function matchHolders(marks: RatifiedMark[]): Promise<RatifiedMark[]> {
 
 const cachedBook = unstable_cache(
   async (dist: DisciplineKey): Promise<RecordBook> => {
-    // DUV's all-time world list answers empty without a category, so the open
-    // world best is the best of the six area lists (below); the age bands come
-    // from the world list filtered by category.
+    // DUV's all-time world list answers empty without a category and for the
+    // crowded bands; those cells come from the best of the six area lists below.
     const world = await mapLimit(
       GENDERS.flatMap((gender) => (dist === "backyard" ? [OVERALL] : WORLD_AGE_BANDS).map((band) => ({ gender, band }))),
       4,
@@ -266,8 +265,11 @@ const cachedBook = unstable_cache(
         })
     );
     const areas = dist === "backyard" ? [] : await mapLimit(AREAS, 3, (area) => getCountryBests(dist, "area", area));
-    const duv = [...world.filter((d): d is DuvBest => d !== null), ...areas.flat()];
-    if (dist !== "backyard") duv.push(...worldFromAreas(areas.flat()));
+    const listed = world.filter((d): d is DuvBest => d !== null);
+    const has = new Set(listed.map((d) => `${d.gender}:${d.category}`));
+    // Cells the world list left empty come from the best of the six areas.
+    const derived = worldFromAreas(areas.flat()).filter((d) => !has.has(`${d.gender}:${d.category}`));
+    const duv = [...listed, ...derived, ...areas.flat()];
 
     const body = discipline(dist).body;
     const source = body === "IAU" ? await getIauRecords() : body === "GOMU" ? await getGomuRecords() : null;
@@ -275,7 +277,7 @@ const cachedBook = unstable_cache(
     ratified = await matchHolders(matchRuns(ratified, duv));
     return { dist, duv, ratified, updated: body ? { [body]: source?.updated ?? null } : {} };
   },
-  ["records-book-v3"],
+  ["records-book-v4"],
   { revalidate: DAY }
 );
 
