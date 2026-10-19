@@ -85,6 +85,7 @@ describe("IAU cell readers", () => {
 
   it("finds the updated date", () => {
     expect(parseIauUpdated("<h2>IAU Records (updated on 6th May 2026)</h2>")).toBe("2026-05-06");
+    expect(parseIauUpdated("<p>Pending list updated on 1st May 2026</p><h2>IAU Records (updated on 6th May 2026)</h2>")).toBe("2026-05-06");
     expect(parseIauUpdated("<p>nothing</p>")).toBeNull();
   });
 

@@ -74,7 +74,7 @@ const cachedIau = unstable_cache(
     for (const warning of parsed.warnings) console.warn(`[records] IAU ${warning}`);
     return { records: parsed.records, updated: parsed.updated, warningCount: parsed.warnings.length };
   },
-  ["records-iau-v1"],
+  ["records-iau-v2"],
   { revalidate: DAY }
 );
 
@@ -269,7 +269,7 @@ const cachedBook = unstable_cache(
     ratified = await matchHolders(matchRuns(ratified, duv));
     return { dist, duv, ratified, updated: body ? { [body]: source?.updated ?? null } : {} };
   },
-  ["records-book-v1"],
+  ["records-book-v2"],
   { revalidate: DAY }
 );
 

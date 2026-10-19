@@ -109,9 +109,14 @@ describe("matching", () => {
     expect(m).toMatchObject({ personId: "1", eventId: "100", matchedBy: "run" });
   });
 
+  it("allows the start day to differ by one day", () => {
+    const [m] = matchRuns([iau({ value: T(6, 5, 35), date: "2023-05-15" })], book.duv);
+    expect(m.personId).toBe("1");
+  });
+
   it("leaves a record unmatched when date or mark differ", () => {
     const [a] = matchRuns([iau({ value: T(6, 5, 38), date: "2023-05-14" })], book.duv);
-    const [b] = matchRuns([iau({ value: T(6, 5, 35), date: "2023-05-15" })], book.duv);
+    const [b] = matchRuns([iau({ value: T(6, 5, 35), date: "2023-05-16" })], book.duv);
     expect(a.personId).toBeNull();
     expect(b.personId).toBeNull();
   });

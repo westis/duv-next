@@ -21,7 +21,8 @@ export async function GET(request: Request) {
     const book = await getRecordBook(dist, ["SWE", "USA"]);
     out.book = {
       duv: book.duv.length,
-      duvSample: book.duv.slice(0, 2),
+      worldOpen: book.duv.filter((d) => d.scope === "world" && d.category === "Overall").map((d) => `${d.gender} ${d.eventId}:${d.personId} ${d.perfRaw} ${d.lastName}`),
+      nationOpen: book.duv.filter((d) => d.scope === "nation" && d.category === "Overall").map((d) => `${d.scopeCode} ${d.gender} ${d.eventId}:${d.personId} ${d.perfRaw} ${d.lastName}`),
       ratified: book.ratified.length,
       matchedRun: book.ratified.filter((r) => r.matchedBy === "run").length,
       matchedHolder: book.ratified.filter((r) => r.matchedBy === "holder").length,

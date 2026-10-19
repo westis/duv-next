@@ -137,7 +137,8 @@ export function parseIauDates(raw: string): { start: string; end: string | null 
 /** "IAU Records (updated on 6th May 2026)" → "2026-05-06". */
 export function parseIauUpdated(html: string): string | null {
   const text = decodeEntities(html.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ");
-  const m = text.match(/updated\s+(?:on\s+)?(\d{1,2})(?:st|nd|rd|th)?\.?\s+([a-z]+)\.?\s+(\d{4})/i);
+  // The records tables' own date ("IAU Records (updated on 6th May 2026)") before any other "updated".
+  const m = text.match(/IAU Records\s*\(\s*updated\s+(?:on\s+)?(\d{1,2})(?:st|nd|rd|th)?\.?\s+([a-z]+)\.?\s+(\d{4})/i) ?? text.match(/updated\s+(?:on\s+)?(\d{1,2})(?:st|nd|rd|th)?\.?\s+([a-z]+)\.?\s+(\d{4})/i);
   if (!m) return null;
   const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
   const month = months.indexOf(m[2].slice(0, 3).toLowerCase()) + 1;

@@ -10,13 +10,20 @@ import { isSameMark } from "./disciplines";
 import { dobIso, nameKey } from "./text";
 import type { DuvBest, RatifiedMark } from "./types";
 
-/** The race window of a ratified mark: its first day, or its whole range. */
+const DAY_MS = 86_400_000;
+
+/**
+ * The same start day, allowing one day either way: the IAU page and DUV
+ * sometimes date a race that starts in the evening or crosses midnight
+ * differently (Doha 2014: IAU 22.11., DUV 21.11.). The performance must
+ * still agree within 10 m or 1 s.
+ */
 function sameStart(mark: RatifiedMark, date: string | null): boolean {
   if (!mark.date || !date) return false;
-  return date === mark.date;
+  return Math.abs(Date.parse(date) - Date.parse(mark.date)) <= DAY_MS;
 }
 
-/** Step 1: match by run. Returns new objects; marks already matched are kept. */
+/** Step 1: match by run (start day within one day, same mark). Returns new objects; marks already matched are kept. */
 export function matchRuns(marks: RatifiedMark[], duv: DuvBest[]): RatifiedMark[] {
   return marks.map((mark) => {
     if (mark.personId) return mark;

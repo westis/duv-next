@@ -2,6 +2,7 @@
 
 const NAMED: Record<string, string> = {
   nbsp: " ",
+  acute: "'",
   amp: "&",
   lt: "<",
   gt: ">",
