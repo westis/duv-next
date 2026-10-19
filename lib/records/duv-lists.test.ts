@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bestFromRanking, bestsFromCountryList, duvDateIso } from "./duv-lists";
+import { bestFromRanking, bestsFromCountryList, duvDateIso, worldFromAreas } from "./duv-lists";
 import { disciplineOfRace, isBetter, isSameMark, raceSize, splitAgeClass } from "./disciplines";
 import { parseDuvPerf } from "./perf";
 import type { BestPerfCountryResponse, RankingResponse } from "../duv/types";
@@ -49,6 +49,14 @@ describe("DUV lists", () => {
   it("reads backyard laps", () => {
     const list = { RankingList: [{ PersonID: "1", EventID: "2", Laps: "119", Perf: "797.966 km", Rank: "1", CatRank: "1", CatInt: "M45", EvtdateShortIso: "2025-10-18" }] } as unknown as RankingResponse;
     expect(bestFromRanking(list, "backyard", "M")).toMatchObject({ value: 119, date: "2025-10-18" });
+  });
+
+  it("derives the open world best from the area lists", () => {
+    const eur = bestsFromCountryList(COUNTRY, "100km", "area", "EUR");
+    const nam = eur.map((d) => ({ ...d, scopeCode: "NAM", value: d.value - 60, personId: "x" }));
+    const world = worldFromAreas([...eur, ...nam]);
+    expect(world).toHaveLength(1);
+    expect(world[0]).toMatchObject({ scope: "world", scopeCode: "WORLD", gender: "W", personId: "x" });
   });
 
   it("reads dates", () => {

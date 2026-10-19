@@ -6,7 +6,7 @@
 // - mgetintbestlist.php?year=all&dist=D&gender=G[&cat=G50]: the all-time world
 //   list; its first row (Rank 1, or CatRank 1 with a category) is the world best.
 // - mrankingbackyard.php?year=all&gender=G: the all-time backyard ranking, by laps.
-import { splitAgeClass } from "./disciplines";
+import { isBetter, splitAgeClass } from "./disciplines";
 import { parseDuvPerf } from "./perf";
 import { OVERALL, WORLD, type DisciplineKey, type DuvBest, type RecordGender, type RecordScope } from "./types";
 import type { BestPerfCountryResponse, BestPerfRecord, RankingEntry, RankingResponse } from "../duv/types";
@@ -122,4 +122,19 @@ export function bestFromRanking(
     if (cat && cat.band !== band) return null;
   }
   return fromRankingEntry(top, dist, gender, band, scope, scopeCode);
+}
+
+/**
+ * The open world best per gender, as the best of the area lists' open marks
+ * (DUV's all-time world list answers empty without a category).
+ */
+export function worldFromAreas(areaBests: DuvBest[]): DuvBest[] {
+  const out: DuvBest[] = [];
+  for (const gender of ["W", "M"] as const) {
+    const open = areaBests.filter((d) => d.scope === "area" && d.category === OVERALL && d.gender === gender);
+    if (!open.length) continue;
+    const best = open.reduce((a, b) => (isBetter(b.value, a.value, b.dist) ? b : a));
+    out.push({ ...best, scope: "world", scopeCode: WORLD });
+  }
+  return out;
 }

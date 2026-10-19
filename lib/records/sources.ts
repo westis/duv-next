@@ -14,7 +14,7 @@ import {
   searchRunners,
 } from "@/lib/duv";
 import { AREA_NUMBER, AREAS, discipline, WORLD_AGE_BANDS } from "./disciplines";
-import { bestFromRanking, bestsFromCountryList, duvDateIso } from "./duv-lists";
+import { bestFromRanking, bestsFromCountryList, duvDateIso, worldFromAreas } from "./duv-lists";
 import { discoverGomuSheets, GOMU_RECORDS_URL, gomuCsvUrl, parseGomuSheets } from "./gomu";
 import { IAU_RECORDS_URL, parseIauRecords } from "./iau";
 import { applyHolder, matchRuns, pickHolder, unmatchedLine, type HolderCandidate } from "./match";
@@ -126,7 +126,11 @@ export async function getGomuRecords(): Promise<RatifiedSource | null> {
 
 // --- DUV lists -------------------------------------------------------------
 
-/** World best (rank 1 of the all-time list) for one gender and band. */
+/**
+ * World best (rank 1 of the all-time list) for one gender and age band. DUV
+ * answers the open all-time list (no category) with nothing, so for the open
+ * mark use the book's world entry, which is the best of the six areas.
+ */
 export async function getWorldBest(dist: DisciplineKey, gender: RecordGender, band: string = OVERALL): Promise<DuvBest | null> {
   try {
     if (dist === "backyard") {
@@ -247,10 +251,11 @@ async function matchHolders(marks: RatifiedMark[]): Promise<RatifiedMark[]> {
 
 const cachedBook = unstable_cache(
   async (dist: DisciplineKey): Promise<RecordBook> => {
+    // DUV's all-time world list answers empty without a category, so the open
+    // world best is the best of the six area lists (below); the age bands come
+    // from the world list filtered by category.
     const world = await mapLimit(
-      GENDERS.flatMap((gender) =>
-        (dist === "backyard" ? [OVERALL] : [OVERALL, ...WORLD_AGE_BANDS]).map((band) => ({ gender, band }))
-      ),
+      GENDERS.flatMap((gender) => (dist === "backyard" ? [OVERALL] : WORLD_AGE_BANDS).map((band) => ({ gender, band }))),
       4,
       ({ gender, band }) =>
         getWorldBest(dist, gender, band).catch((error) => {
@@ -262,6 +267,7 @@ const cachedBook = unstable_cache(
     );
     const areas = dist === "backyard" ? [] : await mapLimit(AREAS, 3, (area) => getCountryBests(dist, "area", area));
     const duv = [...world.filter((d): d is DuvBest => d !== null), ...areas.flat()];
+    if (dist !== "backyard") duv.push(...worldFromAreas(areas.flat()));
 
     const body = discipline(dist).body;
     const source = body === "IAU" ? await getIauRecords() : body === "GOMU" ? await getGomuRecords() : null;
@@ -269,7 +275,7 @@ const cachedBook = unstable_cache(
     ratified = await matchHolders(matchRuns(ratified, duv));
     return { dist, duv, ratified, updated: body ? { [body]: source?.updated ?? null } : {} };
   },
-  ["records-book-v2"],
+  ["records-book-v3"],
   { revalidate: DAY }
 );
 
