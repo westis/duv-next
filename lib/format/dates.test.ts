@@ -3,6 +3,8 @@ import {
   formatDate,
   formatDateRange,
   formatDayMonth,
+  formatMonthShort,
+  formatWeekday,
   formatMonthYear,
   formatStartTime,
   formatYear,
@@ -134,6 +136,25 @@ describe("formatDayMonth", () => {
     expect(formatDayMonth("15.06.2024", "fr")?.text).toBe("15 JUIN");
     expect(formatDayMonth("05.12.2024", "de")?.text).toBe("05 DEZ");
     expect(formatDayMonth("15.06.2024", "ja")?.text).toBe("6月15日");
+  });
+});
+
+describe("formatMonthShort", () => {
+  it("gives the short month alone", () => {
+    expect(formatMonthShort(1, "en")).toBe("JAN");
+    expect(formatMonthShort(12, "de")).toBe("DEZ");
+    expect(formatMonthShort(6, "ja")).toBe("6月");
+    expect(formatMonthShort(0, "en")).toBeNull();
+    expect(formatMonthShort(13, "en")).toBeNull();
+  });
+});
+
+describe("formatWeekday", () => {
+  it("gives an uppercase short weekday", () => {
+    expect(formatWeekday("2026-10-22", "en")).toEqual({ text: "THU", dateTime: "2026-10-22" });
+    expect(formatWeekday("22.10.2026", "de")?.text).toBe("DO");
+    expect(formatWeekday("2026-10-22", "ja")?.text).toBe("木");
+    expect(formatWeekday("", "en")).toBeNull();
   });
 });
 
