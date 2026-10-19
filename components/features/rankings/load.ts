@@ -31,7 +31,7 @@ export interface LoadedRanking {
   partial?: PartialList;
 }
 
-type Query = Parameters<typeof getIntBestList>[0] & Parameters<typeof getBackyardRanking>[0];
+type Query = NonNullable<Parameters<typeof getIntBestList>[0]> & NonNullable<Parameters<typeof getBackyardRanking>[0]>;
 
 function apiQuery(state: RankingState, backyard: boolean): Query {
   const q: Query = {
@@ -138,7 +138,11 @@ export async function loadRanking(state: RankingState, { backyard = false } = {}
       leader = top?.RankingList?.[0] ?? null;
     }
     const pageCount = Math.max(1, Number(data?.Pagination?.MaxPage) || 1);
-    return { meta: data, entries, leader, page: state.page, pageCount };
+    // An empty list comes without the filter lists: take them from the plain list.
+    const meta =
+      data ??
+      (await fetchList({ year: query.year, dist: query.dist, page: 1, perpage: 1 }, backyard).catch(() => null));
+    return { meta, entries, leader, page: state.page, pageCount };
   } catch (e) {
     if (!isServerFailure(e)) throw e;
     const parts = await loadInParts(state, backyard);
