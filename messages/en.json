@@ -158,11 +158,72 @@
   },
   "calendar": {
     "metaTitle": "Race calendar",
-    "title": {
-      "upcoming": "Upcoming races",
-      "range": "Races {range}"
+    "metaDescription": "Ultramarathon races worldwide by day: road, track, indoor and trail, with results.",
+    "heading": "Races",
+    "error": "The calendar could not be loaded right now. Please try again shortly.",
+    "empty": "No races match these filters. Try a longer date range or fewer filters.",
+    "shown": "{first}–{last} of {total} races",
+    "filters": {
+      "sentenceRange": "Races from <from></from> to <to></to> in <country></country>, <format></format>, on <surface></surface>.",
+      "sentenceOnward": "Races from <from></from> onward in <country></country>, <format></format>, on <surface></surface>.",
+      "allCountries": "all countries",
+      "anyFormat": "any format",
+      "anySurface": "any surface",
+      "surfaceWord": {
+        "road": "road",
+        "trail": "trail",
+        "track": "track",
+        "indoor": "indoor"
+      },
+      "countryLabel": "Country",
+      "formatLabel": "Format: distance, time or race type",
+      "surfaceLabel": "Surface",
+      "datesLabel": "Dates, now {date}: change",
+      "dates": "Dates",
+      "from": "From",
+      "to": "To",
+      "showRaces": "Show races",
+      "presets": {
+        "next30": "Next 30 days",
+        "next12m": "Next 12 months",
+        "last14": "Last 14 days",
+        "last12m": "Last 12 months",
+        "thisYear": "{year}",
+        "onward": "From today on"
+      },
+      "iauOnly": "IAU label only",
+      "more": "More filters",
+      "moreCount": "More filters ({count})",
+      "rankingEligible": "Ranking eligible only",
+      "withoutResults": "Without results only",
+      "hideSplits": "Hide splits and stages",
+      "cup": "Cup",
+      "allCups": "All cups",
+      "soonestFirst": "Soonest first",
+      "latestFirst": "Latest first",
+      "reset": "Reset",
+      "loading": "Loading…"
     },
-    "metaDescription": "Upcoming and past ultramarathon races worldwide."
+    "ledger": {
+      "caption": "Races by day",
+      "day": "Day",
+      "format": "Format",
+      "race": "Race",
+      "surface": "Surface",
+      "place": "Place",
+      "nation": "Nat.",
+      "nationFull": "Country",
+      "label": "Label",
+      "results": "Results",
+      "raceCount": "{count, plural, one {# race} other {# races}}"
+    },
+    "running": {
+      "title": "Running now",
+      "subtitle": "{count, plural, one {# race started before {date} and hasn't finished} other {# races started before {date} and haven't finished}}",
+      "dayOf": "day {day} of {total}",
+      "lastDay": "last day",
+      "showMore": "Show {count} more"
+    }
   },
   "dateRange": {
     "fromToday": "From today",
@@ -177,6 +238,140 @@
     "nextYear": "Next 12 months",
     "lastMonth": "Last month",
     "nextMonth": "Next month"
+  },
+  "home": {
+    "metaTitle": "DUV Ultramarathon Statistics",
+    "metaDescription": "Search ultramarathon results, runners and races worldwide. Results just in, races this week and the year's best marks.",
+    "title": "DUV Ultramarathon Statistics",
+    "search": {
+      "heading": "Ultramarathon results worldwide",
+      "placeholder": "Runner, race, club or event id",
+      "submit": "Search",
+      "try": "Try"
+    },
+    "results": {
+      "title": "Results just in",
+      "all": "Last 14 days",
+      "finishers": "{count, plural, one {# finisher} other {# finishers}}",
+      "winnersOf": "Winners of {race}",
+      "gender": {
+        "M": "Men's winner",
+        "W": "Women's winner"
+      },
+      "genderShort": {
+        "M": "M",
+        "W": "W"
+      }
+    },
+    "week": {
+      "title": "This week",
+      "calendar": "Calendar",
+      "runningNow": "Running now",
+      "all": "All {count} races this week"
+    },
+    "best": {
+      "title": "Best of {year}",
+      "rankings": "Rankings",
+      "gender": {
+        "M": "men",
+        "W": "women"
+      },
+      "rank": "Rank",
+      "performance": "Performance",
+      "runner": "Runner",
+      "nation": "Country",
+      "trailNote": "DUV ranks standard distances only, so trail races have no year list here. Find them in the calendar and on each race's results."
+    }
+  },
+  "runner": {
+    "kicker": "Runner · DUV #{id}",
+    "born": "born",
+    "categories": "{intl} (international), {national} (national)",
+    "club": "Club: {club}",
+    "misc": "Notes",
+    "railLabel": "Personal bests and races",
+    "history": "All results",
+    "jump": "Jump to",
+    "jumpLabel": "Jump to a season",
+    "empty": "DUV has no results for this runner.",
+    "emptyIau": "No results in IAU-labelled races.",
+    "meta": {
+      "title": "{name}: ultra results and personal bests",
+      "description": "Every ultramarathon result of {name} in the DUV database: personal bests, seasons, trail races and splits.",
+      "fallbackTitle": "Runner"
+    },
+    "facts": {
+      "events": "Events",
+      "km": "Kilometres",
+      "seasons": "Seasons",
+      "wins": "Wins"
+    },
+    "strip": {
+      "caption": "Kilometres per season.",
+      "hint": "Click a bar to jump to that year.",
+      "label": "Kilometres raced per season, {first} to {last}",
+      "bar": "{year}: {km} km, {events, plural, one {# event} other {# events}}",
+      "none": "{year}: no races"
+    },
+    "pbs": {
+      "heading": "Personal bests",
+      "distance": "Distance",
+      "best": "Best",
+      "year": "Year",
+      "yearlyBests": "Yearly bests",
+      "other": "{count, plural, one {# race} other {# races}} at other distances",
+      "otherNote": "(no PB list)",
+      "note": "Road, track and indoor at standard distances, as DUV keeps them. Splits count.",
+      "noteSpark": "Road, track and indoor at standard distances, as DUV keeps them. Splits count. Line: best of each season, PB in red."
+    },
+    "trail": {
+      "heading": "Trail races",
+      "count": "{count}",
+      "note": "Each course is its own: compare by place and time within the race.",
+      "more": "Show {count, plural, one {# more} other {# more}}",
+      "fewer": "Show fewer",
+      "inHistory": "Trail races in the history"
+    },
+    "repeat": {
+      "heading": "Races run more than once",
+      "starts": "{count, plural, one {# start} other {# starts}}",
+      "best": "best",
+      "more": "Show {count} more",
+      "fewer": "Show fewer"
+    },
+    "place": {
+      "overall": "{place} overall",
+      "gender": "{gender} {place}",
+      "category": "{cat} {place}"
+    },
+    "filters": {
+      "label": "Show results at",
+      "all": "All",
+      "trail": "Trail",
+      "other": "Other",
+      "openSplits": "Open all splits",
+      "foldSplits": "Fold all splits",
+      "iauOnly": "IAU-labelled races only",
+      "allRaces": "All races",
+      "iauNote": "Showing IAU-labelled races only."
+    },
+    "ledger": {
+      "caption": "Results in {year}",
+      "result": "Result",
+      "place": "Place",
+      "race": "Race",
+      "distance": "Distance",
+      "date": "Date",
+      "split": "Split",
+      "events": "{count, plural, one {# event} other {# events}}",
+      "km": "{km} km",
+      "showSplits": "{count, plural, one {# split} other {# splits}}",
+      "showSplitsPb": "{count, plural, one {# split} other {# splits}}, with a PB",
+      "hideSplits": "Hide {count, plural, one {split} other {splits}}",
+      "alsoScored": "also scored as {races}",
+      "alsoPlace": "{race} ({place})",
+      "pbPopover": "Personal best at {dist}, from the runner's DUV profile."
+    }
   },
   "records": {
     "title": "Records",
@@ -286,95 +481,5 @@
     "noMarksAt": "No marks at {list}.",
     "emptyNation": "DUV's lists hold no marks for {country}.",
     "emptyFiltered": "No marks with these options. Try all surfaces."
-  },
-  "runner": {
-    "kicker": "Runner · DUV #{id}",
-    "born": "born",
-    "categories": "{intl} (international), {national} (national)",
-    "club": "Club: {club}",
-    "misc": "Notes",
-    "railLabel": "Personal bests and races",
-    "history": "All results",
-    "jump": "Jump to",
-    "jumpLabel": "Jump to a season",
-    "empty": "DUV has no results for this runner.",
-    "emptyIau": "No results in IAU-labelled races.",
-    "meta": {
-      "title": "{name}: ultra results and personal bests",
-      "description": "Every ultramarathon result of {name} in the DUV database: personal bests, seasons, trail races and splits.",
-      "fallbackTitle": "Runner"
-    },
-    "facts": {
-      "events": "Events",
-      "km": "Kilometres",
-      "seasons": "Seasons",
-      "wins": "Wins"
-    },
-    "strip": {
-      "caption": "Kilometres per season.",
-      "hint": "Click a bar to jump to that year.",
-      "label": "Kilometres raced per season, {first} to {last}",
-      "bar": "{year}: {km} km, {events, plural, one {# event} other {# events}}",
-      "none": "{year}: no races"
-    },
-    "pbs": {
-      "heading": "Personal bests",
-      "distance": "Distance",
-      "best": "Best",
-      "year": "Year",
-      "yearlyBests": "Yearly bests",
-      "other": "{count, plural, one {# race} other {# races}} at other distances",
-      "otherNote": "(no PB list)",
-      "note": "Road, track and indoor at standard distances, as DUV keeps them. Splits count.",
-      "noteSpark": "Road, track and indoor at standard distances, as DUV keeps them. Splits count. Line: best of each season, PB in red."
-    },
-    "trail": {
-      "heading": "Trail races",
-      "count": "{count}",
-      "note": "Each course is its own: compare by place and time within the race.",
-      "more": "Show {count, plural, one {# more} other {# more}}",
-      "fewer": "Show fewer",
-      "inHistory": "Trail races in the history"
-    },
-    "repeat": {
-      "heading": "Races run more than once",
-      "starts": "{count, plural, one {# start} other {# starts}}",
-      "best": "best",
-      "more": "Show {count} more",
-      "fewer": "Show fewer"
-    },
-    "place": {
-      "overall": "{place} overall",
-      "gender": "{gender} {place}",
-      "category": "{cat} {place}"
-    },
-    "filters": {
-      "label": "Show results at",
-      "all": "All",
-      "trail": "Trail",
-      "other": "Other",
-      "openSplits": "Open all splits",
-      "foldSplits": "Fold all splits",
-      "iauOnly": "IAU-labelled races only",
-      "allRaces": "All races",
-      "iauNote": "Showing IAU-labelled races only."
-    },
-    "ledger": {
-      "caption": "Results in {year}",
-      "result": "Result",
-      "place": "Place",
-      "race": "Race",
-      "distance": "Distance",
-      "date": "Date",
-      "split": "Split",
-      "events": "{count, plural, one {# event} other {# events}}",
-      "km": "{km} km",
-      "showSplits": "{count, plural, one {# split} other {# splits}}",
-      "showSplitsPb": "{count, plural, one {# split} other {# splits}}, with a PB",
-      "hideSplits": "Hide {count, plural, one {split} other {splits}}",
-      "alsoScored": "also scored as {races}",
-      "alsoPlace": "{race} ({place})",
-      "pbPopover": "Personal best at {dist}, from the runner's DUV profile."
-    }
   }
 }

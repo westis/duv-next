@@ -11,7 +11,10 @@ export interface CalendarFilterState {
   /** ISO dates. Both set, or neither: then the calendar runs from today onward. */
   from?: string;
   to?: string;
+  /** A format from DUV's distance list (100km, 24h, Backy...), or "all". */
   dist: string;
+  /** Road, trail, track or indoor, or "all". */
+  surface: Surface | "all";
   country: string;
   cups: string;
   order: "asc" | "desc";
@@ -25,8 +28,23 @@ export interface CalendarFilterState {
   perpage: number;
 }
 
-export const PER_PAGE_OPTIONS = [25, 50, 100, 200];
-const DEFAULT_PER_PAGE = 50;
+export const PER_PAGE_OPTIONS = [50, 100, 200, 400];
+const DEFAULT_PER_PAGE = 100;
+
+export const SURFACES = ["road", "trail", "track", "indoor"] as const;
+export type Surface = (typeof SURFACES)[number];
+
+/** DUV's `dist` codes for the surfaces (mcalendar FltDistValue). */
+export const SURFACE_DIST: Record<Surface, string> = {
+  road: "Road",
+  trail: "Trail",
+  track: "Track",
+  indoor: "Indoo",
+};
+
+function surfaceFromDist(dist: string | undefined): Surface | undefined {
+  return SURFACES.find((s) => SURFACE_DIST[s] === dist);
+}
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 function first(value: string | string[] | undefined): string | undefined {
@@ -64,6 +82,31 @@ export function yearToRange(year: string | undefined, now: Date = new Date()): {
   return null;
 }
 
+function shiftDays(iso: string, days: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
+export type RangePreset = "next30" | "next12m" | "last14" | "last12m" | "thisYear";
+
+/** The date picker's shortcuts; each just fills in both dates. */
+export function presetRange(preset: RangePreset, today: string): { from: string; to: string } {
+  switch (preset) {
+    case "next30":
+      return { from: today, to: shiftDays(today, 30) };
+    case "next12m":
+      return { from: today, to: shiftYears(today, 1) };
+    case "last14":
+      return { from: shiftDays(today, -14), to: today };
+    case "last12m":
+      return { from: shiftYears(today, -1), to: today };
+    case "thisYear":
+      return { from: `${today.slice(0, 4)}-01-01`, to: `${today.slice(0, 4)}-12-31` };
+  }
+}
+
+export { shiftDays };
+
 /** A range starting before today reads newest first; one from today on, soonest first. */
 export function defaultOrder(from?: string, now: Date = new Date()): "asc" | "desc" {
   return from && from < isoToday(now) ? "desc" : "asc";
@@ -77,12 +120,19 @@ export function parseCalendarParams(sp: CalendarSearchParams, now: Date = new Da
       ? { from: fromParam, to: toParam }
       : yearToRange(first(sp.year), now);
   const order = first(sp.order);
+  // Old links put the surface in `dist` (dist=Trail): read it as the surface filter.
+  const distParam = first(sp.dist);
+  const distSurface = surfaceFromDist(distParam);
+  const surfaceParam = first(sp.surface);
+  const surface =
+    SURFACES.find((s) => s === surfaceParam) ?? distSurface ?? "all";
   const perpage = positiveInt(first(sp.perpage), DEFAULT_PER_PAGE);
 
   return {
     from: range?.from,
     to: range?.to,
-    dist: first(sp.dist) || "all",
+    dist: (!distSurface && distParam) || "all",
+    surface,
     country: first(sp.country) || "all",
     cups: first(sp.cups) || "all",
     order: order === "asc" || order === "desc" ? order : defaultOrder(range?.from, now),
@@ -103,6 +153,7 @@ export function calendarQuery(state: CalendarFilterState, now: Date = new Date()
     q.set("to", state.to);
   }
   if (state.dist !== "all") q.set("dist", state.dist);
+  if (state.surface !== "all") q.set("surface", state.surface);
   if (state.country !== "all") q.set("country", state.country);
   if (state.cups !== "all") q.set("cups", state.cups);
   if (state.order !== defaultOrder(state.from, now)) {
@@ -133,6 +184,16 @@ export interface OptionGroup {
 }
 
 /**
+ * The API's one `dist` parameter for format and surface. With both chosen it
+ * gets the format; the page then keeps the rows of the chosen surface.
+ */
+export function apiDist(state: Pick<CalendarFilterState, "dist" | "surface">): string | undefined {
+  if (state.dist !== "all") return state.dist;
+  if (state.surface !== "all") return SURFACE_DIST[state.surface];
+  return undefined;
+}
+
+/**
  * The API sends distances as parallel value/label arrays with "" values
  * (labelled "----------") as group separators.
  */
@@ -142,7 +203,7 @@ export function groupDistances(
 ): OptionGroup[] {
   const groups: OptionGroup[] = [{ options: [] }];
   values.forEach((value, i) => {
-    if (value === "all") return;
+    if (value === "all" || surfaceFromDist(value)) return;
     if (value === "") {
       if (groups[groups.length - 1].options.length)
         groups.push({ options: [] });
