@@ -1,24 +1,22 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
+import { EmptyState } from "@/components/design";
 
-export default function CountryError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+export default function CountryError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const t = useTranslations("states");
   console.error(error);
   return (
-    <div className="rounded-md border p-6 space-y-3">
-      <p className="font-medium">Could not load data from DUV.</p>
-      <p className="text-sm text-muted-foreground">
-        The statistics server may be busy. Please try again.
-      </p>
-      <Button variant="outline" onClick={reset}>
-        Try again
-      </Button>
+    <div className="container py-8">
+      <EmptyState
+        action={
+          <button type="button" onClick={reset} className="inline-flex h-11 items-center border border-fg px-4 text-sm font-medium">
+            {t("retry")}
+          </button>
+        }
+      >
+        {t("error")}
+      </EmptyState>
     </div>
   );
 }

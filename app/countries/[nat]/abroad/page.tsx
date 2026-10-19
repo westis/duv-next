@@ -1,14 +1,22 @@
-import { Metadata } from "next";
-import { getTopRankAbroad } from "@/lib/duv";
-import type { DuvGender } from "@/lib/duv/types";
-import { AbroadTable } from "@/components/features/countries/AbroadTable";
-import { FilterSelect } from "@/components/features/countries/FilterSelect";
-import { parseNat, zipOptions } from "@/components/features/countries/data";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { EmptyState, FilterBar } from "@/components/design";
+import { CountryHeader } from "@/components/features/countries/CountryHeader";
+import {
+  getCountry,
+  getCountryOptions,
+  loadPodiumsAbroad,
+  parseYear,
+} from "@/components/features/countries/data";
+import { HostBars, PodiumFeed } from "@/components/features/countries/PodiumFeed";
+import { formatCourseLength } from "@/lib/format";
 
 export const revalidate = 3600;
 
-const FIRST_YEAR = 1990;
-const DEFAULT_CNT = "3";
+/** DUV's distance filter for mtoprankabroad.php (its own list also has the empty separators). */
+const DISTANCES = ["50km", "50mi", "100km", "100mi", "6h", "12h", "24h", "48h", "Road", "Trail", "Track", "Indoo", "Backy"];
 
 interface PageProps {
   params: Promise<{ nat: string }>;
@@ -19,114 +27,94 @@ function first(raw: string | string[] | undefined) {
   return Array.isArray(raw) ? raw[0] : raw;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  const nat = (await params).nat.toUpperCase();
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const country = await getCountry((await params).nat);
+  const year = parseYear((await searchParams).year);
+  const t = await getTranslations("countries.abroadPage");
   return {
-    title: `Top rankings abroad - ${nat}`,
-    description: `Top placings of runners from ${nat} in ultramarathons outside ${nat}.`,
+    title: t("metaTitle", { country: country.name, year }),
+    description: t("metaDescription", { country: country.name, year }),
   };
 }
 
-export default async function CountryAbroadPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const nat = parseNat((await params).nat);
+/** Every top-3 place abroad in a year, with distance and gender filters. */
+export default async function CountryAbroadPage({ params, searchParams }: PageProps) {
+  const country = await getCountry((await params).nat);
   const sp = await searchParams;
-  const currentYear = new Date().getFullYear();
-
-  const yearParam = Number(first(sp.year));
-  const year =
-    Number.isInteger(yearParam) &&
-    yearParam >= FIRST_YEAR &&
-    yearParam <= currentYear
-      ? yearParam
-      : currentYear;
-  const dist = first(sp.dist) || "all";
-  const cntParam = first(sp.cnt) || DEFAULT_CNT;
+  const year = parseYear(sp.year);
+  const distParam = first(sp.dist);
+  const dist = distParam && DISTANCES.includes(distParam) ? distParam : "";
   const genderParam = first(sp.gender);
-  const gender: DuvGender =
-    genderParam === "M" || genderParam === "W" ? genderParam : "all";
+  const gender = genderParam === "W" || genderParam === "M" ? genderParam : "";
+  const t = await getTranslations("countries.abroadPage");
+  const tp = await getTranslations("countries.page");
+  const tt = await getTranslations("tags");
+  const locale = await getLocale();
 
-  const data = await getTopRankAbroad({
-    country: nat,
-    year,
-    dist,
-    cnt: Number(cntParam) || Number(DEFAULT_CNT),
-    gender,
-  });
-
-  const years = Array.from({ length: currentYear - FIRST_YEAR + 1 }, (_, i) => {
-    const y = String(currentYear - i);
-    return { value: y, label: y };
-  });
-  const distOptions = zipOptions(data?.FltDistValue, data?.FltDistLabel, [
-    { value: "all", label: "all" },
+  const [countries, rows] = await Promise.all([
+    getCountryOptions(),
+    loadPodiumsAbroad(country.code, year, { dist, gender: gender || "all" }),
   ]);
-  const cntOptions = (data?.FltTopCntValues ?? [1, 3, 10, 100]).map((n) => ({
-    value: String(n),
-    label: `Top ${n}`,
-  }));
-  const genderOptions = zipOptions(
-    data?.FltGenderValues,
-    data?.FltGenderLabels,
-    [
-      { value: "all", label: "all" },
-      { value: "M", label: "men" },
-      { value: "W", label: "women" },
-    ],
-  );
-  const rows = data?.Resultlist ?? [];
+  const names = Object.fromEntries(countries.map((c) => [c.value, c.label]));
+  const distLabel = (value: string) => {
+    const surface: Record<string, string> = {
+      Road: tt("surface.road"),
+      Trail: tt("surface.trail"),
+      Track: tt("surface.track"),
+      Indoo: tt("surface.indoor"),
+      Backy: tt("type.backyard"),
+    };
+    return surface[value] ?? formatCourseLength(value, locale);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-4">
-        <FilterSelect
-          param="year"
-          label="Year"
-          value={String(year)}
-          defaultValue={String(currentYear)}
-          options={years}
-          className="[&_button]:w-[110px]"
-        />
-        <FilterSelect
-          param="dist"
-          label="Distance"
-          value={dist}
-          defaultValue="all"
-          options={distOptions}
-        />
-        <FilterSelect
-          param="cnt"
-          label="Placings"
-          value={cntParam}
-          defaultValue={DEFAULT_CNT}
-          options={cntOptions}
-          className="[&_button]:w-[120px]"
-        />
-        <FilterSelect
-          param="gender"
-          label="Gender"
-          value={gender}
-          defaultValue="all"
-          options={genderOptions}
-          className="[&_button]:w-[120px]"
-        />
-      </div>
-
-      {data?.Pageheader?.Title && (
-        <h2 className="text-xl font-semibold">{data.Pageheader.Title}</h2>
-      )}
-
-      {rows.length === 0 ? (
-        <p className="text-muted-foreground">
-          No top placings abroad for {nat} with these filters.
-        </p>
+    <div className="container pb-12">
+      <CountryHeader
+        country={country}
+        countries={countries}
+        year={year}
+        yearAction={`/countries/${country.code}/abroad`}
+        title={t("title")}
+        subtitle={country.name}
+      />
+      <p className="mb-4 max-w-prose text-sm text-fg-muted md:text-[0.9375rem]">{t("deck", { country: country.name })}</p>
+      <FilterBar
+        className="mb-4"
+        filters={[
+          {
+            param: "dist",
+            label: t("distance"),
+            value: dist,
+            options: DISTANCES.map((value) => ({ value, label: distLabel(value) })),
+          },
+          {
+            param: "gender",
+            label: t("gender"),
+            value: gender,
+            options: [
+              { value: "W", label: t("women") },
+              { value: "M", label: t("men") },
+            ],
+          },
+        ]}
+      />
+      {rows === null ? (
+        <EmptyState>{tp("loadError")}</EmptyState>
+      ) : rows.length === 0 ? (
+        <EmptyState>{t("empty")}</EmptyState>
       ) : (
-        <AbroadTable rows={rows} />
+        <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[minmax(0,1fr)_16rem]">
+          <div className="lg:order-2">
+            <p className="label-caps mb-2 text-fg-muted">{t("count", { count: rows.length })}</p>
+            <HostBars rows={rows} names={names} limit={12} />
+          </div>
+          <PodiumFeed rows={rows} className="min-w-0 lg:order-1" />
+        </div>
       )}
+      <Link href={`/countries/${country.code}${year !== new Date().getFullYear() ? `?year=${year}` : ""}`} className="mt-6 inline-flex min-h-11 items-center gap-1 text-sm font-semibold">
+        <ArrowLeft aria-hidden strokeWidth={1.75} className="size-3.5" />
+        {t("back", { country: country.name })}
+      </Link>
     </div>
   );
 }
