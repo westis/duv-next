@@ -1,17 +1,10 @@
 "use client";
 
-import { ThemeProvider } from "@/components/layout/ThemeProvider";
-import { GlobalKeyboardShortcuts } from "@/components/GlobalKeyboardShortcuts";
+import { ThemeProvider } from "next-themes";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <GlobalKeyboardShortcuts />
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       {children}
     </ThemeProvider>
   );

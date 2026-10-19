@@ -1,0 +1,154 @@
+{
+  "site": {
+    "name": "DUV Ultramarathon Statistics",
+    "description": "Results, rankings and records of ultramarathons worldwide",
+    "skipToContent": "Skip to content",
+    "home": "DUV home"
+  },
+  "nav": {
+    "races": "Races",
+    "rankings": "Rankings",
+    "records": "Records",
+    "countries": "Countries",
+    "calendar": "Calendar",
+    "recentResults": "Recent results",
+    "championships": "Championships",
+    "internationalRankings": "International rankings",
+    "backyardRankings": "Backyard rankings",
+    "menu": "Menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mainNavigation": "Main navigation",
+    "search": "Search",
+    "searchPlaceholder": "Search runners, races, clubs",
+    "searchShortcut": "Press / or Cmd+K to search",
+    "breadcrumb": "Breadcrumb"
+  },
+  "footer": {
+    "about": "About DUV",
+    "faq": "FAQ",
+    "whatsNew": "What's new",
+    "credits": "Credits",
+    "contact": "Contact",
+    "copyright": "© {year} DUV Ultramarathon Statistics",
+    "language": "Language"
+  },
+  "theme": {
+    "label": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "tags": {
+    "type": {
+      "fixedDistance": "Fixed distance",
+      "fixedTime": "Fixed time",
+      "backyard": "Backyard",
+      "stageRace": "Stage race",
+      "elimination": "Elimination",
+      "invitational": "Invitational",
+      "walking": "Walking"
+    },
+    "surface": {
+      "road": "Road",
+      "trail": "Trail",
+      "track": "Track",
+      "indoor": "Indoor"
+    },
+    "iau": {
+      "G": "IAU Gold",
+      "S": "IAU Silver",
+      "B": "IAU Bronze",
+      "T": "IAU Trail"
+    },
+    "championship": {
+      "world": "World ch.",
+      "continental": "Continental ch.",
+      "national": "National ch."
+    },
+    "status": {
+      "C": "Results",
+      "P": "Partial results",
+      "S": "Splits",
+      "N": "No results yet",
+      "rankingEligible": "Ranking eligible"
+    },
+    "more": "+{count} more"
+  },
+  "markers": {
+    "WR": "World record",
+    "AR": "Area record",
+    "NR": "National record",
+    "CR": "Course record",
+    "PB": "Personal best",
+    "ratified": "Ratified by the {body}.",
+    "notRatified": "Best performance in DUV's database, not ratified.",
+    "source": "Source: {source}, updated {date}."
+  },
+  "race": {
+    "breadcrumbRaces": "Races",
+    "tabs": {
+      "label": "Race sections",
+      "overview": "Overview",
+      "results": "Results",
+      "splits": "Splits",
+      "editions": "Editions",
+      "records": "Records",
+      "stats": "Statistics"
+    },
+    "facts": {
+      "finishers": "Finishers",
+      "menWinner": "Men's winner",
+      "womenWinner": "Women's winner",
+      "editions": "Editions"
+    },
+    "website": "Official website",
+    "startTime": "Start {time}",
+    "edition": "Edition"
+  },
+  "states": {
+    "loading": "Loading",
+    "retry": "Try again",
+    "error": "Something went wrong while loading this page.",
+    "notFound": "This page does not exist.",
+    "noResults": "No results yet. Results usually arrive within two weeks of the race.",
+    "noMatch": "Nothing matches these filters."
+  },
+  "units": {
+    "km": "km",
+    "mi": "mi",
+    "kmh": "km/h",
+    "mph": "mph",
+    "perKm": "/km",
+    "perMi": "/mi",
+    "laps": "{count, plural, one {# lap} other {# laps}}",
+    "hours": "h",
+    "days": "d"
+  },
+  "table": {
+    "details": "Details",
+    "showDetails": "Show details",
+    "showDetailsFor": "Show details for {name}",
+    "sortHint": "(sort)",
+    "empty": "Nothing to show.",
+    "loading": "Loading the table",
+    "pagination": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {page}",
+    "showAll": "Show all"
+  },
+  "filters": {
+    "button": "Filters",
+    "buttonWithCount": "Filters, {count, plural, one {# active} other {# active}}",
+    "title": "Filters",
+    "description": "Choose filters. The list updates as you choose.",
+    "allOf": "{label}: all",
+    "all": "All",
+    "apply": "Apply",
+    "done": "Show results",
+    "clear": "Clear",
+    "active": "Active filters",
+    "remove": "Remove filter {label}: {value}"
+  }
+}

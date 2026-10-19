@@ -1,9 +1,7 @@
 import { cache } from "react";
 import { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ExternalLink, Info } from "lucide-react";
-import { EventHeader } from "@/components/EventHeader";
+import { ExternalLink } from "lucide-react";
 import { DuvApiError, getEventResults } from "@/lib/duv";
 import type { EventResultsResponse } from "@/lib/duv";
 import { ResultsFilters } from "@/components/features/results/ResultsFilters";
@@ -92,17 +90,8 @@ export default async function EventResultsPage(props: PageProps) {
     speedOptions.find((o) => o.value === String(query.speed ?? 1))?.label ?? "km/h";
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <EventHeader eventInfo={header} />
-
+    <div>
       <div className="mb-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-        <Link
-          href={`/events/${eventId}`}
-          className="inline-flex items-center gap-1 text-yellow-600 hover:underline dark:text-yellow-500"
-        >
-          <Info className="h-4 w-4" />
-          {nls.nlsRaceDetails || "More details of this race."}
-        </Link>
         {header.AllTimeLink && (
           <ExternalLinkItem href={header.AllTimeLink}>
             {nls.nlsAlltimeResults || "All-time results of this event"}

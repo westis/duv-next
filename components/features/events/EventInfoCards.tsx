@@ -13,7 +13,7 @@ function InfoList({ rows }: { rows: [string, ReactNode][] }) {
       {visible.map(([label, value]) => (
         <div key={label} className="contents">
           <dt className="text-muted-foreground">{label}</dt>
-          <dd className="break-words whitespace-pre-line">{value}</dd>
+          <dd className="min-w-0 [overflow-wrap:anywhere] whitespace-pre-line">{value}</dd>
         </div>
       ))}
     </dl>

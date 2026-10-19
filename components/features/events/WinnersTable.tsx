@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import type { EventWinnerRow } from "@/lib/duv";
 import { parseWinner } from "./eventDetailUtils";
-import { hasResults } from "./EventDetailHeader";
+import { hasResults } from "@/components/features/race/loadRace";
 
 function WinnerCell({ value }: { value: string }) {
   const winner = parseWinner(value);
@@ -60,7 +60,7 @@ export function WinnersTable({
               const isCurrent = row.EventID === currentEventId;
               const distance = row.Length || row.Duration;
               return (
-                <TableRow key={row.EventID} className={isCurrent ? "bg-yellow-500/10" : undefined}>
+                <TableRow key={row.EventID} className={isCurrent ? "bg-highlight" : undefined}>
                   <TableCell className="whitespace-nowrap">
                     {isCurrent ? (
                       <span className="font-medium">{row.SDate || row.Year}</span>

@@ -1,15 +1,11 @@
-import { cache } from "react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { DuvApiError, getDuvBaseUrl, getEventDetail } from "@/lib/duv";
-import { EventDetailHeader } from "@/components/features/events/EventDetailHeader";
+import { getDuvBaseUrl } from "@/lib/duv";
 import { CourseCard, OrganizerCard } from "@/components/features/events/EventInfoCards";
 import { WinnersTable } from "@/components/features/events/WinnersTable";
-import {
-  EventLinksCard,
-  type OldSiteLink,
-} from "@/components/features/events/EventLinksCard";
+import { EventLinksCard, type OldSiteLink } from "@/components/features/events/EventLinksCard";
 import { formatEventDates, resolveDuvLink } from "@/components/features/events/eventDetailUtils";
+import { loadRace } from "@/components/features/race/loadRace";
 
 export const revalidate = 3600;
 
@@ -24,24 +20,11 @@ const oldSiteLinkLabels: Record<string, string> = {
   StartPosLink: "Start positions",
 };
 
-const loadEvent = cache(async (eventId: string) => {
-  if (!/^\d+$/.test(eventId)) return null;
-  let data;
-  try {
-    data = await getEventDetail({ event: eventId });
-  } catch (error) {
-    // DUV answers 400 for unknown ids (404s with an event body are accepted by the client)
-    if (error instanceof DuvApiError && (error.status === 404 || error.status === 400)) return null;
-    throw error;
-  }
-  return data?.raceDetails?.EventID ? data : null;
-});
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { eventId } = await params;
   try {
-    const data = await loadEvent(eventId);
-    if (!data?.raceDetails) return { title: "Event" };
+    const data = await loadRace(eventId);
+    if (!data) return { title: "Event" };
     const event = data.raceDetails;
     const place = [event.City, event.CountryName || event.Country].filter(Boolean).join(", ");
     return {
@@ -56,19 +39,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function EventDetailPage({ params }: PageProps) {
+/** Overview tab: race info, organiser, links and the latest editions. */
+export default async function RaceOverviewPage({ params }: PageProps) {
   const { eventId } = await params;
-  const data = await loadEvent(eventId);
-  if (!data?.raceDetails) notFound();
+  const data = await loadRace(eventId);
+  if (!data) notFound();
 
   const event = data.raceDetails;
-  const oldSiteLinks: OldSiteLink[] = Object.entries(data.LinkURLs ?? {}).flatMap(
-    ([key, link]) => {
-      const label = oldSiteLinkLabels[key];
-      const href = label && link ? resolveDuvLink(link, getDuvBaseUrl()) : null;
-      return label && href ? [{ label, href }] : [];
-    }
-  );
+  const oldSiteLinks: OldSiteLink[] = Object.entries(data.LinkURLs ?? {}).flatMap(([key, link]) => {
+    const label = oldSiteLinkLabels[key];
+    const href = label && link ? resolveDuvLink(link, getDuvBaseUrl()) : null;
+    return label && href ? [{ label, href }] : [];
+  });
 
   // Shape of valuation entries is unknown (samples are empty); show their text
   const status = (data.valuation ?? [])
@@ -81,18 +63,13 @@ export default async function EventDetailPage({ params }: PageProps) {
     .join("; ");
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
-      <EventDetailHeader event={event} />
-      <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
         <CourseCard event={event} status={status} />
         <OrganizerCard event={event} />
       </div>
-      <WinnersTable winners={data.winnerList ?? []} currentEventId={event.EventID} />
-      <EventLinksCard
-        reports={data.raceReports ?? []}
-        gpsTracks={data.gpsTracks ?? []}
-        oldSiteLinks={oldSiteLinks}
-      />
+      <WinnersTable winners={(data.winnerList ?? []).slice(0, 5)} currentEventId={event.EventID} />
+      <EventLinksCard reports={data.raceReports ?? []} gpsTracks={data.gpsTracks ?? []} oldSiteLinks={oldSiteLinks} />
     </div>
   );
 }
