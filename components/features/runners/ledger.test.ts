@@ -70,6 +70,23 @@ describe("buildLedger", () => {
     expect(vilnius.main.pb).toBe(true);
   });
 
+  it("groups splits whose race is not in the profile under the longest one", () => {
+    const centurion = buildLedger(
+      [
+        year("2022", [
+          perf({ EvtID: "86085", EvtName: "Centurion Track 100 - 100km Split", EvtDist: "100km", Perf: "6:05:41 h", EvtPartOf: "84831" }),
+          perf({ EvtID: "86089", EvtName: "Centurion Track 100 - 6h Split", EvtDist: "6h", Perf: "98.496 km", EvtPartOf: "84831" }),
+          perf({ EvtID: "86087", EvtName: "Centurion Track 100 - 50km Split", EvtDist: "50km", Perf: "3:01:51 h", EvtPartOf: "84831" }),
+          perf({ EvtID: "26330", EvtName: "Daugavpils 50 km race", EvtDist: "50km", Perf: "3:14:20 h", EvtPartOf: "19732" }),
+        ]),
+      ],
+      pbs
+    );
+    const groups = centurion[0].groups;
+    expect(groups.map((g) => g.main.id)).toEqual(["86085", "26330"]);
+    expect(groups[0].splits.map((r) => r.id)).toEqual(["86089", "86087"]);
+  });
+
   it("keeps DUV's season totals", () => {
     expect(ledger[0]).toMatchObject({ year: "2023", events: 3, km: 568.576 });
   });
@@ -140,6 +157,7 @@ describe("helpers", () => {
   it("shortens split names to their own part", () => {
     expect(splitLabel("IAU 24h WC Taipei - 12h Split", ["IAU 24h WC Taipei (all races combined)", "IAU 24h WC Taipei"])).toBe("12h Split");
     expect(splitLabel("Other name", ["Race"])).toBe("Other name");
+    expect(splitLabel("Centurion Track 100 - 6h Split", ["Centurion Track 100 - 100km Split"])).toBe("6h Split");
   });
 
   it("compares distances for the ladder", () => {

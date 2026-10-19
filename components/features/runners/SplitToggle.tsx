@@ -24,9 +24,10 @@ export function SplitToggle({
       type="button"
       aria-expanded={open}
       onClick={(event) => {
-        const next = !open;
-        setOpen(next);
+        // The row has a second toggle for the other layout; the tbody holds the truth.
         const body = event.currentTarget.closest("tbody");
+        const next = body ? body.dataset.open !== "true" : !open;
+        setOpen(next);
         if (body) body.dataset.open = String(next);
       }}
       className="inline-flex min-h-11 items-center gap-1 text-xs text-link hover:underline md:min-h-6 md:text-[0.8125rem]"

@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatCourseLength, formatPerformanceText } from "@/lib/format";
 import { sameMark, type PbLine } from "./ledger";
 
-const W = 104;
+const W = 84;
 const H = 26;
 const PAD = 3;
 

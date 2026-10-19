@@ -211,13 +211,28 @@ export function buildLedger(
     return current;
   };
 
+  const rootId = new Map(all.map(({ row }) => [row.id, rootOf(row).id]));
+  // Splits whose race is missing from the profile (the runner has no result in
+  // the full race) still belong together: the longest one leads them.
+  const orphans = new Map<string, LedgerRow[]>();
+  for (const { row } of all) {
+    if (rootId.get(row.id) !== row.id || row.partOf === "0") continue;
+    orphans.set(row.partOf, [...(orphans.get(row.partOf) ?? []), row]);
+  }
+  for (const set of Array.from(orphans.values())) {
+    if (set.length < 2) continue;
+    const lead = set.reduce((best, r) => (coveredKm(r) > coveredKm(best) ? r : best), set[0]);
+    const others = new Set(set.filter((r) => r !== lead).map((r) => r.id));
+    for (const [id, root] of Array.from(rootId.entries())) if (others.has(root)) rootId.set(id, lead.id);
+  }
+
   const members = new Map<string, LedgerRow[]>();
   for (const { row } of all) {
-    const root = rootOf(row);
-    if (root.id === row.id) continue;
-    const list = members.get(root.id) ?? [];
+    const root = rootId.get(row.id)!;
+    if (root === row.id) continue;
+    const list = members.get(root) ?? [];
     list.push(row);
-    members.set(root.id, list);
+    members.set(root, list);
   }
 
   const out: LedgerYear[] = [];
@@ -225,7 +240,7 @@ export function buildLedger(
     const groups: LedgerGroup[] = [];
     for (const perf of year.PerfsPerYear ?? []) {
       const row = byId.get(cleanDuv(perf.EvtID));
-      if (!row || rootOf(row).id !== row.id) continue;
+      if (!row || rootId.get(row.id) !== row.id) continue;
       if (groups.some((g) => g.main.id === row.id || g.also.some((a) => a.id === row.id))) continue;
       const children = members.get(row.id) ?? [];
       const parallel = [row, ...children.filter((c) => c.dist === row.dist && sameMark(c.perf, row.perf))];
@@ -399,6 +414,13 @@ export function splitLabel(split: string, parents: string[]): string {
       const rest = s.slice(p.length).replace(/^[\s\-–—:,(]+/, "").replace(/\)$/, "").trim();
       if (rest) return rest;
     }
+  }
+  // Siblings named "<race> - 6h Split" and "<race> - 100km Split": the part after the shared race name.
+  for (const parent of parents) {
+    let n = 0;
+    while (n < s.length && n < parent.length && s[n].toLowerCase() === parent[n].toLowerCase()) n++;
+    const cut = s.slice(0, n).lastIndexOf(" - ");
+    if (cut > 0 && s.slice(cut + 3).trim()) return s.slice(cut + 3).trim();
   }
   return s;
 }

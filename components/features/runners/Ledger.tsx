@@ -14,7 +14,7 @@ export type Courses = Record<string, { length?: string; climb?: string }>;
 // From md the rows are ordinary table rows. Explicit roles keep the table
 // semantics while the display changes.
 const ROW =
-  "grid grid-cols-[auto_minmax(0,1fr)_auto] [grid-template-areas:'res_res_place'_'race_race_race'_'date_dist_dist'] gap-x-2 border-b border-hair py-2 md:table-row md:py-0";
+  "grid grid-cols-[auto_minmax(0,1fr)_auto] [grid-template-areas:'res_res_place'_'race_race_race'_'date_dist_dist'_'tog_tog_tog'] gap-x-2 border-b border-hair py-2 md:table-row md:py-0";
 const CELL = "md:table-cell md:border-b md:border-hair md:py-2 md:pe-3 md:align-baseline";
 
 function Result({ row }: { row: LedgerRow }) {
@@ -64,6 +64,13 @@ function GroupRows({
   const locale = useLocale();
   const { main, also, splits } = group;
   const parents = [main.name, ...also.map((a) => a.name)];
+  const toggle = splits.length > 0 && (
+    <SplitToggle
+      defaultOpen={open}
+      showLabel={t("showSplits", { count: splits.length })}
+      hideLabel={t("hideSplits", { count: splits.length })}
+    />
+  );
 
   return (
     <tbody role="rowgroup" data-open={String(open)} className="group/splits block md:table-row-group">
@@ -99,15 +106,7 @@ function GroupRows({
               })}
             </span>
           )}
-          {splits.length > 0 && (
-            <span className="block">
-              <SplitToggle
-                defaultOpen={open}
-                showLabel={t("showSplits", { count: splits.length })}
-                hideLabel={t("hideSplits", { count: splits.length })}
-              />
-            </span>
-          )}
+          {toggle && <span className="hidden md:block">{toggle}</span>}
         </td>
         <td role="cell" className={cn(CELL, "[grid-area:dist] text-xs text-fg-muted md:text-[0.8125rem]")}>
           <span className="md:hidden">· </span>
@@ -116,6 +115,12 @@ function GroupRows({
         <td role="cell" className={cn(CELL, "[grid-area:date] text-xs text-fg-muted md:pe-0 md:text-right md:text-[0.8125rem] md:whitespace-nowrap")}>
           <DateText value={main.iso || main.date} locale={locale} variant="dayMonth" />
         </td>
+        {/* Phones: the toggle goes under the date line, after the race's own facts. */}
+        {toggle && (
+          <td role="cell" className="[grid-area:tog] md:hidden">
+            {toggle}
+          </td>
+        )}
       </tr>
       {splits.map((split) => (
         <tr
@@ -200,8 +205,8 @@ export function Ledger({
             <table role="table" className="block w-full border-collapse text-sm md:table md:table-fixed md:text-[0.9375rem]">
               <caption className="sr-only">{t("caption", { year: year.year })}</caption>
               <colgroup>
-                <col className="md:w-[7rem]" />
-                <col className="md:w-[7.5rem]" />
+                <col className="md:w-[8.75rem]" />
+                <col className="md:w-[6.75rem]" />
                 <col />
                 <col className="md:w-[6rem]" />
                 <col className="md:w-[4.75rem]" />

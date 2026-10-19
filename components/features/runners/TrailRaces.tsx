@@ -33,11 +33,11 @@ function TrailItem({ item }: { item: TrailResult }) {
           )}
         </p>
       </div>
-      <div className="text-right whitespace-nowrap">
-        <span className="block font-semibold tabular">{formatPerformanceText(item.row.perf, locale)}</span>
-        <span className="text-xs">
+      <div className="flex items-baseline gap-2 text-right whitespace-nowrap">
+        <span className="text-sm">
           <Place row={item.row} compact />
         </span>
+        <span className="font-semibold tabular">{formatPerformanceText(item.row.perf, locale)}</span>
       </div>
     </li>
   );

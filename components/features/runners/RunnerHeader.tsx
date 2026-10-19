@@ -93,9 +93,10 @@ export function RunnerHeader({
         meta={
           meta.length
             ? meta.map((item, i) => (
+                // The dot trails its item, so a wrapped line never starts with one.
                 <span key={i} className="inline-flex items-center gap-x-2">
-                  {i > 0 && <MetaDot />}
                   {item}
+                  {i < meta.length - 1 && <MetaDot />}
                 </span>
               ))
             : undefined
