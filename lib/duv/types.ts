@@ -11,7 +11,8 @@ export type NlsText = Record<string, string>;
 export interface Pagination {
   CurrPage: number;
   MaxPage: number;
-  PageSize: number;
+  /** Live mrankingbackyard.php sends this as a string. */
+  PageSize: number | string;
   NextPageURL: string;
 }
 
@@ -345,6 +346,7 @@ export type PersonPBsForDistance = { PB: string } & Record<
 >;
 
 export interface PersonCompRow {
+  /** Race series ID (the editions' ParentID), not a single EventID. */
   EvtID: number | string;
   EvtName: string;
   EvtCnt: number | string;
