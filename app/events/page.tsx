@@ -93,13 +93,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
     ),
   ]);
 
-  // Other DUV endpoints send a literal "&nbsp;" for empty fields; treat it as empty.
-  const races: CalendarRace[] = (calendar.data?.Races ?? []).map(
-    (race) =>
-      Object.fromEntries(
-        Object.entries(race).map(([k, v]) => [k, v === "&nbsp;" ? "" : v]),
-      ) as unknown as CalendarRace,
-  );
+  const races: CalendarRace[] = [...(calendar.data?.Races ?? [])];
   // The API orders by date; keep it stable within the page whatever it sends.
   races.sort((a, b) =>
     state.order === "asc"
