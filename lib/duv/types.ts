@@ -330,6 +330,7 @@ export type PersonPBsForDistance = { PB: string } & Record<
 >;
 
 export interface PersonCompRow {
+  /** Race series ID (the editions' ParentID), not a single EventID. */
   EvtID: number | string;
   EvtName: string;
   EvtCnt: number | string;
