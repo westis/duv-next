@@ -1,15 +1,5 @@
 import type { EventDetailListEntry } from "@/lib/duv";
 
-/** Live data uses a literal "&nbsp;" for empty fields. */
-const EMPTY_FIELD = /^\s*(?:&(?:amp;)?nbsp;\s*)*$/i;
-
-/** Returns a copy of `record` with "&nbsp;"-only string fields set to "". */
-export function blankEmptyFields<T extends object>(record: T): T {
-  return Object.fromEntries(
-    Object.entries(record).map(([k, v]) => [k, typeof v === "string" && EMPTY_FIELD.test(v) ? "" : v])
-  ) as T;
-}
-
 export interface ParsedWinner {
   rank: string;
   name: string;

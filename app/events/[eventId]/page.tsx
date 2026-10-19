@@ -9,11 +9,7 @@ import {
   EventLinksCard,
   type OldSiteLink,
 } from "@/components/features/events/EventLinksCard";
-import {
-  blankEmptyFields,
-  formatEventDates,
-  resolveDuvLink,
-} from "@/components/features/events/eventDetailUtils";
+import { formatEventDates, resolveDuvLink } from "@/components/features/events/eventDetailUtils";
 
 export const revalidate = 3600;
 
@@ -38,15 +34,7 @@ const loadEvent = cache(async (eventId: string) => {
     if (error instanceof DuvApiError && error.status === 404) return null;
     throw error;
   }
-  if (!data?.raceDetails?.EventID) return null;
-  return {
-    ...data,
-    raceDetails: blankEmptyFields(data.raceDetails),
-    winnerList: data.winnerList?.map(blankEmptyFields) ?? null,
-    raceReports: data.raceReports?.map(blankEmptyFields) ?? null,
-    gpsTracks: data.gpsTracks?.map(blankEmptyFields) ?? null,
-    valuation: data.valuation?.map(blankEmptyFields) ?? null,
-  };
+  return data?.raceDetails?.EventID ? data : null;
 });
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
