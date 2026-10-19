@@ -71,13 +71,13 @@ export const navigationItems = [
       },
       {
         title: "Records",
-        href: "/records",
-        description: "Explore world and national records in ultrarunning",
+        href: "/countries",
+        description: "National records and best performances by age class",
       },
       {
         title: "Country Stats",
-        href: "/countrystats",
-        description: "Analyze ultrarunning statistics by country",
+        href: "/countries?view=abroad",
+        description: "Top rankings of each country's runners abroad",
       },
     ],
   },
