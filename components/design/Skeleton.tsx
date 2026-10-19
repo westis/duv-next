@@ -11,7 +11,7 @@ export interface SkeletonColumn {
 
 /** One grey bar. Pulses gently; still under prefers-reduced-motion. */
 export function Skeleton({ className }: { className?: string }) {
-  return <span aria-hidden className={cn("block rounded-sm bg-surface-muted animate-pulse motion-reduce:animate-none", className)} />;
+  return <span aria-hidden className={cn("block bg-surface-muted animate-pulse motion-reduce:animate-none", className)} />;
 }
 
 const widths = ["w-3/4", "w-1/2", "w-2/3", "w-5/6", "w-2/5"];
@@ -41,7 +41,7 @@ export function TableSkeleton({
     <div
       role="status"
       aria-busy="true"
-      className={cn("overflow-clip rounded-md border border-border bg-surface", className)}
+      className={cn("overflow-clip", className)}
     >
       <span className="sr-only">{t("loading")}</span>
       <table aria-hidden className="w-full border-separate border-spacing-0">
@@ -50,21 +50,21 @@ export function TableSkeleton({
             {cols.map((col, i) => (
               <th
                 key={i}
-                className={cn("h-8 border-b border-border bg-surface-muted px-3", cellVisibility[col.priority ?? 1])}
+                className={cn("h-8 border-b border-fg px-3 first:ps-0", cellVisibility[col.priority ?? 1])}
               >
                 <Skeleton className={cn("h-2.5 w-10", col.align === "end" && "ms-auto")} />
               </th>
             ))}
-            {hasHidden && <th className={cn("w-11 border-b border-border bg-surface-muted", disclosureVisibility[maxPriority])} />}
+            {hasHidden && <th className={cn("w-11 border-b border-fg", disclosureVisibility[maxPriority])} />}
           </tr>
         </thead>
-        <tbody className="[&>tr:last-child>td]:border-b-0">
+        <tbody>
           {Array.from({ length: rows }, (_, r) => (
             <tr key={r}>
               {cols.map((col, i) => (
                 <td
                   key={i}
-                  className={cn("border-b border-border px-3", rowHeight[density], cellVisibility[col.priority ?? 1])}
+                  className={cn("border-b border-hair px-3 first:ps-0", rowHeight[density], cellVisibility[col.priority ?? 1])}
                 >
                   <Skeleton
                     className={cn("h-3", widths[(r + i) % widths.length], col.align === "end" && "ms-auto")}
@@ -72,7 +72,7 @@ export function TableSkeleton({
                   {col.twoLine && <Skeleton className="mt-1.5 h-2.5 w-1/3 md:hidden" />}
                 </td>
               ))}
-              {hasHidden && <td className={cn("w-11 border-b border-border", disclosureVisibility[maxPriority])} />}
+              {hasHidden && <td className={cn("w-11 border-b border-hair", disclosureVisibility[maxPriority])} />}
             </tr>
           ))}
         </tbody>

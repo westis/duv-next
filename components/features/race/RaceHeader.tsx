@@ -2,7 +2,15 @@ import { ExternalLink } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { MetaDot, PageHeader, StatStrip, StatTile, TagList } from "@/components/design";
 import { toExternalUrl, parseWinner } from "@/components/features/events/eventDetailUtils";
-import { DateText, formatCount, formatPerformanceText, formatStartTime, parseDuvDate } from "@/lib/format";
+import {
+  COURSE_SEPARATOR,
+  DateText,
+  formatClimb,
+  formatCount,
+  formatPerformanceText,
+  formatStartTime,
+  parseDuvDate,
+} from "@/lib/format";
 import { raceTags } from "@/lib/tags";
 import type { LoadedRace } from "./loadRace";
 
@@ -22,6 +30,12 @@ export async function RaceHeader({ race }: { race: LoadedRace }) {
   const men = parseWinner(thisEdition?.Winner_M);
   const women = parseWinner(thisEdition?.Winner_W);
   const finishers = (Number(event.FinisherM) || 0) + (Number(event.FinisherW) || 0);
+  const edition = Number.parseInt(event.Edition ?? "", 10);
+  // Trail is first-class: the climb sits with the length ("117 km · 6 500 m+").
+  const climb = formatClimb(event.AltitudeDiff, locale);
+  const tags = raceTags(event, { rankingEligible: true }).map((tag) =>
+    climb && tag.family === "distance" ? { ...tag, text: `${tag.text}${COURSE_SEPARATOR}${climb}` } : tag
+  );
 
   return (
     <PageHeader
@@ -30,12 +44,8 @@ export async function RaceHeader({ race }: { race: LoadedRace }) {
         ...(year ? [{ label: year, href: `/events?from=${year}-01-01&to=${year}-12-31` }] : []),
         { label: event.EventName },
       ]}
-      title={
-        <>
-          {event.Edition && <span className="font-normal text-fg-muted">{event.Edition} </span>}
-          {event.EventName}
-        </>
-      }
+      title={event.EventName}
+      subtitle={edition > 0 ? t("editionOrdinal", { n: edition }) : undefined}
       meta={
         <>
           {start && <DateText value={start.start} end={end?.start} locale={locale} variant="range" />}
@@ -62,7 +72,7 @@ export async function RaceHeader({ race }: { race: LoadedRace }) {
           )}
         </>
       }
-      tags={<TagList tags={raceTags(event, { rankingEligible: true })} />}
+      tags={<TagList tags={tags} />}
       facts={
         (finishers > 0 || men || women || winners.length > 1) && (
           <StatStrip>

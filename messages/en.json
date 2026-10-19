@@ -3,7 +3,9 @@
     "name": "DUV Ultramarathon Statistics",
     "description": "Results, rankings and records of ultramarathons worldwide",
     "skipToContent": "Skip to content",
-    "home": "DUV home"
+    "home": "DUV home",
+    "tagline": "Ultramarathon statistics",
+    "taglineShort": "Ultra statistics"
   },
   "nav": {
     "races": "Races",
@@ -89,6 +91,7 @@
     "breadcrumbRaces": "Races",
     "tabs": {
       "label": "Race sections",
+      "heading": "This race",
       "overview": "Overview",
       "results": "Results",
       "splits": "Splits",
@@ -105,6 +108,7 @@
     "website": "Official website",
     "startTime": "Start {time}",
     "edition": "Edition",
+    "editionOrdinal": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} edition",
     "resultSource": "Result source"
   },
   "states": {

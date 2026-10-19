@@ -8,7 +8,7 @@ type TabKey = keyof Messages["race"]["tabs"];
  * (design spec, "Race page"). Each tab is its own route under
  * /events/[eventId]; a new tab adds its route folder and an entry here.
  */
-const TABS: { key: Exclude<TabKey, "label">; segment: string; show: (race: LoadedRace) => boolean }[] = [
+const TABS: { key: Exclude<TabKey, "label" | "heading">; segment: string; show: (race: LoadedRace) => boolean }[] = [
   { key: "overview", segment: "", show: () => true },
   { key: "results", segment: "results", show: (r) => hasResults(r.raceDetails.Results) },
   { key: "editions", segment: "editions", show: (r) => (r.winnerList?.length ?? 0) > 1 },

@@ -23,7 +23,7 @@ export function ThemeSwitch({ className, showLabels = false }: { className?: str
   const current = mounted ? (theme ?? "system") : undefined;
 
   return (
-    <div role="group" aria-label={t("label")} className={cn("inline-flex rounded-md border border-border p-0.5", className)}>
+    <div role="group" aria-label={t("label")} className={cn("inline-flex border border-border p-0.5", className)}>
       {options.map(({ value, icon: Icon }) => (
         <button
           key={value}
@@ -33,8 +33,8 @@ export function ThemeSwitch({ className, showLabels = false }: { className?: str
           title={t(value)}
           onClick={() => setTheme(value)}
           className={cn(
-            "inline-flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-sm px-2 text-xs text-fg-muted transition-colors hover:text-fg",
-            current === value && "bg-surface-muted text-fg"
+            "inline-flex h-9 min-w-9 items-center justify-center gap-1.5 px-2 text-xs text-fg-muted transition-colors hover:text-fg",
+            current === value && "bg-surface-muted font-semibold text-fg"
           )}
         >
           <Icon className="size-4" strokeWidth={1.75} aria-hidden />

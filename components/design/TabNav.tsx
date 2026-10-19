@@ -13,8 +13,11 @@ export interface TabItem {
 }
 
 /**
- * Underline tabs where every tab is its own route. Sticky under the site
- * header; scrolls sideways on mobile and keeps the active tab in view.
+ * A row of section links where every item is its own route, Almanac look:
+ * plain text, the active one bold with a red underline, a hairline below.
+ * Sticky under the site header; scrolls sideways on phones and keeps the
+ * active item in view. Pages with a few big sections should prefer
+ * `SectionLayout` (a left contents rail on desktop, this kind of row on phones).
  */
 export function TabNav({ items, label, className }: { items: TabItem[]; label: string; className?: string }) {
   const pathname = usePathname();
@@ -31,9 +34,9 @@ export function TabNav({ items, label, className }: { items: TabItem[]; label: s
   return (
     <nav
       aria-label={label}
-      className={cn("sticky top-14 z-30 -mx-4 border-b border-border bg-bg md:-mx-6 lg:-mx-8", className)}
+      className={cn("sticky top-[var(--header-h)] z-30 -mx-4 border-b border-hair bg-bg md:-mx-6 lg:-mx-8", className)}
     >
-      <ul className="flex overflow-x-auto px-4 [scrollbar-width:none] md:px-6 lg:px-8 [mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)] md:[mask-image:none]">
+      <ul className="flex gap-6 overflow-x-auto px-4 [scrollbar-width:none] md:px-6 lg:px-8">
         {items.map((item) => {
           const isActive = item.href === active;
           return (
@@ -43,14 +46,12 @@ export function TabNav({ items, label, className }: { items: TabItem[]; label: s
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "-mb-px flex h-11 items-center gap-1.5 border-b-2 px-3 text-sm font-medium whitespace-nowrap no-underline transition-colors",
-                  isActive
-                    ? "border-brand text-fg"
-                    : "border-transparent text-fg-muted hover:border-border hover:text-fg"
+                  "nav-link flex h-11 items-center gap-1.5 text-sm whitespace-nowrap hover:bg-transparent",
+                  isActive ? "font-semibold shadow-[inset_0_-2px_0_var(--brand)]" : "hover:underline"
                 )}
               >
                 {item.label}
-                {item.count !== undefined && <span className="text-fg-muted tabular">{item.count}</span>}
+                {item.count !== undefined && <span className="font-normal text-fg-muted tabular">{item.count}</span>}
               </Link>
             </li>
           );

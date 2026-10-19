@@ -44,3 +44,10 @@ export {
 } from "./names";
 export { externalUrl, linkHost, splitLinks, type TextSegment } from "./links";
 export { DateText, type DateTextProps } from "./DateText";
+export {
+  parseClimb,
+  formatClimb,
+  formatCourseLength,
+  formatLengthAndClimb,
+  COURSE_SEPARATOR,
+} from "./course";
