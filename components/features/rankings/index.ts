@@ -1,5 +1,2 @@
-export * from "./options";
-export * from "./RankingFilters";
-export * from "./RankingTable";
-export * from "./RankingPagination";
-export * from "./RankingSummary";
+export { RankingPage, rankingMetadata } from "./RankingPage";
+export * from "./params";
