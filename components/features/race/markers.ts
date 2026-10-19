@@ -16,12 +16,10 @@ import type { Finisher } from "./raceModel";
 const MARKER_BUDGET_MS = 20000;
 
 function withBudget<T>(work: Promise<T>): Promise<T | null> {
+  // Let the lookups finish after the response when they run over, so they land in the data cache.
+  after(() => work.then(() => undefined, () => undefined));
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      // Let the lookups finish after the response so they land in the data cache.
-      after(() => work.then(() => undefined, () => undefined));
-      resolve(null);
-    }, MARKER_BUDGET_MS);
+    const timer = setTimeout(() => resolve(null), MARKER_BUDGET_MS);
     work.then(
       (value) => {
         clearTimeout(timer);
