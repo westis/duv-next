@@ -92,10 +92,15 @@ function Also({ row, locale, t }: { row: RankRow; locale: string; t: T }) {
   );
 }
 
-function gapText(row: RankRow, kind: ListKind, locale: string, t: T, withUnit: boolean) {
+function gapText(row: RankRow, locale: string, t: T, withUnit: boolean) {
   if (!row.result || row.gap === null) return "";
   const text = formatGap(row.gap, row.result.kind, locale);
-  if (!text || !withUnit) return text;
+  // Read aloud without the sign: "4 laps behind the leader".
+  return text && withUnit ? spoken(text.replace(/^[+\u2212]/, ""), row, locale, t) : text;
+}
+
+function spoken(text: string, row: RankRow, locale: string, t: T) {
+  if (!row.result || row.gap === null) return text;
   if (row.result.kind === "laps") return `${text} ${t("lapsUnit", { count: row.gap })}`;
   if (row.result.kind === "distance") return `${text} ${formatDistance(row.gap, locale)?.unit ?? ""}`;
   return text;
@@ -161,7 +166,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
         <tbody>
           {rows.map((row) => {
             const e = row.entry;
-            const gap = gapText(row, kind, locale, t, false);
+            const gap = gapText(row, locale, t, false);
             const c = cat(e);
             const iau = (e.IAULabel ?? "").trim().toUpperCase();
             return (
@@ -177,7 +182,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                   {gap && (
                     <span className="ms-2 text-xs text-fg-muted tabular">
                       <span aria-hidden>{gap}</span>
-                      <span className="sr-only">{t("behindLeader", { gap: gapText(row, kind, locale, t, true) })}</span>
+                      <span className="sr-only">{t("behindLeader", { gap: gapText(row, locale, t, true) })}</span>
                     </span>
                   )}
                 </td>
@@ -216,7 +221,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
         {rows.map((row) => {
           const e = row.entry;
           const c = cat(e);
-          const gap = gapText(row, kind, locale, t, false);
+          const gap = gapText(row, locale, t, false);
           return (
             <li key={e.PerfID} className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-baseline gap-x-2 border-b border-hair py-2">
               <span className="text-end text-sm text-fg-muted tabular">
@@ -241,7 +246,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
                 {gap && (
                   <>
                     <span aria-hidden>{gap}</span>
-                    <span className="sr-only">{t("behindLeader", { gap: gapText(row, kind, locale, t, true) })}</span>
+                    <span className="sr-only">{t("behindLeader", { gap: gapText(row, locale, t, true) })}</span>
                   </>
                 )}
               </span>

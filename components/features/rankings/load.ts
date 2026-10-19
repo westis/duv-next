@@ -52,7 +52,11 @@ function apiQuery(state: RankingState, backyard: boolean): Query {
 class ServerFailure extends Error {}
 
 async function fetchList(query: Query, backyard: boolean) {
-  const data = await (backyard ? getBackyardRanking(query) : getIntBestList(query));
+  const data = await (backyard ? getBackyardRanking(query) : getIntBestList(query)).catch((e: unknown) => {
+    // DUV answers 404 for a list with nobody in it (an age group without runners).
+    if (e instanceof DuvApiError && e.status === 404) return null;
+    throw e;
+  });
   // The client drops PHP warnings printed before the JSON; after a fatal error
   // nothing is left but "{}". A real list, even an empty one, has RankingList.
   if (data && !("RankingList" in data)) throw new ServerFailure("DUV returned a PHP error instead of a list");
