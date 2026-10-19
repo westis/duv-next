@@ -234,7 +234,7 @@ function ResultList({
                   id={bandId(i)}
                   scope="rowgroup"
                   colSpan={6}
-                  className="label-caps scroll-mt-[calc(var(--header-h)+4rem)] border-y border-hair bg-surface-muted px-2 py-1.5 text-start text-fg"
+                  className="label-caps scroll-mt-[calc(var(--header-h)+8rem)] border-y sm:scroll-mt-[calc(var(--header-h)+5rem)] border-hair bg-surface-muted px-2 py-1.5 text-start text-fg"
                 >
                   {g.band ? labels.band(g.band) : labels.other}
                   <span className="ms-2 font-normal text-fg-muted tabular">{g.rows.length}</span>
@@ -274,8 +274,8 @@ function ResultRow({
   const r = f.row;
   const name = formatRunnerName({ first: r.FirstName, last: r.LastName }, locale) || r.AthleteName;
   const nat = r.Nationality?.trim();
-  const cat = r.Cat?.trim();
-  const catRank = r.RankCat?.trim();
+  const cat = r.Cat?.trim().replace(/^#NA$/i, "");
+  const catRank = cat ? r.RankCat?.trim() : "";
   const sub = [nat, cat && `${cat} ${catRank ?? ""}`.trim(), gap].filter(Boolean);
   return (
     <tr data-q={`${name} ${nat ?? ""} ${r.Club ?? ""}`.toLocaleLowerCase()} className="border-b border-hair align-baseline">

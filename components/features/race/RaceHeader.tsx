@@ -58,8 +58,10 @@ export async function RaceHeader({ race, lists, kind, nations, parent, parentIsC
     .join(" · ");
   const finishers = lists.W.length + lists.M.length;
   const timeLimit = cleanDuv(event.TimeLimit);
+  // DUV's race type adds to the tags only when it says more than the surface ("road race on a loop < 5km").
+  const raceType = cleanDuv(event.RaceType);
   const facts = [
-    cleanDuv(event.RaceType),
+    !/^(road|trail|track|indoor)( race)?$/i.test(raceType) && raceType,
     timeLimit && t("timeLimit", { time: timeLimit }),
     finishers > 0 &&
       (nations > 1 ? t("finishersFrom", { count: finishers, nations }) : t("finishers", { count: finishers })),
@@ -79,7 +81,7 @@ export async function RaceHeader({ race, lists, kind, nations, parent, parentIsC
   const source = cleanDuv(event.ResultSource);
 
   return (
-    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_26rem] xl:gap-10 xl:border-b xl:border-hair xl:pb-5">
+    <div className="xl:grid xl:grid-cols-[minmax(0,1fr)_28rem] xl:gap-10 xl:border-b xl:border-hair xl:pb-5">
       <PageHeader
         breadcrumb={[
           { label: t("breadcrumbRaces"), href: "/events" },

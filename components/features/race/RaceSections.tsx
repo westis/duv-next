@@ -49,7 +49,7 @@ export async function RaceNations({ teams, kind }: { teams: { W: NationTeam[]; M
       <p className="mb-3 max-w-prose text-sm text-fg-muted">{t("note")}</p>
       <div className="grid gap-8 md:grid-cols-2">
         {cols.map((c) => (
-          <table key={c.label} className="w-full border-collapse text-sm md:text-[0.9375rem]">
+          <table key={c.label} className="w-full table-fixed border-collapse text-sm md:text-[0.9375rem]">
             <caption className="sr-only">{c.label}</caption>
             <thead>
               <tr className="border-b border-border">
@@ -59,7 +59,7 @@ export async function RaceNations({ teams, kind }: { teams: { W: NationTeam[]; M
                 <th scope="col" className={cn(th, "text-start")}>
                   {c.label}
                 </th>
-                <th scope="col" className={cn(th, "pe-0 text-end")}>
+                <th scope="col" className={cn(th, "w-28 pe-0 text-end")}>
                   {kind === "distance" ? `${t("total")} (km)` : t("total")}
                 </th>
               </tr>
