@@ -348,7 +348,13 @@ export interface RunnerProfileResponse {
 }
 
 // msearchevent.php
-export type EventSearchHit = EventDetails;
+export type EventSearchHit = EventDetails & {
+  BinCat?: string;
+  /** Normalised length in km, e.g. "160.934". */
+  NormLen?: string;
+  MethodVersion?: string | null;
+  Year?: string;
+};
 
 export interface EventSearchResponse {
   HitCnt: number;
