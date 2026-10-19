@@ -4,7 +4,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState, Pagination } from "@/components/design";
 import { CalendarLedger } from "@/components/features/calendar/CalendarLedger";
 import { CalendarSentence } from "@/components/features/calendar/CalendarSentence";
-import { RunningNow, type RunningRow } from "@/components/features/calendar/RunningNow";
+import {
+  RunningNow,
+  type RunningRow,
+} from "@/components/features/calendar/RunningNow";
 import {
   type CalendarPage,
   loadCalendarPage,
@@ -34,7 +37,12 @@ export default async function EventsPage({ searchParams }: PageProps) {
   const sp = await searchParams;
   const state = parseCalendarParams(sp);
   // Old ?year= and ?dist=Trail links: move to the same view in today's params.
-  if (sp.year !== undefined || (sp.dist !== undefined && state.surface !== "all" && sp.surface === undefined)) {
+  if (
+    sp.year !== undefined ||
+    (sp.dist !== undefined &&
+      state.surface !== "all" &&
+      sp.surface === undefined)
+  ) {
     redirect(calendarHref(state));
   }
 
@@ -42,7 +50,8 @@ export default async function EventsPage({ searchParams }: PageProps) {
   const locale = await getLocale();
   const today = isoToday();
   // The band shows on the first page of a view that includes today.
-  const includesToday = !state.from || !state.to || (state.from <= today && today <= state.to);
+  const includesToday =
+    !state.from || !state.to || (state.from <= today && today <= state.to);
   const withBand = includesToday && state.page === 1;
 
   const [options, page, running] = await Promise.all([
@@ -52,7 +61,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
       (error: unknown) => {
         console.error("Calendar fetch failed:", error);
         return null;
-      }
+      },
     ),
     withBand ? loadRunningNow(state, today) : Promise.resolve([]),
   ]);
@@ -60,21 +69,32 @@ export default async function EventsPage({ searchParams }: PageProps) {
   // Races under way sit in their own band, not on the day they started.
   const listStart = state.from ?? today;
   const runningIds = new Set(running.map((r) => r.EventID));
-  const races = (page?.races ?? []).filter((r) => !(runningIds.has(r.EventID) && r.Startdate < listStart));
+  const races = (page?.races ?? []).filter(
+    (r) => !(runningIds.has(r.EventID) && r.Startdate < listStart),
+  );
   const climbs = await loadClimbs([...races, ...running]);
   const rows = groupRows(races, locale, climbs);
-  const runningItems: RunningRow[] = groupRows(running, locale, climbs).flatMap((row) => {
-    const s = runningState({ Startdate: row.startdate, Enddate: row.enddate }, today);
-    return s ? [{ row, state: s }] : [];
-  });
+  // One row per race here: each distance of a multi-day event has its own end.
+  const runningItems: RunningRow[] = running
+    .flatMap((race) => groupRows([race], locale, climbs))
+    .flatMap((row) => {
+      const s = runningState(
+        { Startdate: row.startdate, Enddate: row.enddate },
+        today,
+      );
+      return s ? [{ row, state: s }] : [];
+    });
   const showResults = rows.some((row) => row.formats.some((f) => f.hasResults));
 
-  const first = page && page.total > 0 ? (state.page - 1) * state.perpage + 1 : 0;
+  const first =
+    page && page.total > 0 ? (state.page - 1) * state.perpage + 1 : 0;
   const last = page ? Math.min(state.page * state.perpage, page.total) : 0;
 
   return (
     <div className="container pt-5 pb-12 md:pt-7">
-      <h1 className="label-caps mb-2 text-[0.8125rem] text-fg-muted">{t("heading")}</h1>
+      <h1 className="label-caps mb-2 text-[0.8125rem] text-fg-muted">
+        {t("heading")}
+      </h1>
       <CalendarSentence
         state={state}
         today={today}

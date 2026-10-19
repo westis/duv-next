@@ -1,10 +1,26 @@
 import "server-only";
 
 import { getCalendar, getEventResults, getIntBestList } from "@/lib/duv";
-import type { CalendarRace, EventResultRow, RankingEntry } from "@/lib/duv/types";
-import { loadClimbs, loadRunningNow } from "@/components/features/calendar/load";
-import { parseCalendarParams, shiftDays } from "@/components/features/calendar/params";
-import { type CalendarRow, groupRows, isoDay, runningState, type RunningState } from "@/components/features/calendar/races";
+import type {
+  CalendarRace,
+  EventResultRow,
+  RankingEntry,
+} from "@/lib/duv/types";
+import {
+  loadClimbs,
+  loadRunningNow,
+} from "@/components/features/calendar/load";
+import {
+  parseCalendarParams,
+  shiftDays,
+} from "@/components/features/calendar/params";
+import {
+  type CalendarRow,
+  groupRows,
+  isoDay,
+  runningState,
+  type RunningState,
+} from "@/components/features/calendar/races";
 
 function lastDay(race: CalendarRace): string {
   return isoDay(race.Enddate) ?? race.Startdate;
@@ -31,11 +47,16 @@ export interface ResultItem {
   winners: Winner[];
 }
 
-async function winnersOf(race: CalendarRace): Promise<Omit<ResultItem, "race"> | null> {
+async function winnersOf(
+  race: CalendarRace,
+): Promise<Omit<ResultItem, "race"> | null> {
   const [men, women] = await Promise.all(
     (["M", "W"] as const).map((cat) =>
-      getEventResults({ event: race.EventID, cat, perpage: 1, plain: true }, { revalidate: 3600 }).catch(() => null)
-    )
+      getEventResults(
+        { event: race.EventID, cat, perpage: 1, plain: true },
+        { revalidate: 3600 },
+      ).catch(() => null),
+    ),
   );
   const header = men?.EvtHeader ?? women?.EvtHeader;
   const winners: Winner[] = [];
@@ -60,24 +81,37 @@ export interface RecentResults {
   to: string;
 }
 
-export async function loadRecentResults(today: string): Promise<RecentResults | null> {
+export async function loadRecentResults(
+  today: string,
+): Promise<RecentResults | null> {
   const from = shiftDays(today, -RESULT_WINDOW_DAYS);
   try {
     const data = await getCalendar(
       { plain: true, from, to: today, order: "desc", perpage: 400 },
-      { revalidate: 1800 }
+      { revalidate: 1800 },
     );
     const done = (data?.Races ?? [])
       .filter((r) => (r.Results ?? "").trim().toUpperCase() === "C")
-      .sort((a, b) => lastDay(b).localeCompare(lastDay(a)) || b.Startdate.localeCompare(a.Startdate));
+      .sort(
+        (a, b) =>
+          lastDay(b).localeCompare(lastDay(a)) ||
+          b.Startdate.localeCompare(a.Startdate),
+      );
     const head = done.slice(0, WITH_WINNERS);
     const withWinners = (
-      await Promise.all(head.map(async (race) => {
-        const w = await winnersOf(race);
-        return w ? { race, ...w } : null;
-      }))
+      await Promise.all(
+        head.map(async (race) => {
+          const w = await winnersOf(race);
+          return w ? { race, ...w } : null;
+        }),
+      )
     ).filter((x): x is ResultItem => x !== null);
-    return { withWinners, more: done.slice(WITH_WINNERS, WITH_WINNERS + PLAIN_RESULTS), from, to: today };
+    return {
+      withWinners,
+      more: done.slice(WITH_WINNERS, WITH_WINNERS + PLAIN_RESULTS),
+      from,
+      to: today,
+    };
   } catch (error) {
     console.error("Recent results unavailable:", error);
     return null;
@@ -97,11 +131,17 @@ export interface ThisWeek {
   to: string;
 }
 
-export async function loadThisWeek(today: string, locale: string): Promise<ThisWeek | null> {
+export async function loadThisWeek(
+  today: string,
+  locale: string,
+): Promise<ThisWeek | null> {
   const to = shiftDays(today, 6);
   try {
     const [data, running] = await Promise.all([
-      getCalendar({ plain: true, from: today, to, order: "asc", perpage: 400 }, { revalidate: 1800 }),
+      getCalendar(
+        { plain: true, from: today, to, order: "asc", perpage: 400 },
+        { revalidate: 1800 },
+      ),
       loadRunningNow(parseCalendarParams({}), today),
     ]);
     const races = data?.Races ?? [];
@@ -112,9 +152,15 @@ export async function loadThisWeek(today: string, locale: string): Promise<ThisW
         .map((row, i) => ({ row, i }))
         .sort((a, b) => Number(!a.row.iau) - Number(!b.row.iau) || a.i - b.i)
         .slice(0, WEEK_ROWS)
-        .map(({ row }) => row.key)
+        .map(({ row }) => row.key),
     );
-    const pickedRaces = races.filter((r) => all.some((row) => picked.has(row.key) && row.formats.some((f) => f.eventId === r.EventID)));
+    const pickedRaces = races.filter((r) =>
+      all.some(
+        (row) =>
+          picked.has(row.key) &&
+          row.formats.some((f) => f.eventId === r.EventID),
+      ),
+    );
     const climbs = await loadClimbs(pickedRaces);
     const rows = groupRows(pickedRaces, locale, climbs);
     const days: WeekDay[] = [];
@@ -124,11 +170,22 @@ export async function loadThisWeek(today: string, locale: string): Promise<ThisW
       if (last?.date === date) last.rows.push(row);
       else days.push({ date, rows: [row] });
     }
-    const runningRows = groupRows(running, locale).flatMap((row) => {
-      const state = runningState({ Startdate: row.startdate, Enddate: row.enddate }, today);
-      return state ? [{ row, state }] : [];
-    });
-    return { running: runningRows.slice(0, 3), days, total: data?.HitCnt ?? races.length, from: today, to };
+    const runningRows = running
+      .flatMap((race) => groupRows([race], locale))
+      .flatMap((row) => {
+        const state = runningState(
+          { Startdate: row.startdate, Enddate: row.enddate },
+          today,
+        );
+        return state ? [{ row, state }] : [];
+      });
+    return {
+      running: runningRows.slice(0, 3),
+      days,
+      total: data?.HitCnt ?? races.length,
+      from: today,
+      to,
+    };
   } catch (error) {
     console.error("This week unavailable:", error);
     return null;
@@ -154,16 +211,24 @@ export async function loadBestOfYear(year: string): Promise<BestList[]> {
   const lists = await Promise.all(
     BEST_LISTS.map(async ({ dist, gender }) => {
       try {
-        const data = await getIntBestList({ year, dist, gender, perpage: 3, plain: true }, { revalidate: 3600 });
+        const data = await getIntBestList(
+          { year, dist, gender, perpage: 3, plain: true },
+          { revalidate: 3600 },
+        );
         const entries = (data?.RankingList ?? []).slice(0, 3);
         return entries.length ? { dist, gender, entries } : null;
       } catch {
         return null;
       }
-    })
+    }),
   );
   const found = lists.filter((l): l is BestList => l !== null);
   // DUV has answered a women's list with the men's one when it ignored the gender: drop such copies.
-  const key = (l: BestList) => `${l.dist}|${l.entries.map((e) => e.PerfID).join(",")}`;
-  return found.filter((l) => l.gender === "M" || !found.some((m) => m.gender === "M" && key(m) === key(l)));
+  const key = (l: BestList) =>
+    `${l.dist}|${l.entries.map((e) => e.PerfID).join(",")}`;
+  return found.filter(
+    (l) =>
+      l.gender === "M" ||
+      !found.some((m) => m.gender === "M" && key(m) === key(l)),
+  );
 }
