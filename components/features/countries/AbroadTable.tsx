@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale } from "next-intl";
+import { DateText, formatPerformanceText } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -18,6 +20,7 @@ function runnerName(r: TopRankAbroadRow) {
 }
 
 export function AbroadTable({ rows }: { rows: TopRankAbroadRow[] }) {
+  const locale = useLocale();
   return (
     <div className="overflow-x-auto rounded-md border">
       <Table>
@@ -38,7 +41,9 @@ export function AbroadTable({ rows }: { rows: TopRankAbroadRow[] }) {
         <TableBody>
           {rows.map((r) => (
             <TableRow key={`${r.EventID}-${r.PersonID}-${r.RankTotal}`}>
-              <TableCell className="whitespace-nowrap">{r.DateF}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                <DateText value={r.DateF || r.Date} locale={locale} />
+              </TableCell>
               <TableCell>
                 <Link href={`/events/${r.EventID}`} className="hover:underline">
                   {r.EventName}
@@ -73,7 +78,7 @@ export function AbroadTable({ rows }: { rows: TopRankAbroadRow[] }) {
                 )}
               </TableCell>
               <TableCell className="whitespace-nowrap tabular-nums">
-                {r.Performance}
+                {formatPerformanceText(r.Performance, locale)}
               </TableCell>
               <TableCell className="hidden md:table-cell text-right tabular-nums whitespace-nowrap">
                 {r.FinisherM} / {r.FinisherW}

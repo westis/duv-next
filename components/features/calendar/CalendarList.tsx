@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
+import { useLocale } from "next-intl";
 import { LayoutGrid, List, Rows, Table as TableIcon } from "lucide-react";
 import { EventCard } from "@/components/EventCard";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -15,18 +16,18 @@ import {
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { shouldShowSurface } from "@/lib/eventUtils";
 import type { CalendarRace } from "@/lib/duv/types";
+import { formatMonthYear } from "@/lib/format";
 
 type Layout = "table" | "large" | "normal" | "compact";
 const LAYOUTS: Layout[] = ["table", "large", "normal", "compact"];
 const LAYOUT_KEY = "duv.calendar.layout";
 
-function monthLabel(race: CalendarRace) {
-  const date = new Date(Number(race.Year), Number(race.Month) - 1, 1);
-  if (isNaN(date.getTime())) return "";
-  return date.toLocaleString("en", { month: "long", year: "numeric" });
+function monthLabel(race: CalendarRace, locale: string) {
+  return formatMonthYear({ year: Number(race.Year), month: Number(race.Month) }, locale)?.text ?? "";
 }
 
 export function CalendarList({ races }: { races: CalendarRace[] }) {
+  const locale = useLocale();
   const [layout, setLayout] = useState<Layout>("table");
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
@@ -58,8 +59,8 @@ export function CalendarList({ races }: { races: CalendarRace[] }) {
   const withMonths = races.map((race, i) => ({
     race,
     month:
-      i === 0 || monthLabel(races[i - 1]) !== monthLabel(race)
-        ? monthLabel(race)
+      i === 0 || monthLabel(races[i - 1], locale) !== monthLabel(race, locale)
+        ? monthLabel(race, locale)
         : null,
   }));
 

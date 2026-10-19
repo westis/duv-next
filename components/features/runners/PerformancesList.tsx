@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale } from "next-intl";
+import { DateText, formatPerformanceText } from "@/lib/format";
 import { ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,6 +21,7 @@ function distanceBadgeClass(dist: string) {
 }
 
 export function PerformancesList({ years }: { years: PersonYear[] }) {
+  const locale = useLocale();
   return (
     <div className="space-y-4">
       {years.map((year) => (
@@ -35,7 +38,7 @@ export function PerformancesList({ years }: { years: PersonYear[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Date</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Event</TableHead>
                 <TableHead>Distance</TableHead>
                 <TableHead className="text-right">Result</TableHead>
@@ -52,7 +55,9 @@ export function PerformancesList({ years }: { years: PersonYear[] }) {
             <TableBody>
               {year.PerfsPerYear.map((perf, i) => (
                 <TableRow key={`${perf.EvtID}-${i}`}>
-                  <TableCell className="whitespace-nowrap">{perf.EvtDate}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <DateText value={perf.EvtDate} locale={locale} variant="range" />
+                  </TableCell>
                   <TableCell>
                     <Link href={`/events/${perf.EvtID}`} className="hover:underline">
                       {perf.EvtName}
@@ -72,7 +77,7 @@ export function PerformancesList({ years }: { years: PersonYear[] }) {
                       className="hover:underline"
                       title="Full results"
                     >
-                      {perf.Perf}
+                      {formatPerformanceText(perf.Perf, locale)}
                     </Link>
                   </TableCell>
                   <TableCell className="text-right font-semibold">

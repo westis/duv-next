@@ -4,7 +4,9 @@ import { getDuvBaseUrl } from "@/lib/duv";
 import { CourseCard, OrganizerCard } from "@/components/features/events/EventInfoCards";
 import { WinnersTable } from "@/components/features/events/WinnersTable";
 import { EventLinksCard, type OldSiteLink } from "@/components/features/events/EventLinksCard";
-import { formatEventDates, resolveDuvLink } from "@/components/features/events/eventDetailUtils";
+import { getLocale } from "next-intl/server";
+import { resolveDuvLink } from "@/components/features/events/eventDetailUtils";
+import { formatDateRange } from "@/lib/format";
 import { loadRace } from "@/components/features/race/loadRace";
 
 export const revalidate = 3600;
@@ -26,10 +28,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const data = await loadRace(eventId);
     if (!data) return { title: "Event" };
     const event = data.raceDetails;
+    const dates = formatDateRange(event.Startdate, await getLocale(), event.Enddate)?.text;
     const place = [event.City, event.CountryName || event.Country].filter(Boolean).join(", ");
     return {
       title: event.EventName,
-      description: `${event.EventName}, ${formatEventDates(event.Startdate, event.Enddate)}${
+      description: `${event.EventName}${dates ? `, ${dates}` : ""}${
         place ? ` in ${place}` : ""
       }: race information, organizer and winners of all editions.`,
     };

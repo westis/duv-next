@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale } from "next-intl";
+import { DateText, formatPerformanceText } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -21,6 +23,7 @@ function runnerName(entry: RankingEntry) {
 
 /** Shared table for the international and backyard rankings. */
 export function RankingTable({ entries, variant }: RankingTableProps) {
+  const locale = useLocale();
   const isBackyard = variant === "backyard";
   const showLaps = isBackyard && entries.some((e) => e.Laps);
 
@@ -55,10 +58,10 @@ export function RankingTable({ entries, variant }: RankingTableProps) {
                 </TableCell>
               )}
               <TableCell className="text-right tabular-nums whitespace-nowrap font-medium">
-                {entry.Perf}
+                {formatPerformanceText(entry.Perf, locale)}
                 {entry.AgeGradePerf && (
                   <div className="text-xs text-muted-foreground font-normal">
-                    AG {entry.AgeGradePerf}
+                    AG {formatPerformanceText(entry.AgeGradePerf, locale)}
                   </div>
                 )}
               </TableCell>
@@ -76,8 +79,8 @@ export function RankingTable({ entries, variant }: RankingTableProps) {
                 )}
               </TableCell>
               <TableCell>{entry.Nationality}</TableCell>
-              <TableCell className="hidden md:table-cell tabular-nums">
-                {entry.DOB_Display}
+              <TableCell className="hidden md:table-cell tabular-nums whitespace-nowrap">
+                <DateText value={entry.DOB_Display} locale={locale} variant="birth" />
               </TableCell>
               <TableCell className="hidden sm:table-cell">
                 {entry.CatInt}
@@ -86,7 +89,7 @@ export function RankingTable({ entries, variant }: RankingTableProps) {
                 {entry.CatRank}
               </TableCell>
               <TableCell className="hidden lg:table-cell tabular-nums whitespace-nowrap">
-                {entry.EvtdateShort}
+                <DateText value={entry.EvtdateShortIso || entry.EvtdateShort} locale={locale} />
               </TableCell>
               <TableCell className="hidden lg:table-cell">
                 <Link

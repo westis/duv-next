@@ -1,4 +1,7 @@
+"use client";
+
 import * as React from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import {
   addMonths,
@@ -11,6 +14,7 @@ import {
 } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import { formatDateRange } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -39,6 +43,8 @@ export function DateRangePicker({
   initialDateFrom?: Date;
   initialDateTo?: Date;
 }) {
+  const t = useTranslations("dateRange");
+  const locale = useLocale();
   const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
     from: initialDateFrom,
     to: initialDateTo,
@@ -73,6 +79,14 @@ export function DateRangePicker({
   const handleUpdate = () => {
     setDateRange(tempDateRange);
     onUpdate(tempDateRange);
+    setIsOpen(false);
+  };
+
+  // Back to the default view: every race from today on.
+  const handleUpcoming = () => {
+    setDateRange(undefined);
+    setTempDateRange(undefined);
+    onUpdate(undefined);
     setIsOpen(false);
   };
 
@@ -125,23 +139,19 @@ export function DateRangePicker({
           <Button
             id="date"
             variant={"outline"}
-            className={cn(
-              "w-[300px] justify-start text-left font-medium",
-              !dateRange && "text-muted-foreground"
-            )}
+            className="w-[300px] max-w-full justify-start text-left font-medium"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {dateRange?.from ? (
-              dateRange.to ? (
-                <>
-                  {format(dateRange.from, "LLL dd, y")} -{" "}
-                  {format(dateRange.to, "LLL dd, y")}
-                </>
-              ) : (
-                format(dateRange.from, "LLL dd, y")
-              )
+              <span className="tabular-nums">
+                {formatDateRange(
+                  format(dateRange.from, "yyyy-MM-dd"),
+                  locale,
+                  dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : undefined
+                )?.text}
+              </span>
             ) : (
-              <span>Pick a date</span>
+              <span>{t("fromToday")}</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -157,9 +167,10 @@ export function DateRangePicker({
                       : ""
                   }
                   onChange={(e) => handleInputChange("from", e.target.value)}
+                  aria-label={t("from")}
                   className="w-[130px] date-input-no-icon"
                 />
-                <span className="mx-2">to</span>
+                <span className="mx-2">{t("to")}</span>
                 <Input
                   type="date"
                   value={
@@ -168,6 +179,7 @@ export function DateRangePicker({
                       : ""
                   }
                   onChange={(e) => handleInputChange("to", e.target.value)}
+                  aria-label={t("until")}
                   className="w-[130px] date-input-no-icon"
                 />
               </div>
@@ -191,9 +203,12 @@ export function DateRangePicker({
               />
             </div>
             <div className="p-3 border-l sm:border-t-0 border-t flex flex-col gap-2">
+              <Button variant="outline" className="w-full" onClick={handleUpcoming}>
+                {t("upcoming")}
+              </Button>
               <Select onValueChange={handleQuickSelect}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Year" />
+                <SelectTrigger aria-label={t("selectYear")}>
+                  <SelectValue placeholder={t("selectYear")} />
                 </SelectTrigger>
                 <SelectContent>
                   {years.map((year) => (
@@ -209,37 +224,37 @@ export function DateRangePicker({
                   className="w-full"
                   onClick={() => handleQuickSelect("lastYear")}
                 >
-                  Last Year
+                  {t("lastYear")}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => handleQuickSelect("nextYear")}
                 >
-                  Next Year
+                  {t("nextYear")}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => handleQuickSelect("lastMonth")}
                 >
-                  Last Month
+                  {t("lastMonth")}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => handleQuickSelect("nextMonth")}
                 >
-                  Next Month
+                  {t("nextMonth")}
                 </Button>
               </div>
             </div>
           </div>
           <div className="flex items-center justify-end p-3 border-t sticky bottom-0 bg-background">
             <Button variant="outline" onClick={handleCancel} className="mr-2">
-              Cancel
+              {t("cancel")}
             </Button>
-            <Button onClick={handleUpdate}>Update</Button>
+            <Button onClick={handleUpdate}>{t("apply")}</Button>
           </div>
         </PopoverContent>
       </Popover>

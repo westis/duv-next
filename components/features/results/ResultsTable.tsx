@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale } from "next-intl";
+import { formatPerformanceText } from "@/lib/format";
 import type { EventResultRow, NlsText } from "@/lib/duv/types";
 import {
   Table,
@@ -21,6 +23,7 @@ function hasValue(value?: string) {
 
 export function ResultsTable({ rows, nls = {}, speedLabel }: ResultsTableProps) {
   const t = (key: string, fallback: string) => nls[key] || fallback;
+  const locale = useLocale();
 
   return (
     <div className="overflow-x-auto rounded-md border">
@@ -53,7 +56,7 @@ export function ResultsTable({ rows, nls = {}, speedLabel }: ResultsTableProps) 
             <TableRow key={`${row.PersonID}-${row.RankTotal}-${i}`}>
               <TableCell className="text-right tabular-nums">{row.RankTotal}</TableCell>
               <TableCell className="whitespace-nowrap font-medium tabular-nums">
-                {row.Performance}
+                {formatPerformanceText(row.Performance, locale)}
               </TableCell>
               <TableCell>
                 {hasValue(row.PersonID) ? (
@@ -95,7 +98,7 @@ export function ResultsTable({ rows, nls = {}, speedLabel }: ResultsTableProps) 
                 {row.Speed}
               </TableCell>
               <TableCell className="hidden xl:table-cell whitespace-nowrap tabular-nums">
-                {row.AgeGradePerf}
+                {formatPerformanceText(row.AgeGradePerf, locale)}
               </TableCell>
             </TableRow>
           ))}

@@ -12,7 +12,7 @@ export interface FormattedDate {
   dateTime: string;
 }
 
-export type DateVariant = "day" | "range" | "month" | "year" | "dayMonth";
+export type DateVariant = "day" | "range" | "month" | "year" | "dayMonth" | "birth";
 
 const EN_DASH = "–";
 
@@ -45,13 +45,13 @@ function fromIso(iso: string): Ymd {
 
 const ISO_DAY = /^(\d{4})-(\d{2})-(\d{2})(?:[ T].*)?$/;
 const ISO_RANGE = /^(\d{4})-(\d{2})-(\d{2})-(\d{4})-(\d{2})-(\d{2})$/;
-const DUV_DAY = /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
+const DUV_DAY = /^(\d{1,2})\.(\d{1,2})\.(\d{4})(?: \d{1,2}:\d{2}(?::\d{2})?)?$/;
 const DUV_SAME_MONTH = /^(\d{1,2})\.?-(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
 const DUV_SAME_YEAR = /^(\d{1,2})\.(\d{1,2})\.?-(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
 const DUV_TWO_YEARS = /^(\d{1,2})\.(\d{1,2})\.(\d{4})-(\d{1,2})\.(\d{1,2})\.(\d{4})$/;
 
 /**
- * Parses DUV dates ("30.09.1981", "06.-07.04.2024", "30.09.-02.10.2024",
+ * Parses DUV dates ("30.09.1981", "09.04.2024 14:30", "06.-07.04.2024", "30.09.-02.10.2024",
  * "31.12.2024-01.01.2025") and ISO dates ("2024-04-06", "2024-04-06 12:00:00").
  * Returns null for anything else, including impossible dates and ranges that
  * end before they start.
@@ -308,6 +308,20 @@ export function formatStartTime(
   return `${pad2(h)}:${m[2]}`;
 }
 
+/**
+ * Date of birth: the full date when DUV knows it ("30 SEP 1981"), only the year
+ * when that is all it knows ("00.00.1981", "1981-00-00", "1981"), and null when
+ * it knows nothing ("00.00.0000", "0000-00-00", "0", "").
+ */
+export function formatBirthDate(value: string | number | null | undefined, locale: string): FormattedDate | null {
+  const s = cleanDuv(value);
+  if (!s) return null;
+  const full = formatDate(s, locale);
+  if (full) return full;
+  const year = s.match(/(?:^|\D)(\d{4})(?:\D|$)/)?.[1];
+  return year && Number(year) > 0 ? { text: year, dateTime: year } : null;
+}
+
 /** One entry point for `DateText` and other callers that pick a variant at runtime. */
 export function formatDateVariant(
   variant: DateVariant,
@@ -326,5 +340,7 @@ export function formatDateVariant(
       return formatYear(value, locale);
     case "dayMonth":
       return formatDayMonth(value, locale);
+    case "birth":
+      return formatBirthDate(value, locale);
   }
 }

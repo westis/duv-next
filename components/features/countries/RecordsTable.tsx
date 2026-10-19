@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useLocale } from "next-intl";
+import { DateText, formatBirthDate, formatPerformanceText } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -34,22 +36,21 @@ function runnerName(r: BestPerfRecord) {
   return [text(r.LastName), text(r.FirstName)].filter(Boolean).join(", ");
 }
 
-/** DUV hides the full birth date when Privacy is set. */
-function birth(r: BestPerfRecord) {
+/** DUV hides the full birth date when Privacy is set; "00.00.0000" is unknown. */
+function birth(r: BestPerfRecord, locale: string) {
   const privacy = text(r.Privacy);
   if (privacy && privacy !== "0") return text(r.YOB);
-  return text(r.DOB) || text(r.YOB);
+  return formatBirthDate(r.DOB, locale) ? text(r.DOB) : text(r.YOB);
 }
 
 interface RecordsTableProps {
   title: string;
   /** Entries keyed by age class, already filtered to one gender. */
   records: [string, BestPerfRecord][];
-  /** Appended to bare performances, e.g. "km" for timed races. */
-  unit?: string;
 }
 
-export function RecordsTable({ title, records, unit }: RecordsTableProps) {
+export function RecordsTable({ title, records }: RecordsTableProps) {
+  const locale = useLocale();
   return (
     <section className="space-y-3">
       <h2 className="text-xl font-semibold">{title}</h2>
@@ -79,7 +80,8 @@ export function RecordsTable({ title, records, unit }: RecordsTableProps) {
                       {categoryLabel(cat)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap tabular-nums">
-                      {unit ? `${r.Perf} ${unit}` : r.Perf}
+                      {/* Timed races send a bare distance; this adds "km". */}
+                      {formatPerformanceText(r.Perf, locale)}
                       {split && (
                         <Badge
                           variant="outline"
@@ -104,13 +106,13 @@ export function RecordsTable({ title, records, unit }: RecordsTableProps) {
                       )}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell whitespace-nowrap">
-                      {birth(r)}
+                      <DateText value={birth(r, locale)} locale={locale} variant="birth" />
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {text(r.Club)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      {r.Startdate}
+                      <DateText value={r.Startdate} end={r.Enddate} locale={locale} variant="range" />
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Link

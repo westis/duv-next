@@ -91,8 +91,6 @@ export default async function CountryRecordsPage({
   const women = entries.filter(([key]) => key.startsWith("W"));
   const men = entries.filter(([key]) => key.startsWith("M"));
   const distLabel = DISTANCES.find((d) => d.value === dist)?.label ?? dist;
-  // Timed races report the distance run, as a bare number.
-  const unit = /[hd]$/.test(dist) ? "km" : undefined;
   // TitleW/TitleM can name the wrong distance (seen: "100 km" for 24h), and the
   // disclaimer contains HTML.
   const disclaimer = text(data?.Disclaimer?.replace(/<[^>]*>/g, ""));
@@ -133,9 +131,8 @@ export default async function CountryRecordsPage({
           <RecordsTable
             title={`${distLabel} women`}
             records={women}
-            unit={unit}
           />
-          <RecordsTable title={`${distLabel} men`} records={men} unit={unit} />
+          <RecordsTable title={`${distLabel} men`} records={men} />
         </div>
       )}
 

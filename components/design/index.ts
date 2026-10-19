@@ -8,3 +8,4 @@ export { EmptyState } from "./EmptyState";
 export * from "./table";
 export { FilterBar, type FilterBarProps, type FilterDef, type FilterOption } from "./FilterBar";
 export { Skeleton, TableSkeleton, type SkeletonColumn } from "./Skeleton";
+export { LinkText, OutLink } from "./LinkText";

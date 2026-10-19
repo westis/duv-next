@@ -104,7 +104,8 @@
     },
     "website": "Official website",
     "startTime": "Start {time}",
-    "edition": "Edition"
+    "edition": "Edition",
+    "resultSource": "Result source"
   },
   "states": {
     "loading": "Loading",
@@ -150,5 +151,27 @@
     "clear": "Clear",
     "active": "Active filters",
     "remove": "Remove filter {label}: {value}"
+  },
+  "calendar": {
+    "metaTitle": "Race calendar",
+    "title": {
+      "upcoming": "Upcoming races",
+      "range": "Races {range}"
+    },
+    "metaDescription": "Upcoming and past ultramarathon races worldwide."
+  },
+  "dateRange": {
+    "fromToday": "From today",
+    "to": "to",
+    "from": "From",
+    "until": "To",
+    "cancel": "Cancel",
+    "apply": "Update",
+    "selectYear": "Select year",
+    "upcoming": "From today on",
+    "lastYear": "Last 12 months",
+    "nextYear": "Next 12 months",
+    "lastMonth": "Last month",
+    "nextMonth": "Next month"
   }
 }

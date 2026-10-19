@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { format, parseISO } from "date-fns";
+import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getCalendar, type CalendarParams } from "@/lib/duv";
 import type { CalendarRace, CalendarResponse } from "@/lib/duv/types";
 import {
@@ -11,16 +12,17 @@ import { CalendarPagination } from "@/components/features/calendar/CalendarPagin
 import {
   type CalendarFilterState,
   type CalendarSearchParams,
+  calendarHref,
   groupDistances,
   parseCalendarParams,
-  yearLabel,
   zipOptions,
 } from "@/components/features/calendar/params";
+import { formatDateRange } from "@/lib/format";
 
-export const metadata: Metadata = {
-  title: "Race calendar",
-  description: "Upcoming and past ultramarathon races worldwide.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("calendar");
+  return { title: t("metaTitle"), description: t("metaDescription") };
+}
 
 interface PageProps {
   searchParams: Promise<CalendarSearchParams>;
@@ -32,9 +34,10 @@ function toApiParams(state: CalendarFilterState): CalendarParams {
     page: state.page,
     perpage: state.perpage,
     order: state.order,
+    // No range: DUV's own "from today onward".
     ...(state.from && state.to
       ? { from: state.from, to: state.to }
-      : { year: state.year }),
+      : { year: "futur" }),
     dist: state.dist,
     country: state.country === "all" ? undefined : state.country,
     cups: state.cups,
@@ -53,10 +56,7 @@ async function getFilterOptions(): Promise<CalendarFilterOptions> {
   } catch (error) {
     console.error("Calendar filter lists unavailable:", error);
   }
-  const years = (data?.FltYearlist ?? ["futur", "past1"]).map(String);
-  if (!years.includes("all")) years.push("all");
   return {
-    years,
     distances: groupDistances(
       data?.FltDistValue ?? [],
       data?.FltDistLabel ?? [],
@@ -69,18 +69,18 @@ async function getFilterOptions(): Promise<CalendarFilterOptions> {
   };
 }
 
-function pageTitle(state: CalendarFilterState) {
-  if (state.from && state.to) {
-    const f = (d: string) => format(parseISO(d), "d MMM yyyy");
-    return `Races ${f(state.from)} – ${f(state.to)}`;
-  }
-  if (state.year === "futur") return "Upcoming races";
-  if (state.year === "past1") return "Races in the past 12 months";
-  return `Race calendar: ${yearLabel(state.year)}`;
+async function pageTitle(state: CalendarFilterState) {
+  const t = await getTranslations("calendar");
+  const locale = await getLocale();
+  const range = state.from && state.to ? formatDateRange(state.from, locale, state.to) : null;
+  return range ? t("title.range", { range: range.text }) : t("title.upcoming");
 }
 
 export default async function EventsPage({ searchParams }: PageProps) {
-  const state = parseCalendarParams(await searchParams);
+  const sp = await searchParams;
+  const state = parseCalendarParams(sp);
+  // Old ?year= links (the year selector is gone): move to the same dates as a range.
+  if (sp.year !== undefined) redirect(calendarHref(state));
 
   const [options, calendar] = await Promise.all([
     getFilterOptions(),
@@ -105,7 +105,7 @@ export default async function EventsPage({ searchParams }: PageProps) {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">{pageTitle(state)}</h1>
+      <h1 className="text-3xl font-bold mb-6">{await pageTitle(state)}</h1>
       <CalendarFilters state={state} options={options} />
 
       {calendar.error ? (

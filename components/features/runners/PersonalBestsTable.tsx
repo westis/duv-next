@@ -1,3 +1,5 @@
+import { useLocale } from "next-intl";
+import { formatPerformanceText } from "@/lib/format";
 import {
   Table,
   TableBody,
@@ -20,6 +22,7 @@ export function PersonalBestsTable({
   personalBests: Record<string, PersonPBsForDistance>[];
   note?: string;
 }) {
+  const locale = useLocale();
   const distances = personalBests.flatMap((entry) =>
     Object.entries(entry).map(([dist, data]) => ({ dist, data }))
   );
@@ -55,7 +58,7 @@ export function PersonalBestsTable({
             <TableCell className="sticky left-0 bg-background">PB</TableCell>
             {distances.map(({ dist, data }) => (
               <TableCell key={dist} className="text-right whitespace-nowrap">
-                {clean(data.PB) || "–"}
+                {formatPerformanceText(data.PB, locale) || "–"}
               </TableCell>
             ))}
           </TableRow>
@@ -78,7 +81,7 @@ export function PersonalBestsTable({
                 return (
                   <TableCell key={dist} className="text-right whitespace-nowrap">
                     <span className={isPb ? "font-bold text-yellow-600 dark:text-yellow-500" : ""}>
-                      {best.Perf}
+                      {formatPerformanceText(best.Perf, locale)}
                     </span>
                     {rank && (
                       <span className="block text-xs text-muted-foreground">

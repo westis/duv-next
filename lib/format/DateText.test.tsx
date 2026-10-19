@@ -29,4 +29,11 @@ describe("DateText", () => {
     );
     expect(renderToStaticMarkup(<DateText value="&nbsp;" locale="en" />)).toBe("");
   });
+
+  it("renders nothing for an unknown birth date and the year for a partial one", () => {
+    expect(renderToStaticMarkup(<DateText value="00.00.0000" locale="en" variant="birth" />)).toBe("");
+    expect(renderToStaticMarkup(<DateText value="00.00.1981" locale="en" variant="birth" />)).toBe(
+      '<time dateTime="1981" class="tabular-nums">1981</time>'
+    );
+  });
 });

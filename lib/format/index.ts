@@ -9,6 +9,7 @@ export {
   formatDayMonth,
   formatStartTime,
   formatDateVariant,
+  formatBirthDate,
   type DuvDate,
   type FormattedDate,
   type DateVariant,
@@ -25,6 +26,7 @@ export {
   formatPace,
   parsePerformance,
   formatPerformance,
+  formatPerformanceText,
   type DistanceUnit,
   type NumberOptions,
   type UnitOptions,
@@ -40,4 +42,5 @@ export {
   compareRunnerNames,
   type RunnerName,
 } from "./names";
+export { externalUrl, linkHost, splitLinks, type TextSegment } from "./links";
 export { DateText, type DateTextProps } from "./DateText";

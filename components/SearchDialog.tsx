@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
+import { formatDate } from "@/lib/format";
 import { searchHref } from "@/components/features/search/params";
 
 type SearchResult = {
@@ -48,6 +50,7 @@ export function SearchDialog({
   totalHits,
 }: SearchDialogProps) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const locale = useLocale();
   const router = useRouter();
 
   const runners = searchResults.filter((result) => result.type === "runner");
@@ -207,7 +210,7 @@ export function SearchDialog({
                               </div>
                               <div className="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
                                 <Calendar className="w-3 h-3 mr-1" />
-                                <span>{date}</span>
+                                <span className="tabular-nums">{formatDate(date, locale)?.text ?? date}</span>
                                 <span className="mx-2">•</span>
                                 <span>{location}</span>
                               </div>

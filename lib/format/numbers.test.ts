@@ -9,6 +9,7 @@ import {
   formatSpeed,
   parseDuration,
   parsePerformance,
+  formatPerformanceText,
 } from "./numbers";
 
 describe("formatDistance", () => {
@@ -107,5 +108,26 @@ describe("performances", () => {
     expect(formatPerformance("187.207", "en", { unit: "mi" })?.unit).toBe("mi");
     expect(formatPerformance("38 laps", "en")).toEqual({ kind: "laps", value: 38, text: "38", unit: "" });
     expect(formatPerformance("DNF", "en")).toBeNull();
+  });
+});
+
+describe("formatPerformanceText", () => {
+  it("drops the trailing h and a leading zero hour", () => {
+    expect(formatPerformanceText("6:10:55 h", "en")).toBe("6:10:55");
+    expect(formatPerformanceText("08:57:49", "en")).toBe("8:57:49");
+    expect(formatPerformanceText("03:37:16 h", "en")).toBe("3:37:16");
+    expect(formatPerformanceText("165:13:22 h", "en")).toBe("165:13:22");
+  });
+
+  it("keeps km on distances", () => {
+    expect(formatPerformanceText("187.207", "en")).toBe("187.207 km");
+    expect(formatPerformanceText("117.865 km", "en")).toBe("117.865 km");
+  });
+
+  it("returns laps and unreadable values as sent, minus a trailing h", () => {
+    expect(formatPerformanceText("38 laps", "en")).toBe("38 laps");
+    expect(formatPerformanceText("DNF", "en")).toBe("DNF");
+    expect(formatPerformanceText("ca. 7:52 h", "en")).toBe("ca. 7:52");
+    expect(formatPerformanceText(null, "en")).toBe("");
   });
 });

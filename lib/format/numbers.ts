@@ -189,3 +189,18 @@ export function formatPerformance(
   const distance = formatDistance(parsed.value, locale, options);
   return distance ? { ...parsed, text: distance.text, unit: distance.unit } : null;
 }
+
+/**
+ * Display text for any DUV performance cell: "6:10:55 h" and "08:57:49" give
+ * "6:10:55" and "8:57:49", "187.207" gives "187.207 km". Laps and values it
+ * cannot read come back as sent, minus a trailing " h". Never null.
+ */
+export function formatPerformanceText(
+  value: string | number | null | undefined,
+  locale: string,
+  options: UnitOptions = {}
+): string {
+  const formatted = formatPerformance(value, locale, options);
+  if (formatted && formatted.kind !== "laps") return formatted.text;
+  return cleanDuv(value).replace(/(\d)\s*h$/i, "$1");
+}

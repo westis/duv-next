@@ -2,7 +2,7 @@ import { ExternalLink } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { MetaDot, PageHeader, StatStrip, StatTile, TagList } from "@/components/design";
 import { toExternalUrl, parseWinner } from "@/components/features/events/eventDetailUtils";
-import { DateText, formatCount, formatPerformance, formatStartTime, parseDuvDate } from "@/lib/format";
+import { DateText, formatCount, formatPerformanceText, formatStartTime, parseDuvDate } from "@/lib/format";
 import { raceTags } from "@/lib/tags";
 import type { LoadedRace } from "./loadRace";
 
@@ -27,7 +27,7 @@ export async function RaceHeader({ race }: { race: LoadedRace }) {
     <PageHeader
       breadcrumb={[
         { label: t("breadcrumbRaces"), href: "/events" },
-        ...(year ? [{ label: year, href: `/events?year=${year}` }] : []),
+        ...(year ? [{ label: year, href: `/events?from=${year}-01-01&to=${year}-12-31` }] : []),
         { label: event.EventName },
       ]}
       title={
@@ -67,8 +67,8 @@ export async function RaceHeader({ race }: { race: LoadedRace }) {
         (finishers > 0 || men || women || winners.length > 1) && (
           <StatStrip>
             {finishers > 0 && <StatTile label={t("facts.finishers")} value={formatCount(finishers, locale)} />}
-            {men?.performance && <StatTile label={t("facts.menWinner")} value={formatPerformance(men.performance, locale)?.text ?? men.performance} />}
-            {women?.performance && <StatTile label={t("facts.womenWinner")} value={formatPerformance(women.performance, locale)?.text ?? women.performance} />}
+            {men?.performance && <StatTile label={t("facts.menWinner")} value={formatPerformanceText(men.performance, locale)} />}
+            {women?.performance && <StatTile label={t("facts.womenWinner")} value={formatPerformanceText(women.performance, locale)} />}
             {winners.length > 1 && <StatTile label={t("facts.editions")} value={formatCount(winners.length, locale)} />}
           </StatStrip>
         )
