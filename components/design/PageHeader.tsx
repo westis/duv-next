@@ -4,6 +4,8 @@ import { Breadcrumb, type Crumb } from "./Breadcrumb";
 
 export interface PageHeaderProps {
   breadcrumb?: Crumb[];
+  /** A line above the title that changes how the page reads, e.g. "This is a split of …". */
+  notice?: ReactNode;
   /** Red small capitals above the title, e.g. "IAU 24 h World Championships". Use sparingly. */
   kicker?: ReactNode;
   title: ReactNode;
@@ -25,10 +27,11 @@ export interface PageHeaderProps {
  * small-caps breadcrumb, serif title, meta line, tags, and the key facts
  * between an ink rule and a hairline. Left-aligned, no band, no card.
  */
-export function PageHeader({ breadcrumb, kicker, title, subtitle, titleAside, meta, tags, facts, className }: PageHeaderProps) {
+export function PageHeader({ breadcrumb, notice, kicker, title, subtitle, titleAside, meta, tags, facts, className }: PageHeaderProps) {
   return (
     <header className={cn("pt-5 pb-2 md:pt-7", className)}>
       {breadcrumb && <Breadcrumb items={breadcrumb} />}
+      {notice && <div className="mt-3">{notice}</div>}
       {kicker && <p className="label-caps mt-3 text-brand-ink">{kicker}</p>}
       <div className={cn("flex flex-wrap items-baseline gap-x-4 gap-y-1", kicker ? "mt-1" : "mt-2.5")}>
         <h1 className="font-serif text-[1.875rem] leading-[1.08] font-semibold tracking-[-0.015em] text-balance md:text-[2.375rem] lg:text-[2.75rem]">
