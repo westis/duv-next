@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { EventResultRow } from "@/lib/duv";
 import {
-  bandIndex,
+  ageGroupOf,
+  ageGroupOptions,
   gapToWinner,
   genderOf,
-  groupIntoBands,
-  makeBands,
-  nationTeams,
+  nationOptions,
   parseWinnerField,
   raceFamily,
   readFinisher,
@@ -88,50 +87,38 @@ describe("lists", () => {
   });
 });
 
-describe("makeBands", () => {
-  it("makes hour bands for times, open at the bottom", () => {
-    const bands = makeBands([5.5 * 3600, 6.5 * 3600, 11.9 * 3600], "time");
-    expect(bands).toHaveLength(7);
-    expect(bands[0]).toEqual({ from: null, to: 6 * 3600 });
-    expect(bands[6]).toEqual({ from: 11 * 3600, to: 12 * 3600 });
+describe("result filters", () => {
+  it("puts women's and men's categories in one age group", () => {
+    expect(ageGroupOf("W50")).toBe("50");
+    expect(ageGroupOf("M50")).toBe("50");
+    expect(ageGroupOf("WU23")).toBe("23");
+    expect(ageGroupOf("M23")).toBe("23");
+    expect(ageGroupOf("W")).toBe("open");
+    expect(ageGroupOf("")).toBe("");
   });
 
-  it("makes km bands for distances, best first and open at both ends", () => {
-    const bands = makeBands([294.3, 198.4, 61.2], "distance");
-    expect(bands[0]).toEqual({ from: 250, to: null });
-    expect(bands[bands.length - 1]).toEqual({ from: null, to: 100 });
-    expect(bandIndex(294.3, bands)).toBe(0);
-    expect(bandIndex(61.2, bands)).toBe(bands.length - 1);
-  });
-
-  it("groups rows and keeps unreadable ones last", () => {
-    const fs = [row({ Performance: "6:09:25 h" }), row({ Performance: "DNF" }), row({ Performance: "8:01:00 h" })].map(
-      readFinisher
-    );
-    const groups = groupIntoBands(fs, makeBands([6 * 3600, 8 * 3600], "time"));
-    expect(groups.map((g) => g.rows.length)).toEqual([1, 1, 1]);
-    expect(groups[2].band).toBeNull();
-  });
-
-  it("has no bands for laps", () => {
-    expect(makeBands([38, 20], "laps")).toEqual([]);
-  });
-});
-
-describe("nationTeams", () => {
-  it("sums the best three of nations with three finishers", () => {
+  it("lists age groups youngest first, women's category first", () => {
     const fs = [
-      row({ Nationality: "GBR", Performance: "278.622" }),
-      row({ Nationality: "GBR", Performance: "257.129" }),
-      row({ Nationality: "GBR", Performance: "232.889" }),
-      row({ Nationality: "GBR", Performance: "100.000" }),
-      row({ Nationality: "AUS", Performance: "274.172" }),
-      row({ Nationality: "AUS", Performance: "237.442" }),
+      row({ Cat: "M50", Gender: "M" }),
+      row({ Cat: "W50", Gender: "F" }),
+      row({ Cat: "M", Gender: "M" }),
+      row({ Cat: "WU23", Gender: "F" }),
+      row({ Cat: "M23", Gender: "M" }),
+      row({ Cat: "#NA", Gender: "M" }),
     ].map(readFinisher);
-    const teams = nationTeams(fs, "distance");
-    expect(teams).toHaveLength(1);
-    expect(teams[0].nat).toBe("GBR");
-    expect(teams[0].total).toBeCloseTo(768.64, 3);
+    expect(ageGroupOptions(fs)).toEqual([
+      { value: "23", label: "WU23 / M23" },
+      { value: "open", label: "M" },
+      { value: "50", label: "W50 / M50" },
+    ]);
+  });
+
+  it("counts nations", () => {
+    const fs = [row({ Nationality: "SWE" }), row({ Nationality: "GER" }), row({ Nationality: "SWE" })].map(readFinisher);
+    expect(nationOptions(fs)).toEqual([
+      { value: "GER", count: 1 },
+      { value: "SWE", count: 2 },
+    ]);
   });
 });
 
@@ -173,18 +160,12 @@ describe("raceFamily", () => {
 });
 
 describe("raceText", async () => {
-  const { gapText, bandShortText, edgeText, totalText } = await import("./raceText");
+  const { gapText } = await import("./raceText");
   it("writes gaps", () => {
     expect(gapText(196, "time", "en")).toBe("+3:16");
     expect(gapText(3723, "time", "en")).toBe("+1:02:03");
     expect(gapText(4.45, "distance", "en")).toBe("−4.450");
     expect(gapText(null, "time", "en")).toBe("");
   });
-  it("writes band edges and jump labels", () => {
-    expect(edgeText(6 * 3600, "time", "en")).toBe("6:00");
-    expect(edgeText(5.5 * 3600, "time", "en")).toBe("5:30");
-    expect(bandShortText({ from: null, to: 6 * 3600 }, "time", "en")).toBe("<6:00");
-    expect(bandShortText({ from: 250, to: null }, "distance", "en")).toBe("250+");
-    expect(totalText(768.64, "distance", "en")).toBe("768.640");
-  });
+
 });

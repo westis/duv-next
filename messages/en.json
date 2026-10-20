@@ -112,23 +112,13 @@
       "no": "No",
       "reports": "Reports",
       "links": "More on DUV",
-      "iauLabel": "IAU label"
+      "iauLabel": "IAU label",
+      "race": "Race",
+      "organiserSource": "Organiser and source"
     },
     "website": "Official website",
     "editionOrdinal": "{n, selectordinal, one {#st} two {#nd} few {#rd} other {#th}} edition",
     "resultSource": "Result source",
-    "nav": {
-      "label": "Race sections",
-      "heading": "On this page",
-      "results": "Results",
-      "women": "Women",
-      "men": "Men",
-      "nations": "Nations",
-      "splits": "Splits",
-      "editions": "Editions",
-      "facts": "Race facts",
-      "sameDay": "Same day"
-    },
     "gpsTracks": "GPS tracks",
     "allTime": "All-time results",
     "multipleFinishers": "Multiple finishers",
@@ -137,24 +127,15 @@
     "splitOf": "Split of <race>{name}</race>",
     "classificationOf": "Classification of <race>{name}</race>",
     "timeLimit": "time limit {time}",
-    "finishersFrom": "{count, plural, one {# finisher} other {# finishers}} from {nations, plural, one {# nation} other {# nations}}",
     "finishers": "{count, plural, one {# finisher} other {# finishers}}",
-    "podium": {
-      "label": "Podium",
-      "women": "Women",
-      "men": "Men"
-    },
     "results": {
       "heading": "Results",
       "women": "Women",
       "men": "Men",
       "show": "Show",
-      "both": "Both",
-      "find": "Find a runner or nation",
-      "findLabel": "Find a runner or nation in the results",
-      "noMatch": "No runner or nation matches “{q}”.",
-      "jump": "Jump to",
-      "jumpLabel": "Jump to a band of the {list} list",
+      "find": "Find a runner or club",
+      "findLabel": "Find a runner or club in the results",
+      "noMatch": "No runners match these filters.",
       "caption": "{list}: place, result, gap to the winner",
       "place": "Place",
       "result": "Result",
@@ -162,28 +143,16 @@
       "runner": "Runner",
       "nat": "Nat",
       "category": "Category",
-      "overall": "Overall",
-      "overallShort": "{n} overall",
-      "bandUnder": "Under {to}",
-      "bandOver": "{from} and more",
-      "bandBetween": "{from} to {to}",
-      "bandOther": "Other results",
       "none": "No results in DUV for this race yet.",
       "noneGender": "No finishers.",
       "truncated": "Showing the first {shown} of {total} finishers. The full list is on DUV's own site.",
       "fullList": "Full list on DUV",
       "otherGender": "{count, plural, one {# finisher} other {# finishers}} without a gender in DUV {count, plural, one {is} other {are}} not in these lists.",
-      "trailNote": "Trail race: results compare by time and place within this race only; courses differ, so there is no pace or speed here."
-    },
-    "nations": {
-      "heading": "Nations",
-      "note": "Sum of each nation's best three, worked out from DUV's results; official team results may differ.",
-      "rank": "#",
+      "trailNote": "Trail race: results compare by time and place within this race only; courses differ, so there is no pace or speed here.",
+      "ageGroup": "Age group",
+      "allAgeGroups": "All age groups",
       "nation": "Nation",
-      "total": "Best three",
-      "women": "Women",
-      "men": "Men",
-      "runners": "Runners"
+      "allNations": "All nations"
     },
     "splits": {
       "heading": "Splits",
@@ -203,7 +172,7 @@
       "women": "Women",
       "finishers": "Fin.",
       "current": "This edition",
-      "chartLabel": "Winning marks per edition on this course, men and women",
+      "chartLabel": "Winning marks per edition on this course, women and men",
       "chartMen": "Men",
       "chartWomen": "Women",
       "overallPlace": "{n} overall",
@@ -234,7 +203,16 @@
       "NAM": "North America",
       "SAM": "South America",
       "OCE": "Oceania"
-    }
+    },
+    "tabs": {
+      "label": "Race sections",
+      "results": "Results",
+      "splits": "Splits",
+      "editions": "Editions",
+      "info": "Information"
+    },
+    "sameDay": "Same day",
+    "finishersByGender": "{count, plural, one {# finisher} other {# finishers}} ({women} women, {men} men)"
   },
   "states": {
     "loading": "Loading",
