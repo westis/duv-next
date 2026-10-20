@@ -221,10 +221,15 @@ export function ageGroupOptions(finishers: Finisher[]): AgeGroupOption[] {
     const n = Number.parseInt(g, 10);
     return Number.isFinite(n) ? n : 1000;
   };
-  const womenFirst = (a: string, b: string) => Number(/^M/i.test(a)) - Number(/^M/i.test(b)) || a.localeCompare(b);
+  // One name per gender, women first: DUV writes some groups two ways ("W23" and "WU23").
+  const label = (set: Set<string>) =>
+    [/^[WF]/i, /^M/i]
+      .map((g) => Array.from(set).filter((c) => g.test(c)).sort((a, b) => a.length - b.length || a.localeCompare(b))[0])
+      .filter(Boolean)
+      .join(" / ");
   return Array.from(cats)
     .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
-    .map(([value, set]) => ({ value, label: Array.from(set).sort(womenFirst).join(" / ") }));
+    .map(([value, set]) => ({ value, label: label(set) }));
 }
 
 /** The nations in a race with their number of finishers, by code. */

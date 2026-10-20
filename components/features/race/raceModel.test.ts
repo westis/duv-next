@@ -104,6 +104,7 @@ describe("result filters", () => {
       row({ Cat: "M", Gender: "M" }),
       row({ Cat: "WU23", Gender: "F" }),
       row({ Cat: "M23", Gender: "M" }),
+      row({ Cat: "MU23", Gender: "M" }),
       row({ Cat: "#NA", Gender: "M" }),
     ].map(readFinisher);
     expect(ageGroupOptions(fs)).toEqual([
