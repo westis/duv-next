@@ -5,10 +5,10 @@ interface PageProps {
   params: Promise<{ eventId: string }>;
 }
 
-/** Old results tab: the race page is one long page now, so this sends links to its #results section. */
+/** Old results address: the Results tab is the race page itself. */
 export default async function RaceResultsRedirect({ params }: PageProps) {
   const { eventId } = await params;
   const race = await loadRace(eventId);
   if (!race) notFound();
-  permanentRedirect(`/events/${race.raceDetails.EventID}#results`);
+  permanentRedirect(`/events/${race.raceDetails.EventID}`);
 }

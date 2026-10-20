@@ -16,74 +16,17 @@ import {
   formatCount,
   formatLengthAndClimb,
   formatPerformanceText,
-  formatRunnerName,
   linkHost,
 } from "@/lib/format";
 import { courseWinners, type EditionWinner } from "@/lib/records/course";
 import { formatRaceLength } from "@/lib/tags";
 import { cn } from "@/lib/utils";
 import type { LoadedRace } from "./loadRace";
-import { finishersOf, parseWinnerField, sameDistance, type NationTeam, type ResultKind, type WinnerRow } from "./raceModel";
-import { totalText } from "./raceText";
+import { finishersOf, parseWinnerField, sameDistance, type WinnerRow } from "./raceModel";
 
 const headingClass = "scroll-mt-[calc(var(--header-h)+1rem)]";
 const th = "label-caps py-2 pe-3 font-semibold text-fg-muted";
 const td = "border-b border-hair py-2 pe-3 align-baseline";
-
-// ---- Nations ----------------------------------------------------------------
-
-const NATIONS_SHOWN = 10;
-
-export async function RaceNations({ teams, kind }: { teams: { W: NationTeam[]; M: NationTeam[] }; kind: ResultKind | null }) {
-  const t = await getTranslations("race.nations");
-  const locale = await getLocale();
-  const cols = [
-    { label: t("women"), list: teams.W },
-    { label: t("men"), list: teams.M },
-  ].filter((c) => c.list.length > 0);
-  return (
-    <section aria-labelledby="nations">
-      <SectionHeading id="nations" className={headingClass}>
-        {t("heading")}
-      </SectionHeading>
-      <p className="mb-3 max-w-prose text-sm text-fg-muted">{t("note")}</p>
-      <div className="grid gap-8 md:grid-cols-2">
-        {cols.map((c) => (
-          <table key={c.label} className="w-full table-fixed border-collapse text-sm md:text-[0.9375rem]">
-            <caption className="sr-only">{c.label}</caption>
-            <thead>
-              <tr className="border-b border-border">
-                <th scope="col" className={cn(th, "w-8 text-end")}>
-                  {t("rank")}
-                </th>
-                <th scope="col" className={cn(th, "text-start")}>
-                  {c.label}
-                </th>
-                <th scope="col" className={cn(th, "w-28 pe-0 text-end")}>
-                  {kind === "distance" ? `${t("total")} (km)` : t("total")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {c.list.slice(0, NATIONS_SHOWN).map((team, i) => (
-                <tr key={team.nat}>
-                  <td className={cn(td, "text-end text-fg-muted tabular")}>{i + 1}</td>
-                  <td className={cn(td, "min-w-0")}>
-                    <span className="font-medium">{team.nat}</span>
-                    <span className="block truncate text-xs text-fg-muted">
-                      {team.members.map((m) => formatRunnerName({ last: m.row.LastName }, locale)).join(", ")}
-                    </span>
-                  </td>
-                  <td className={cn(td, "pe-0 text-end font-semibold tabular")}>{totalText(team.total, kind, locale)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 // ---- Splits -----------------------------------------------------------------
 
@@ -352,15 +295,15 @@ function EditionsChart({
       <figcaption className="mt-1 flex gap-4 text-xs text-fg-muted">
         <span className="inline-flex items-center gap-1.5">
           <svg width="22" height="6" aria-hidden>
-            <line x1="0" x2="22" y1="3" y2="3" strokeWidth="1.75" className="stroke-fg" />
-          </svg>
-          {men}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <svg width="22" height="6" aria-hidden>
             <line x1="0" x2="22" y1="3" y2="3" strokeWidth="1.75" strokeDasharray="5 3" className="stroke-fg-muted" />
           </svg>
           {women}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <svg width="22" height="6" aria-hidden>
+            <line x1="0" x2="22" y1="3" y2="3" strokeWidth="1.75" className="stroke-fg" />
+          </svg>
+          {men}
         </span>
       </figcaption>
     </figure>
@@ -369,15 +312,7 @@ function EditionsChart({
 
 // ---- Race facts -------------------------------------------------------------
 
-export async function RaceFacts({
-  race,
-  header,
-  sameDay,
-}: {
-  race: LoadedRace;
-  header: EventResultsHeader | null;
-  sameDay: WinnerRow[];
-}) {
+export async function RaceFacts({ race, header }: { race: LoadedRace; header: EventResultsHeader | null }) {
   const t = await getTranslations("race");
   const locale = await getLocale();
   const e = race.raceDetails;
@@ -394,6 +329,7 @@ export async function RaceFacts({
   const recordedAt = cleanDuv(header?.RecordedAt);
   const reports = (race.raceReports ?? []).map(describeLinkEntry).filter((l) => l.url);
   const oldLinks = [
+    { href: old("TrackLink"), label: t("gpsTracks") },
     { href: old("StartPosLink"), label: t("startPositions") },
     { href: old("AllTimeLink"), label: t("allTime") },
     { href: old("MultFinishLink"), label: t("multipleFinishers") },
@@ -451,19 +387,6 @@ export async function RaceFacts({
       ),
     ],
     [
-      t("nav.sameDay"),
-      sameDay.length > 0 && (
-        <span className="flex flex-col">
-          {sameDay.map((s) => (
-            <Link key={s.EventID} href={`/events/${s.EventID}`}>
-              {cleanDuv(s.EventName)}{" "}
-              <span className="text-fg-muted">({t("finishers", { count: finishersOf(s) })})</span>
-            </Link>
-          ))}
-        </span>
-      ),
-    ],
-    [
       t("facts.links"),
       oldLinks.length > 0 && (
         <span className="flex flex-wrap gap-x-3">
@@ -480,27 +403,30 @@ export async function RaceFacts({
   return (
     <section aria-labelledby="facts">
       <SectionHeading id="facts" className={headingClass}>
-        {t("facts.heading")}
+        {t("tabs.info")}
       </SectionHeading>
-      <div className="mt-3 grid gap-x-9 gap-y-2 lg:grid-cols-2">
-        <FactList rows={left} />
-        <FactList rows={right} />
+      <div className="mt-3 grid gap-x-9 gap-y-6 lg:grid-cols-2">
+        <FactList title={t("facts.race")} rows={left} />
+        <FactList title={t("facts.organiserSource")} rows={right} />
       </div>
     </section>
   );
 }
 
-function FactList({ rows }: { rows: [string, ReactNode][] }) {
+function FactList({ title, rows }: { title: string; rows: [string, ReactNode][] }) {
   const visible = rows.filter(([, v]) => v !== "" && v !== null && v !== undefined && v !== false);
   if (!visible.length) return null;
   return (
-    <dl className="grid grid-cols-[7.5rem_minmax(0,1fr)] content-start gap-x-4 gap-y-2 text-sm md:text-[0.9375rem]">
+    <div>
+      <h3 className="label-caps mb-2 text-fg-muted">{title}</h3>
+      <dl className="grid grid-cols-[7.5rem_minmax(0,1fr)] content-start gap-x-4 gap-y-2 text-sm md:text-[0.9375rem]">
       {visible.map(([label, value]) => (
         <div key={label} className="contents">
           <dt className="text-fg-muted">{label}</dt>
           <dd className="min-w-0 [overflow-wrap:anywhere] whitespace-pre-line">{value}</dd>
         </div>
-      ))}
-    </dl>
+        ))}
+      </dl>
+    </div>
   );
 }
