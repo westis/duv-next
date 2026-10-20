@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { OutLink, RecordMarker } from "@/components/design";
+import { getCountryOptions } from "@/components/features/countries/data";
 import { formatCount, formatRunnerName } from "@/lib/format";
 import { markerKey } from "@/lib/records/evaluate";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,9 @@ export async function RaceResults({ eventId, lists, kind, markers, trail, trunca
   const locale = await getLocale();
   const all = [...lists.W, ...lists.M];
   const genders: Gender[] = (["W", "M"] as const).filter((g) => lists[g].length > 0);
+  // DUV's own country names (English for now; DUV sends them in the page's language once the site has more).
+  const countries = await getCountryOptions();
+  const nations = nationOptions(all, new Map(countries.map((c) => [c.value, c.label])), locale);
   const listName = (g: Gender) => (g === "W" ? t("results.women") : t("results.men"));
 
   return (
@@ -76,7 +80,7 @@ export async function RaceResults({ eventId, lists, kind, markers, trail, trunca
       <ResultsBoard
         counts={{ W: lists.W.length, M: lists.M.length }}
         ageGroups={ageGroupOptions(all)}
-        nations={nationOptions(all)}
+        nations={nations}
         labels={{
           show: t("results.show"),
           women: t("results.women"),
@@ -85,6 +89,8 @@ export async function RaceResults({ eventId, lists, kind, markers, trail, trunca
           allAgeGroups: t("results.allAgeGroups"),
           nation: t("results.nation"),
           allNations: t("results.allNations"),
+          findNation: t("results.findNation"),
+          noNation: t("results.noNation"),
           find: t("results.find"),
           findLabel: t("results.findLabel"),
         }}

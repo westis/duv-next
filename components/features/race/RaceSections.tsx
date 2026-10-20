@@ -64,7 +64,7 @@ export async function RaceSplits({ splits, self }: { splits: WinnerRow[]; self: 
         <caption className="sr-only">{t("caption")}</caption>
         <thead>
           <tr className="border-b border-border">
-            <th scope="col" className={cn(th, "text-start")}>
+            <th scope="col" className={cn(th, "ps-3 text-start")}>
               {t("at")}
             </th>
             <th scope="col" className={cn(th, "text-start")}>
@@ -73,7 +73,7 @@ export async function RaceSplits({ splits, self }: { splits: WinnerRow[]; self: 
             <th scope="col" className={cn(th, "text-start")}>
               {t("men")}
             </th>
-            <th scope="col" className={cn(th, "pe-0 text-end")}>
+            <th scope="col" className={cn(th, "pe-3 text-end")}>
               {t("runners")}
             </th>
           </tr>
@@ -83,7 +83,7 @@ export async function RaceSplits({ splits, self }: { splits: WinnerRow[]; self: 
             const isSelf = s === self;
             return (
               <tr key={s.EventID} className={isSelf ? "bg-surface-muted" : undefined}>
-                <th scope="row" className={cn(td, "text-start font-medium whitespace-nowrap")}>
+                <th scope="row" className={cn(td, "ps-3 text-start font-medium whitespace-nowrap")}>
                   {isSelf ? (
                     <span>
                       {sizeLabel(s)} <span className="font-normal text-fg-muted">({t("finish")})</span>
@@ -98,7 +98,7 @@ export async function RaceSplits({ splits, self }: { splits: WinnerRow[]; self: 
                 <td className={td}>
                   <WinnerCell raw={s.Winner_M} locale={locale} />
                 </td>
-                <td className={cn(td, "pe-0 text-end text-fg-muted tabular")}>{formatCount(finishersOf(s), locale)}</td>
+                <td className={cn(td, "pe-3 text-end text-fg-muted tabular")}>{formatCount(finishersOf(s), locale)}</td>
               </tr>
             );
           })}
@@ -135,7 +135,7 @@ export async function RaceEditions({ race, editions }: { race: LoadedRace; editi
           <caption className="sr-only">{t("caption")}</caption>
           <thead>
             <tr className="border-b border-border">
-              <th scope="col" className={cn(th, "text-start")}>
+              <th scope="col" className={cn(th, "ps-3 text-start")}>
                 {t("year")}
               </th>
               <th scope="col" className={cn(th, "text-start")}>
@@ -144,7 +144,7 @@ export async function RaceEditions({ race, editions }: { race: LoadedRace; editi
               <th scope="col" className={cn(th, "text-start")}>
                 {t("men")}
               </th>
-              <th scope="col" className={cn(th, "pe-0 text-end")}>
+              <th scope="col" className={cn(th, "pe-3 text-end")}>
                 {t("finishers")}
               </th>
             </tr>
@@ -157,7 +157,7 @@ export async function RaceEditions({ race, editions }: { race: LoadedRace; editi
               const date = e.SDate ? <DateText value={e.SDate} locale={locale} variant="year" /> : e.Year;
               return (
                 <tr key={e.EventID} className={current ? "bg-highlight" : undefined}>
-                  <th scope="row" className={cn(td, "text-start font-medium")}>
+                  <th scope="row" className={cn(td, "ps-3 text-start font-medium")}>
                     {current ? (
                       <span>
                         {date}
@@ -178,7 +178,7 @@ export async function RaceEditions({ race, editions }: { race: LoadedRace; editi
                   <td className={td}>
                     <WinnerCell raw={e.Winner_M} locale={locale} />
                   </td>
-                  <td className={cn(td, "pe-0 text-end text-fg-muted tabular")}>
+                  <td className={cn(td, "pe-3 text-end text-fg-muted tabular")}>
                     {formatCount(finishersOf(e), locale)}
                   </td>
                 </tr>

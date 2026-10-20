@@ -124,8 +124,8 @@
     "multipleFinishers": "Multiple finishers",
     "startPositions": "Start positions",
     "oldSite": "Old DUV page",
-    "splitOf": "Split of <race>{name}</race>",
-    "classificationOf": "Classification of <race>{name}</race>",
+    "splitOf": "<strong>{size, select, none {Split} other {Split at {size}}}</strong> of {name}. These are the results at that point, not at the finish.",
+    "classificationOf": "<strong>Separate classification</strong> of {name}.",
     "timeLimit": "time limit {time}",
     "finishers": "{count, plural, one {# finisher} other {# finishers}}",
     "results": {
@@ -152,7 +152,9 @@
       "ageGroup": "Age group",
       "allAgeGroups": "All age groups",
       "nation": "Nation",
-      "allNations": "All nations"
+      "allNations": "All nations",
+      "findNation": "Find a country",
+      "noNation": "No country matches."
     },
     "splits": {
       "heading": "Splits",
@@ -212,7 +214,8 @@
       "info": "Information"
     },
     "sameDay": "Same day",
-    "finishersByGender": "{count, plural, one {# finisher} other {# finishers}} ({women} women, {men} men)"
+    "finishersByGender": "{count, plural, one {# finisher} other {# finishers}} ({women} women, {men} men)",
+    "backToRace": "← Back to the full race"
   },
   "states": {
     "loading": "Loading",

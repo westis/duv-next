@@ -3,7 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { MetaDot, OutLink, PageHeader, TagList } from "@/components/design";
 import { toExternalUrl } from "@/components/features/events/eventDetailUtils";
 import { COURSE_SEPARATOR, DateText, cleanDuv, formatClimb, formatStartTime, parseDuvDate } from "@/lib/format";
-import { raceTags } from "@/lib/tags";
+import { formatRaceLength, raceTags } from "@/lib/tags";
 import type { LoadedRace } from "./loadRace";
 import type { GenderLists, WinnerRow } from "./raceModel";
 
@@ -15,6 +15,11 @@ export interface RaceHeaderProps {
   parentIsClassification: boolean;
   /** Other DUV events held the same day (another distance, a relay). */
   sameDay: WinnerRow[];
+}
+
+/** "50 km", "6 h": the split's own distance or time. */
+function sizeOf(e: { Length?: string | null; Duration?: string | null }): string {
+  return formatRaceLength(cleanDuv(e.Duration) || cleanDuv(e.Length)) ?? "";
 }
 
 /** DUV's edition text ("12ème", "19^", "3.") as a number, or 0. */
@@ -73,8 +78,25 @@ export async function RaceHeader({ race, lists, parent, parentIsClassification, 
       breadcrumb={[
         { label: t("breadcrumbRaces"), href: "/events" },
         ...(year ? [{ label: year, href: `/events?from=${year}-01-01&to=${year}-12-31` }] : []),
+        ...(parent ? [{ label: cleanDuv(parent.EventName), href: `/events/${parent.EventID}` }] : []),
         { label: event.EventName },
       ]}
+      notice={
+        parent && (
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-s-2 border-brand bg-surface-muted px-3 py-2 text-sm">
+            <span>
+              {t.rich(parentIsClassification ? "classificationOf" : "splitOf", {
+                strong: (chunks) => <strong className="font-semibold">{chunks}</strong>,
+                size: sizeOf(event) || "none",
+                name: cleanDuv(parent.EventName),
+              })}
+            </span>
+            <Link href={`/events/${parent.EventID}`} className="font-medium">
+              {t("backToRace")}
+            </Link>
+          </p>
+        )
+      }
       kicker={kicker || undefined}
       title={event.EventName}
       subtitle={edition > 0 ? t("editionOrdinal", { n: edition }) : undefined}
@@ -105,14 +127,6 @@ export async function RaceHeader({ race, lists, parent, parentIsClassification, 
         <>
           <TagList tags={tags} />
           {facts.length > 0 && <p className="mt-2 text-sm text-fg-muted">{facts.join(COURSE_SEPARATOR)}</p>}
-          {parent && (
-            <p className="mt-2 text-sm">
-              {t.rich(parentIsClassification ? "classificationOf" : "splitOf", {
-                race: (chunks) => <Link href={`/events/${parent.EventID}`}>{chunks}</Link>,
-                name: parent.EventName,
-              })}
-            </p>
-          )}
           {sameDay.length > 0 && (
             <p className="mt-2 text-sm">
               <span className="text-fg-muted">{t("sameDay")}: </span>

@@ -232,14 +232,24 @@ export function ageGroupOptions(finishers: Finisher[]): AgeGroupOption[] {
     .map(([value, set]) => ({ value, label: label(set) }));
 }
 
-/** The nations in a race with their number of finishers, by code. */
-export function nationOptions(finishers: Finisher[]): { value: string; count: number }[] {
+/**
+ * The nations in a race with their number of finishers: "Germany (GER)",
+ * named from `names` (code to country name), by name.
+ */
+export function nationOptions(
+  finishers: Finisher[],
+  names: Map<string, string> = new Map(),
+  locale = "en"
+): { value: string; label: string; count: number }[] {
   const counts = new Map<string, number>();
   for (const f of finishers) {
     const nat = cleanDuv(f.row.Nationality).toUpperCase();
     if (nat) counts.set(nat, (counts.get(nat) ?? 0) + 1);
   }
   return Array.from(counts)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([value, count]) => ({ value, count }));
+    .map(([value, count]) => {
+      const name = names.get(value);
+      return { value, label: name ? `${name} (${value})` : value, count };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label, locale));
 }

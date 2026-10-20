@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { ChevronDown, Search } from "lucide-react";
+import { Check, ChevronDown, Search } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 export type BoardView = "W" | "M";
+
+export interface NationOption {
+  value: string;
+  label: string;
+  count: number;
+}
 
 export interface ResultsBoardProps {
   /** Women's and men's lists, server-rendered; each list root carries data-list="W" or "M". */
   children: ReactNode;
   counts: { W: number; M: number };
   ageGroups: { value: string; label: string }[];
-  nations: { value: string; count: number }[];
+  /** "Germany (GER)", by name. */
+  nations: NationOption[];
   labels: {
     show: string;
     women: string;
@@ -20,6 +29,8 @@ export interface ResultsBoardProps {
     allAgeGroups: string;
     nation: string;
     allNations: string;
+    findNation: string;
+    noNation: string;
     find: string;
     findLabel: string;
   };
@@ -153,26 +164,13 @@ export function ResultsBoard({ children, counts, ageGroups, nations, labels }: R
               </span>
             )}
             {nations.length > 1 && (
-              <span className="relative inline-flex min-w-0 sm:w-44">
-                <select
-                  aria-label={labels.nation}
-                  value={nat}
-                  onChange={(e) => set({ nat: e.target.value })}
-                  className={selectClass(nat)}
-                >
-                  <option value="">{labels.allNations}</option>
-                  {nations.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.value} ({o.count})
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  aria-hidden
-                  strokeWidth={1.75}
-                  className="pointer-events-none absolute end-0.5 top-1/2 size-4 -translate-y-1/2 text-fg-muted"
-                />
-              </span>
+              <NationPicker
+                value={nat}
+                nations={nations}
+                onChange={(value) => set({ nat: value })}
+                className={selectClass(nat)}
+                labels={labels}
+              />
             )}
           </div>
           <div className="relative w-full sm:ms-auto sm:w-64">
@@ -198,5 +196,72 @@ export function ResultsBoard({ children, counts, ageGroups, nations, labels }: R
       </div>
       {children}
     </div>
+  );
+}
+
+/** The nation filter: a dropdown with a search field (country name or IOC code). */
+function NationPicker({
+  value,
+  nations,
+  onChange,
+  className,
+  labels,
+}: {
+  value: string;
+  nations: NationOption[];
+  onChange: (value: string) => void;
+  className: string;
+  labels: Pick<ResultsBoardProps["labels"], "nation" | "allNations" | "findNation" | "noNation">;
+}) {
+  const [open, setOpen] = useState(false);
+  const current = nations.find((o) => o.value === value);
+  const pick = (next: string) => {
+    setOpen(false);
+    onChange(next);
+  };
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={labels.nation}
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          className={cn(className, "relative inline-flex min-w-0 items-center text-start sm:w-56")}
+        >
+          <span className="truncate">{current?.label ?? labels.allNations}</span>
+          <ChevronDown
+            aria-hidden
+            strokeWidth={1.75}
+            className="pointer-events-none absolute end-0.5 top-1/2 size-4 -translate-y-1/2 font-normal text-fg-muted"
+          />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[min(20rem,calc(100vw-2rem))] p-0" align="start">
+        <Command>
+          <CommandInput placeholder={labels.findNation} aria-label={labels.findNation} />
+          <CommandList>
+            <CommandEmpty>{labels.noNation}</CommandEmpty>
+            <CommandGroup>
+              <CommandItem value={labels.allNations} onSelect={() => pick("")}>
+                <Check aria-hidden strokeWidth={1.75} className={cn("me-2 size-4", value ? "opacity-0" : "opacity-100")} />
+                {labels.allNations}
+              </CommandItem>
+              {nations.map((o) => (
+                <CommandItem key={o.value} value={`${o.label} ${o.value}`} onSelect={() => pick(o.value)}>
+                  <Check
+                    aria-hidden
+                    strokeWidth={1.75}
+                    className={cn("me-2 size-4", value === o.value ? "opacity-100" : "opacity-0")}
+                  />
+                  <span className="truncate">{o.label}</span>
+                  <span className="ms-auto ps-2 text-xs text-fg-muted tabular">{o.count}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }
