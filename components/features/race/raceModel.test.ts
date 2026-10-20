@@ -116,10 +116,11 @@ describe("result filters", () => {
 
   it("counts nations", () => {
     const fs = [row({ Nationality: "SWE" }), row({ Nationality: "GER" }), row({ Nationality: "SWE" })].map(readFinisher);
-    expect(nationOptions(fs)).toEqual([
-      { value: "GER", count: 1 },
-      { value: "SWE", count: 2 },
+    expect(nationOptions(fs, new Map([["SWE", "Sweden"], ["GER", "Germany"]]))).toEqual([
+      { value: "GER", label: "Germany (GER)", count: 1 },
+      { value: "SWE", label: "Sweden (SWE)", count: 2 },
     ]);
+    expect(nationOptions(fs)[0].label).toBe("GER");
   });
 });
 

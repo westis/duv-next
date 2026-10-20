@@ -152,7 +152,9 @@
       "ageGroup": "Age group",
       "allAgeGroups": "All age groups",
       "nation": "Nation",
-      "allNations": "All nations"
+      "allNations": "All nations",
+      "findNation": "Find a country",
+      "noNation": "No country matches."
     },
     "splits": {
       "heading": "Splits",
