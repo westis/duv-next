@@ -9,7 +9,7 @@ export interface PageHeaderProps {
   /** Red small capitals above the title, e.g. "IAU 24 h World Championships". Use sparingly. */
   kicker?: ReactNode;
   title: ReactNode;
-  /** Italic serif line after the title ("10th edition"): beside it on desktop, under it on phones. */
+  /** A muted line under the title ("10th edition"). */
   subtitle?: ReactNode;
   /** Next to the title, e.g. an edition switcher. */
   titleAside?: ReactNode;
@@ -17,41 +17,51 @@ export interface PageHeaderProps {
   meta?: ReactNode;
   /** A `<TagList>`: small capitals separated by dots. */
   tags?: ReactNode;
-  /** Key facts: a `<StatStrip>` of `<StatTile>`s, big serif figures between rules. */
+  /** Key facts: a `<StatStrip>` of `<StatTile>`s, big condensed figures under a heavy ink rule. */
   facts?: ReactNode;
   className?: string;
 }
 
 /**
- * Shared header for race, runner, country and ranking pages (Almanac look):
- * small-caps breadcrumb, serif title, meta line, tags, and the key facts
- * between an ink rule and a hairline. Left-aligned, no band, no card.
+ * Shared header for race, runner, country and ranking pages, Swiss Grid look
+ * (design-system/components/PageHeader.md): breadcrumb, red kicker and an
+ * uppercase condensed title over 8 of 12 columns, the meta right-aligned over
+ * the other 4, then the key facts. On phones the meta drops under the title,
+ * left-aligned.
  */
 export function PageHeader({ breadcrumb, notice, kicker, title, subtitle, titleAside, meta, tags, facts, className }: PageHeaderProps) {
   return (
     <header className={cn("pt-5 pb-2 md:pt-7", className)}>
       {breadcrumb && <Breadcrumb items={breadcrumb} />}
       {notice && <div className="mt-3">{notice}</div>}
-      {kicker && <p className="label-caps mt-3 text-brand-ink">{kicker}</p>}
-      <div className={cn("flex flex-wrap items-baseline gap-x-4 gap-y-1", kicker ? "mt-1" : "mt-2.5")}>
-        <h1 className="font-serif text-[1.875rem] leading-[1.08] font-semibold tracking-[-0.015em] text-balance md:text-[2.375rem] lg:text-[2.75rem]">
-          {title}
-          {subtitle && (
-            <>
-              {" "}
-              <span className="block pt-1 text-[1.0625rem] leading-snug font-normal tracking-normal text-fg-muted italic md:inline md:pt-0 md:text-xl">
-                {subtitle}
-              </span>
-            </>
+      <div className="mt-3 grid grid-cols-1 gap-y-3 md:grid-cols-12 md:items-end md:gap-x-6">
+        <div className="min-w-0 md:col-span-8">
+          {kicker && (
+            <p className="font-display text-[0.9375rem] font-bold tracking-[0.06em] text-brand-ink uppercase">{kicker}</p>
           )}
-        </h1>
-        {titleAside}
+          <div className={cn("flex flex-wrap items-end gap-x-4 gap-y-2", kicker && "mt-2")}>
+            <h1 className="font-display text-[2.5rem] leading-[0.9] font-extrabold text-balance uppercase md:text-5xl lg:text-[4rem]">
+              {title}
+              {subtitle && (
+                <>
+                  {" "}
+                  <span className="block pt-2 font-sans text-base leading-snug font-normal text-fg-muted normal-case md:text-lg">
+                    {subtitle}
+                  </span>
+                </>
+              )}
+            </h1>
+            {titleAside}
+          </div>
+          {tags && <div className="mt-3">{tags}</div>}
+        </div>
+        {meta && (
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm leading-normal text-fg md:col-span-4 md:justify-end md:text-end">
+            {meta}
+          </div>
+        )}
       </div>
-      {meta && (
-        <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg md:text-[0.9375rem]">{meta}</div>
-      )}
-      {tags && <div className="mt-2">{tags}</div>}
-      {facts && <div className="mt-5">{facts}</div>}
+      {facts && <div className="mt-6">{facts}</div>}
     </header>
   );
 }

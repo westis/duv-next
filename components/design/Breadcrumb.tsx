@@ -18,7 +18,7 @@ export function Breadcrumb({ items, className }: { items: Crumb[]; className?: s
   if (!items.length) return null;
   const lastLinked = items.findLastIndex((item) => item.href);
   return (
-    <nav aria-label={t("breadcrumb")} className={cn("label-caps min-w-0 tracking-[0.1em] text-fg-muted", className)}>
+    <nav aria-label={t("breadcrumb")} className={cn("label-caps min-w-0 text-fg-muted", className)}>
       <ol className="flex min-w-0 items-center whitespace-nowrap">
         {items.map((item, i) => {
           const current = !item.href && i === items.length - 1;
