@@ -194,8 +194,8 @@ function GenderLinks({ m, t, className }: { m: RankingNavModel; t: T; className?
       className={className}
       items={[
         { href: rankingHref(m, { gender: "all" }), label: t("genderAll"), current: g === "all" },
-        { href: rankingHref(m, { gender: "M" }), label: t("men"), current: g === "M" },
         { href: rankingHref(m, { gender: "W" }), label: t("women"), current: g === "W" },
+        { href: rankingHref(m, { gender: "M" }), label: t("men"), current: g === "M" },
       ]}
     />
   );

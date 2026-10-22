@@ -62,8 +62,9 @@ async function winnersOf(
   const winners: Winner[] = [];
   const m = men?.Resultlist?.[0];
   const w = women?.Resultlist?.[0];
-  if (m) winners.push({ gender: "M", row: m });
+  // Women first (the site never shows men first).
   if (w) winners.push({ gender: "W", row: w });
+  if (m) winners.push({ gender: "M", row: m });
   if (!header && !winners.length) return null;
   const finishers = Number.parseInt(header?.FinisherCnt ?? "", 10);
   return {
@@ -198,12 +199,12 @@ export interface BestList {
   entries: RankingEntry[];
 }
 
-/** The year lists shown on the home page: 100 km and 24 h, men and women. */
+/** The year lists shown on the home page: 100 km and 24 h, women and men. */
 const BEST_LISTS: { dist: string; gender: "M" | "W" }[] = [
-  { dist: "100km", gender: "M" },
   { dist: "100km", gender: "W" },
-  { dist: "24h", gender: "M" },
+  { dist: "100km", gender: "M" },
   { dist: "24h", gender: "W" },
+  { dist: "24h", gender: "M" },
 ];
 
 /** The year's top three from DUV's rankings; a list that comes back empty is left out. */
