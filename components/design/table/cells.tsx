@@ -3,15 +3,24 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * A place in a ranking or result list, Almanac look: muted figures, and only
- * the winner's place in red and bold (places 2 and 3 are not medals). The
- * number is always shown, so colour never stands alone.
+ * A place in a ranking or result list, Swiss Grid look: a condensed figure with
+ * at least two digits ("01", "12", "128"), only the winner's in brand-ink
+ * (places 2 and 3 are not medals). The number is always shown, so colour never
+ * stands alone. Text that is not a plain number ("DNF") is shown as it is.
  */
 export function RankCell({ rank, className }: { rank: number | string | null | undefined; className?: string }) {
-  const n = typeof rank === "number" ? rank : Number.parseInt(String(rank ?? ""), 10);
+  const text = rank === null || rank === undefined ? "" : String(rank).trim();
+  const plain = /^\d+$/.test(text);
+  const n = plain ? Number.parseInt(text, 10) : Number.NaN;
   return (
-    <span className={cn("tabular", n === 1 ? "font-bold text-brand-ink" : "text-fg-muted", className)}>
-      {rank ?? ""}
+    <span
+      className={cn(
+        "font-display text-[1.375rem] leading-none font-extrabold tabular",
+        n === 1 ? "text-brand-ink" : "text-fg",
+        className
+      )}
+    >
+      {plain ? text.padStart(2, "0") : text}
     </span>
   );
 }

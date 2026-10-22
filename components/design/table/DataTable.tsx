@@ -61,9 +61,11 @@ export interface DataTableProps<TData> {
   className?: string;
 }
 
-// Almanac tables: small-caps heads over an ink rule, hairlines between rows, no fill, no zebra.
-const headCell = "label-caps border-b border-fg bg-bg px-2 py-2 text-fg-muted first:ps-0 md:px-3 md:first:ps-0";
-const bodyCell = "border-b border-hair px-2 py-2 align-baseline first:ps-0 md:px-3 md:first:ps-0";
+// Swiss Grid tables (design-system/components/ResultsTable.md): condensed capital heads over a
+// 3 px ink rule, hairlines in border between rows, no fill, no zebra.
+const headCell =
+  "label-caps border-b-[length:var(--rule-mid)] border-fg bg-bg px-2 py-2 text-fg first:ps-0 md:px-3 md:first:ps-0";
+const bodyCell = "border-b border-border px-2 py-2 align-baseline first:ps-0 md:px-3 md:first:ps-0";
 
 /**
  * The site's one data table (design spec, "Data table"). Renders on the server
@@ -172,9 +174,8 @@ export function DataTable<TData>({
       const next: SortDirection = sorted ? (sorted === "asc" ? "desc" : "asc") : column.getFirstSortDir();
       const Icon = sorted === "asc" ? ArrowUp : sorted === "desc" ? ArrowDown : ArrowUpDown;
       const control = cn(
-        "group -mx-1 inline-flex min-h-8 items-center gap-1 px-1 no-underline hover:text-fg",
-        end && "flex-row-reverse",
-        sorted ? "text-fg" : "text-fg-muted"
+        "group -mx-1 inline-flex min-h-8 items-center gap-1 px-1 text-fg no-underline",
+        end && "flex-row-reverse"
       );
       const body = (
         <>
@@ -223,7 +224,7 @@ export function DataTable<TData>({
         bodyCell,
         rowHeight[density],
         columnClasses(cell.column),
-        stickyOffset.has(cell.column.id) && "bg-bg group-data-[highlight]/row:bg-highlight",
+        stickyOffset.has(cell.column.id) && "bg-bg group-hover/row:bg-surface-muted group-data-[highlight]/row:bg-highlight",
         cell.column.columnDef.meta?.className
       )}
     >
@@ -284,7 +285,7 @@ export function DataTable<TData>({
                 cellClassName={bodyCell}
                 className={cn(
                   "group/row",
-                  highlight ? "bg-highlight" : "hover:bg-surface-muted/60"
+                  highlight ? "bg-highlight" : "hover:bg-surface-muted"
                 )}
                 details={expandable ? renderDetails(row) : undefined}
                 disclosureClass={disclosureClass}
