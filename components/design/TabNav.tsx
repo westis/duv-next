@@ -13,8 +13,8 @@ export interface TabItem {
 }
 
 /**
- * A row of section links where every item is its own route, Almanac look:
- * plain text, the active one bold with a red underline, a hairline below.
+ * A row of section links where every item is its own route, Swiss Grid look:
+ * condensed capitals, the active one with a 3 px red underline, a hairline below.
  * Sticky under the site header; scrolls sideways on phones and keeps the
  * active item in view. Pages with a few big sections should prefer
  * `SectionLayout` (a left contents rail on desktop, this kind of row on phones).
@@ -34,7 +34,7 @@ export function TabNav({ items, label, className }: { items: TabItem[]; label: s
   return (
     <nav
       aria-label={label}
-      className={cn("sticky top-[var(--header-h)] z-30 -mx-4 border-b border-hair bg-bg md:-mx-6 lg:-mx-8", className)}
+      className={cn("sticky top-[var(--header-h)] z-30 -mx-4 border-b border-border bg-bg md:-mx-6 lg:-mx-8", className)}
     >
       <ul className="flex gap-6 overflow-x-auto px-4 [scrollbar-width:none] md:px-6 lg:px-8">
         {items.map((item) => {
@@ -46,12 +46,12 @@ export function TabNav({ items, label, className }: { items: TabItem[]; label: s
                 href={item.href}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "nav-link flex h-11 items-center gap-1.5 text-sm whitespace-nowrap hover:bg-transparent",
-                  isActive ? "font-semibold shadow-[inset_0_-2px_0_var(--brand)]" : "hover:underline"
+                  "nav-link flex h-11 items-center gap-1.5 whitespace-nowrap font-display text-base font-semibold tracking-[0.04em] uppercase hover:bg-transparent",
+                  isActive ? "text-fg shadow-[inset_0_calc(-1*var(--rule-mid))_0_var(--brand)]" : "text-fg-muted hover:text-fg"
                 )}
               >
                 {item.label}
-                {item.count !== undefined && <span className="font-normal text-fg-muted tabular">{item.count}</span>}
+                {item.count !== undefined && <span className="font-sans text-sm font-normal tracking-normal text-fg-muted normal-case tabular">{item.count}</span>}
               </Link>
             </li>
           );
