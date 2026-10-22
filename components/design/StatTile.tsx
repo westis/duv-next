@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * One key fact: a small-caps label above a big serif figure, optional muted
- * line below. Goes inside a `<StatStrip>` (it renders `<dt>`/`<dd>`).
+ * One key fact (design-system/components/StatStrip.md): a condensed label above
+ * a big condensed figure with tabular digits, an optional line below naming
+ * who or what. Goes inside a `<StatStrip>` (it renders `<dt>`/`<dd>`).
  */
 export function StatTile({
   label,
@@ -19,26 +20,28 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "min-w-0 border-b border-hair py-2.5 sm:border-e sm:border-b-0 sm:pe-6 sm:last:border-e-0",
+        "flex min-w-0 flex-col gap-1 border-b border-border pt-3.5 pb-4 sm:border-e sm:border-b-0 sm:px-5 sm:first:ps-0 sm:last:border-e-0",
         className
       )}
     >
-      <dt className="label-caps tracking-[0.1em] text-fg-muted">{label}</dt>
-      <dd className="serif-figures mt-1.5 truncate text-xl leading-none font-semibold md:text-[1.375rem]">{value}</dd>
-      {delta && <dd className="mt-1 text-xs text-fg-muted">{delta}</dd>}
+      <dt className="font-display text-[0.9375rem] font-bold tracking-[0.06em] text-fg-muted uppercase">{label}</dt>
+      <dd className="truncate font-display text-[2.5rem] leading-none font-extrabold tabular-nums sm:text-4xl lg:text-[3.25rem]">
+        {value}
+      </dd>
+      {delta && <dd className="text-sm text-fg">{delta}</dd>}
     </div>
   );
 }
 
 /**
- * The key facts strip under a page header: 2 to 4 tiles between an ink rule
- * and a rule: two columns with hairlines on phones, one row with hairline dividers from sm.
+ * The key facts strip under a page header: 2 to 4 tiles under a 6 px ink rule,
+ * with hairline dividers. One column on phones, one row from sm.
  */
 export function StatStrip({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <dl
       className={cn(
-        "grid grid-cols-2 gap-x-4 border-t border-t-fg sm:flex sm:flex-wrap sm:gap-x-6 sm:border-b sm:border-b-border",
+        "grid grid-cols-1 border-t-[length:var(--rule-heavy)] border-t-fg sm:grid-flow-col sm:auto-cols-fr",
         className
       )}
     >
