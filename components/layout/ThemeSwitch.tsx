@@ -23,7 +23,7 @@ export function ThemeSwitch({ className, showLabels = false }: { className?: str
   const current = mounted ? (theme ?? "system") : undefined;
 
   return (
-    <div role="group" aria-label={t("label")} className={cn("inline-flex border border-border p-0.5", className)}>
+    <div role="group" aria-label={t("label")} className={cn("inline-flex border border-control-border p-0.5", className)}>
       {options.map(({ value, icon: Icon }) => (
         <button
           key={value}

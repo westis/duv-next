@@ -56,35 +56,39 @@ function useSiteSearch() {
   return { isOpen, open, panel };
 }
 
-/** The wordmark: "DUV" in the red serif, the site's name in small capitals beside it. */
+/** The white DUV logo (the band is dark in both themes) and the site's name in condensed capitals. */
 function Wordmark() {
   const t = useTranslations("site");
   return (
     <Link
       href="/"
       aria-label={t("home")}
-      className="nav-link flex shrink-0 items-center gap-2 py-1 hover:bg-transparent"
+      className="nav-link flex shrink-0 items-center gap-3 py-1 text-header-fg hover:bg-transparent hover:text-header-fg"
     >
-      <span aria-hidden className="font-serif text-[1.5rem] leading-none font-bold tracking-[-0.01em] text-brand lg:text-[1.625rem]">
-        DUV
-      </span>
-      <span aria-hidden className="label-caps max-w-[5.5rem] tracking-[0.12em] text-fg sm:hidden">
+      {/* eslint-disable-next-line @next/next/no-img-element -- small static logo, no optimisation needed */}
+      <img src="/duv_logo_with_name_white.png" alt="" width={77} height={36} className="h-8 w-auto lg:h-9" />
+      <span aria-hidden className="label-caps max-w-[5.5rem] text-header-fg sm:hidden">
         {t("taglineShort")}
       </span>
-      <span aria-hidden className="label-caps hidden tracking-[0.12em] text-fg sm:inline">
+      <span aria-hidden className="label-caps hidden text-header-fg sm:inline">
         {t("tagline")}
       </span>
     </Link>
   );
 }
 
+/** Nav link on the band: condensed capitals, muted until hovered, the active one white with a red underline. */
+const bandLink =
+  "nav-link inline-flex min-h-11 items-center font-display text-[1.0625rem] font-semibold tracking-[0.04em] uppercase text-header-muted hover:bg-transparent hover:text-header-fg aria-[current=page]:text-header-fg aria-[current=page]:shadow-[inset_0_calc(-1*var(--rule-mid))_0_var(--brand)]";
+
 /**
- * Site header, Almanac look: a 4 px red line on top, the serif wordmark, the four
- * sections as plain text (the active one bold with a red underline), a wide
- * search field with the "/" shortcut, and one ink rule closing it. Phones keep
- * the four sections visible as a row under the wordmark (no hamburger for them);
- * the menu button holds the subsections, theme and about links. Sticky from lg
- * only (`--header-h`), so a phone keeps its whole screen for the page.
+ * Site header, Swiss Grid look (design-system/components/SiteHeader.md): one band
+ * in `header` (navy in light, near-black in dark) with the white logo, the four
+ * sections in condensed capitals (the active one with a red underline) and an
+ * underlined search field that opens the quick search ("/" or Cmd/Ctrl+K).
+ * Phones keep the four sections as a row under the logo; the menu button holds
+ * the subsections, theme and about links. Sticky from lg only (`--header-h`),
+ * so a phone keeps its whole screen for the page.
  */
 export function SiteHeader() {
   const t = useTranslations("nav");
@@ -93,61 +97,49 @@ export function SiteHeader() {
   const search = useSiteSearch();
 
   return (
-    <header className="z-40 border-t-4 border-b border-t-brand border-b-fg bg-bg lg:sticky lg:top-0">
+    <header className="z-40 bg-header text-header-fg lg:sticky lg:top-0">
       {search.panel}
-      <div className={cn("container flex items-center gap-3 pt-2 pb-1 lg:h-14 lg:gap-7 lg:py-0", search.isOpen && "lg:hidden")}>
+      <div className={cn("container flex items-center gap-3 pt-2 pb-1 lg:h-15 lg:gap-8 lg:py-0", search.isOpen && "lg:hidden")}>
         <Wordmark />
 
         <nav aria-label={t("mainNavigation")} className="hidden h-full lg:block">
           <ul className="flex h-full items-center gap-6">
-            {navSections.map((section) => {
-              const active = isSectionActive(section, pathname);
-              return (
-                <li key={section.key}>
-                  <Link
-                    href={section.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "nav-link inline-flex min-h-11 items-center text-sm hover:bg-transparent hover:underline hover:underline-offset-8",
-                      active && "font-semibold shadow-[inset_0_-2px_0_var(--brand)] hover:no-underline"
-                    )}
-                  >
-                    {t(section.key)}
-                  </Link>
-                </li>
-              );
-            })}
+            {navSections.map((section) => (
+              <li key={section.key}>
+                <Link
+                  href={section.href}
+                  aria-current={isSectionActive(section, pathname) ? "page" : undefined}
+                  className={bandLink}
+                >
+                  {t(section.key)}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
 
-        <div className="ms-auto flex items-center gap-1 lg:gap-3">
+        <div className="ms-auto flex min-w-0 items-center gap-1 lg:gap-4">
+          {/* The search field: underline only, it opens the quick search. */}
           <button
             type="button"
             onClick={search.open}
             aria-label={t("search")}
-            className="hidden h-9 w-72 items-center gap-2 border border-border bg-surface px-3 text-sm text-fg-muted hover:border-fg-muted hover:text-fg lg:flex xl:w-80"
+            className="flex h-9 min-w-0 items-center gap-2 border-b border-header-muted text-sm text-header-muted hover:border-header-fg hover:text-header-fg lg:w-72 xl:w-80"
           >
-            <Search className="size-4" strokeWidth={1.75} aria-hidden />
-            <span className="truncate">{t("searchPlaceholder")}</span>
-            <kbd className="ms-auto border border-border px-1.5 font-mono text-xs">/</kbd>
-          </button>
-          <button
-            type="button"
-            onClick={search.open}
-            aria-label={t("search")}
-            className="inline-flex size-11 items-center justify-center text-fg hover:bg-surface-muted lg:hidden"
-          >
-            <Search className="size-5" strokeWidth={1.75} aria-hidden />
+            <Search className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+            <span className="truncate lg:hidden">{t("search")}</span>
+            <span className="hidden truncate lg:inline">{t("searchPlaceholder")}</span>
+            <kbd className="ms-auto hidden border border-header-muted px-1.5 font-mono text-xs lg:inline">/</kbd>
           </button>
 
           <Popover>
             <PopoverTrigger
               aria-label={tTheme("label")}
-              className="hidden size-9 items-center justify-center text-fg-muted hover:bg-surface-muted hover:text-fg lg:inline-flex"
+              className="hidden size-9 items-center justify-center text-header-muted hover:text-header-fg lg:inline-flex"
             >
               <Monitor className="size-5" strokeWidth={1.75} aria-hidden />
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto rounded-none p-2">
+            <PopoverContent align="end" className="w-auto p-2">
               <ThemeSwitch showLabels />
             </PopoverContent>
           </Popover>
@@ -156,26 +148,20 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Phones and tablets: the four sections stay visible as one row. */}
-      <nav aria-label={t("mainNavigation")} className="border-t border-hair lg:hidden">
+      {/* Phones and tablets: the four sections stay visible as one row under the logo. */}
+      <nav aria-label={t("mainNavigation")} className="lg:hidden">
         <ul className="container flex justify-between gap-2 sm:justify-start sm:gap-8">
-          {navSections.map((section) => {
-            const active = isSectionActive(section, pathname);
-            return (
-              <li key={section.key}>
-                <Link
-                  href={section.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "nav-link inline-flex min-h-11 items-center text-sm hover:bg-transparent",
-                    active && "font-semibold shadow-[inset_0_-2px_0_var(--brand)]"
-                  )}
-                >
-                  {t(section.key)}
-                </Link>
-              </li>
-            );
-          })}
+          {navSections.map((section) => (
+            <li key={section.key}>
+              <Link
+                href={section.href}
+                aria-current={isSectionActive(section, pathname) ? "page" : undefined}
+                className={cn(bandLink, "text-base")}
+              >
+                {t(section.key)}
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
     </header>
@@ -192,16 +178,16 @@ function MobileMenu() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         aria-label={t("openMenu")}
-        className="inline-flex size-11 items-center justify-center text-fg hover:bg-surface-muted lg:hidden"
+        className="inline-flex size-11 shrink-0 items-center justify-center text-header-fg lg:hidden"
       >
         <Menu className="size-5" strokeWidth={1.75} aria-hidden />
       </SheetTrigger>
       <SheetContent side="right" className="flex w-full max-w-sm flex-col gap-0 overflow-y-auto p-0 [&>button:last-child]:hidden">
-        <div className="flex h-14 shrink-0 items-center justify-between border-t-4 border-b border-t-brand border-b-fg px-4">
-          <SheetTitle className="font-serif text-xl font-semibold">{t("menu")}</SheetTitle>
+        <div className="flex h-14 shrink-0 items-center justify-between bg-header px-4 text-header-fg">
+          <SheetTitle className="font-display text-xl font-bold tracking-[0.04em] text-header-fg uppercase">{t("menu")}</SheetTitle>
           <SheetClose
             aria-label={t("closeMenu")}
-            className="inline-flex size-11 items-center justify-center hover:bg-surface-muted"
+            className="inline-flex size-11 items-center justify-center text-header-fg"
           >
             <X className="size-5" strokeWidth={1.75} aria-hidden />
           </SheetClose>
@@ -214,7 +200,7 @@ function MobileMenu() {
                   href={section.href}
                   onClick={() => setOpen(false)}
                   aria-current={isSectionActive(section, pathname) ? "page" : undefined}
-                  className="nav-link flex min-h-11 items-center px-3 font-serif text-lg font-semibold aria-[current=page]:shadow-[inset_2px_0_0_var(--brand)]"
+                  className="nav-link flex min-h-11 items-center px-3 font-display text-lg font-semibold tracking-[0.04em] uppercase aria-[current=page]:shadow-[inset_var(--rule-mid)_0_0_var(--brand)]"
                 >
                   {t(section.key)}
                 </Link>
@@ -237,7 +223,7 @@ function MobileMenu() {
             ))}
           </ul>
         </nav>
-        <div className="mt-auto space-y-4 border-t border-fg px-4 py-4">
+        <div className="mt-auto space-y-4 border-t-[length:var(--rule-mid)] border-fg px-4 py-4">
           <ul className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
             {footerLinks.map((link) => (
               <li key={link.href}>
