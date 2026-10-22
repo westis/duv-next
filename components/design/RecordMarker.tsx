@@ -24,13 +24,14 @@ const solid: Record<MarkerKind, string> = {
   WR: "bg-brand text-brand-fg border-brand",
   AR: "bg-brand text-brand-fg border-brand",
   NR: "bg-brand text-brand-fg border-brand",
-  CR: "bg-cr text-surface border-cr",
+  CR: "bg-cr text-cr-fg border-cr",
   PB: "bg-transparent text-pb border-pb",
 };
 
 /**
- * Compact record marker placed right after a performance (design spec,
- * "Record markers"). Opens on hover with a fine pointer and on tap or Enter.
+ * Compact square record marker placed right after a performance
+ * (design-system/components/RecordMarker.md): WR/AR/NR solid brand, CR solid
+ * cr, PB outlined in pb, an outlined ratifying body ("IAU AR") in brand-ink. Opens on hover with a fine pointer and on tap or Enter.
  */
 export function RecordMarker({ kind, category, body, children, className }: RecordMarkerProps) {
   const [open, setOpen] = useState(false);
@@ -41,8 +42,8 @@ export function RecordMarker({ kind, category, body, children, className }: Reco
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
-          "inline-flex h-[18px] items-center border px-1 text-[11px] leading-none font-semibold tracking-[0.04em] uppercase tabular",
-          body ? "border-brand bg-transparent text-brand" : solid[kind],
+          "inline-flex h-[18px] items-center border px-1 align-middle font-display text-[0.8125rem] leading-none font-bold tracking-[0.04em] uppercase tabular",
+          body ? "border-brand-ink bg-transparent text-brand-ink" : solid[kind],
           className
         )}
         onMouseEnter={() => hoverable() && setOpen(true)}

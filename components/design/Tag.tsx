@@ -5,20 +5,21 @@ import { cn } from "@/lib/utils";
 import type { TagFamily, TagSpec, TagTone } from "@/lib/tags";
 
 /**
- * Almanac tags are not pills: small capitals in muted ink, separated by dots
- * (TRAIL · FIXED DISTANCE · IAU BRONZE). Only IAU labels and championships
- * take the red, an IAU label with a small red square before it.
+ * Swiss Grid tags (design-system/components/Tag.md) are text, not pills:
+ * uppercase condensed labels separated by dots (TRAIL · FIXED DISTANCE ·
+ * IAU BRONZE). Only IAU labels and championships take the red.
  */
+const caps = "font-display text-[0.9375rem] leading-tight font-bold tracking-[0.04em] uppercase";
 const base = "inline-flex max-w-full shrink-0 items-center gap-1.5 whitespace-nowrap no-underline";
 
 const familyClass: Record<TagFamily, string> = {
   // A figure with its unit: ink, not capitals ("117 km", "24 h").
-  distance: "text-xs font-semibold text-fg tabular",
-  type: "label-caps text-fg-muted",
-  surface: "label-caps text-fg-muted",
-  iau: "label-caps text-brand-ink",
-  championship: "label-caps text-brand-ink",
-  status: "label-caps text-fg-muted",
+  distance: "text-sm font-semibold text-fg tabular",
+  type: `${caps} text-fg-muted`,
+  surface: `${caps} text-fg-muted`,
+  iau: `${caps} text-brand-ink`,
+  championship: `${caps} text-brand-ink`,
+  status: `${caps} text-fg`,
 };
 
 const dotTone: Partial<Record<TagTone, string>> = {
@@ -40,16 +41,14 @@ export interface TagProps {
 }
 
 /**
- * One tag. Every tag is its text, so colour never stands alone: IAU labels get
- * a red square, results status a small dot in its tone.
+ * One tag. Every tag is its text, so colour never stands alone; results status
+ * gets a 6 px dot in its tone beside its word.
  */
 export function Tag({ family, tone, icon, href, title, className, children }: TagProps) {
-  const square = family === "iau";
   const dot = family === "status" && tone ? dotTone[tone] : undefined;
   const classes = cn(base, familyClass[family], className);
   const content = (
     <>
-      {square && <span aria-hidden className="size-[7px] shrink-0 bg-brand" />}
       {dot && <span aria-hidden className={cn("size-1.5 shrink-0 rounded-full", dot)} />}
       {icon}
       <span className="truncate">{children}</span>
