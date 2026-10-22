@@ -60,8 +60,8 @@ function runnerName(query: SearchQuery) {
   return fname ? { sname: last.trim(), fname } : { sname: query.sname, fname: "" };
 }
 
-const sectionHead = "flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b-2 border-fg pb-1.5";
-const sectionTitle = "font-serif text-[1.375rem] leading-tight font-semibold md:text-[1.625rem]";
+const sectionHead = "flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b-[length:var(--rule-mid)] border-fg pb-2";
+const sectionTitle = "font-display text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]";
 
 /**
  * Full search, direction A ("index with time"): the query as one sentence,

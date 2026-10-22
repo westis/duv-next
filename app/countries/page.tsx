@@ -27,7 +27,7 @@ export default async function CountriesPage() {
             <span className="text-fg-muted">{t("subtitle", { count: formatCount(countries.length, locale) ?? "" })}</span>
           )
         }
-        className="border-b-2 border-fg pb-4"
+        className="border-b-[length:var(--rule-heavy)] border-fg pb-4"
       />
       {countries.length === 0 ? (
         <EmptyState className="mt-6">{t("loadError")}</EmptyState>

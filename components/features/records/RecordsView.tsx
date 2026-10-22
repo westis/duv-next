@@ -39,7 +39,7 @@ function StaticTag({ label, variant }: { label: string; variant: "solid" | "dash
   return (
     <span
       className={cn(
-        "inline-flex h-[18px] items-center border px-1 align-[1px] text-[11px] leading-none font-semibold tracking-[0.04em]",
+        "inline-flex h-[18px] items-center border px-1 align-[1px] font-display text-[0.8125rem] leading-none font-bold tracking-[0.04em]",
         variant === "solid" ? "border-brand bg-brand text-brand-fg uppercase" : "border-dashed border-fg-muted text-fg-muted lowercase"
       )}
     >
@@ -228,14 +228,14 @@ export async function RecordsView({ scope, searchParams, countryName }: RecordsV
 
             {thisYear.length > 0 && (
               <section aria-labelledby="records-this-year" className="mt-8">
-                <h2 id="records-this-year" className="label-caps border-b border-fg pb-2 text-fg-muted">
+                <h2 id="records-this-year" className="label-caps border-b-[length:var(--rule-mid)] border-fg pb-2 text-fg">
                   {t("setIn", { year })}
                 </h2>
                 <ul>
                   {thisYear.map((c) => (
                     <li key={`${c.dist}-${c.gender}`} className="border-b border-hair py-2.5 text-sm">
                       <p>
-                        <span className="serif-figures font-semibold">{perfText(c.perf, c.dist, locale, t)}</span>{" "}
+                        <span className="font-display text-lg font-bold tabular-nums">{perfText(c.perf, c.dist, locale, t)}</span>{" "}
                         <span className="text-fg-muted">
                           {t("setInWhat", { dist: t(`dist.${c.dist}`), gender: c.gender === "W" ? t("genderW") : t("genderM") })}
                         </span>

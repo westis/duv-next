@@ -184,13 +184,13 @@ export function Ledger({
           <section
             key={year.year}
             aria-labelledby={`y${year.year}`}
-            className="border-t-2 border-fg md:grid md:grid-cols-[5.5rem_minmax(0,1fr)]"
+            className="border-t-[length:var(--rule-mid)] border-fg md:grid md:grid-cols-[5.5rem_minmax(0,1fr)]"
           >
             <h3
               id={`y${year.year}`}
               className="scroll-mt-[calc(var(--header-h)+1rem)] pt-2 pb-1 md:sticky md:top-[calc(var(--header-h)+0.5rem)] md:self-start md:py-2"
             >
-              <span className="font-serif text-xl leading-none font-semibold tabular md:text-[1.625rem]">{year.year}</span>
+              <span className="font-display text-[1.75rem] leading-none font-extrabold tabular md:text-[2.5rem]">{year.year}</span>
               {summary.length > 0 && (
                 <small className="ms-2 text-xs font-normal text-fg-muted md:ms-0 md:mt-1.5 md:block md:leading-snug">
                   {summary.map((s, i) => (

@@ -235,7 +235,7 @@ export function RankingRail({ m }: { m: RankingNavModel }) {
   const t = useTranslations("rankings");
   return (
     <nav aria-label={t("lists")} className="text-sm">
-      <p className="label-caps mb-3 tracking-[0.1em] text-fg-muted">{t("heading")}</p>
+      <p className="label-caps mb-3 border-b-[length:var(--rule-mid)] border-fg pb-2 text-fg">{t("heading")}</p>
       <RailList items={listItems(m, t)} />
 
       <RailHeading>{t("year")}</RailHeading>

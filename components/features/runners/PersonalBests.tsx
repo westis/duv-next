@@ -69,24 +69,24 @@ export function PersonalBests({
 
   return (
     <section aria-labelledby="pbs-heading">
-      <h2 id="pbs-heading" className="label-caps mb-2 text-fg-muted">
+      <h2 id="pbs-heading" className="font-display mb-3 border-b-[length:var(--rule-mid)] border-fg pb-2 text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]">
         {t("heading")}
       </h2>
       {lines.length > 0 && (
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border text-left text-xs text-fg-muted">
-              <th scope="col" className="py-1.5 pe-2 font-medium">
+            <tr className="label-caps border-b-[length:var(--rule-mid)] border-fg text-left text-fg">
+              <th scope="col" className="py-1.5 pe-2">
                 {t("distance")}
               </th>
-              <th scope="col" className="py-1.5 pe-2 text-right font-medium">
+              <th scope="col" className="py-1.5 pe-2 text-right">
                 {t("best")}
               </th>
-              <th scope="col" className="py-1.5 pe-2 font-medium">
+              <th scope="col" className="py-1.5 pe-2">
                 {t("year")}
               </th>
               {spark && (
-                <th scope="col" className="py-1.5 font-medium">
+                <th scope="col" className="py-1.5">
                   <span className="sr-only">{t("yearlyBests")} </span>
                   <span aria-hidden>
                     {first}–{String(last).slice(-2)}

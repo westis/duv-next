@@ -215,7 +215,7 @@ export function QuickSearch({ onClose }: { onClose: () => void }) {
             href="/"
             onClick={onClose}
             aria-label={tSite("home")}
-            className="nav-link hidden font-serif text-[1.625rem] leading-none font-bold text-brand hover:bg-transparent lg:inline"
+            className="nav-link hidden font-display text-[1.625rem] leading-none font-extrabold text-brand hover:bg-transparent lg:inline"
           >
             DUV
           </Link>

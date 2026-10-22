@@ -225,7 +225,7 @@ export default async function CountryPage({ params, searchParams }: PageProps) {
           className="mt-10 flex min-h-14 items-center justify-between gap-4 border-y-2 border-fg py-3 font-semibold text-fg no-underline hover:underline"
         >
           <span>
-            <span className="block font-serif text-lg md:text-xl">{t("records.link")}</span>
+            <span className="block font-display text-lg font-bold uppercase md:text-xl">{t("records.link")}</span>
             <span className="block text-sm font-normal text-fg-muted">{t("records.xref")}</span>
           </span>
           <ArrowRight aria-hidden strokeWidth={1.75} className="size-5 shrink-0" />

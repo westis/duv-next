@@ -37,7 +37,7 @@ export function HomeSearch() {
         <form action="/search" method="get" role="search" className="max-w-3xl">
           <label
             htmlFor="home-search"
-            className="mb-2.5 block font-serif text-[1.375rem] leading-tight font-semibold md:text-[1.75rem]"
+            className="mb-2.5 block font-display text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]"
           >
             {t("heading")}
           </label>
@@ -98,9 +98,9 @@ function ColumnHeading({
   return (
     <h2
       id={id}
-      className="flex items-baseline justify-between gap-3 border-b-2 border-fg pb-1.5"
+      className="flex items-baseline justify-between gap-3 border-b-[length:var(--rule-mid)] border-fg pb-2"
     >
-      <span className="label-caps text-[0.8125rem] text-fg">{children}</span>
+      <span className="font-display text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]">{children}</span>
       <Link href={href} className="text-sm font-normal">
         {link}
       </Link>

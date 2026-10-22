@@ -201,7 +201,7 @@ export default async function RunnerPage({ params, searchParams }: PageProps) {
         </aside>
 
         <section id="history" aria-labelledby="history-heading" className="scroll-mt-[calc(var(--header-h)+1rem)] pt-6">
-          <h2 id="history-heading" className="label-caps mb-1 text-fg-muted">
+          <h2 id="history-heading" className="font-display mb-3 border-b-[length:var(--rule-mid)] border-fg pb-2 text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]">
             {t("history")}
           </h2>
           {distItems.length > 2 && <FilterLinks items={distItems} label={t("filters.label")} />}

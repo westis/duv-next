@@ -110,8 +110,14 @@ function GapBar({ row, scale }: { row: RankRow; scale: GapScale | null }) {
   );
 }
 
+/** "01", "12", "128": plain places get at least two digits (Swiss Grid ranks). */
+function twoDigits(rank: string): string {
+  const text = rank.trim();
+  return /^\d+$/.test(text) ? text.padStart(2, "0") : text;
+}
+
 function Rank({ row, t }: { row: RankRow; t: T }) {
-  if (!row.repeat) return <>{row.rank}</>;
+  if (!row.repeat) return <span className={cn(/^0*1$/.test(row.rank.trim()) && "text-brand-ink")}>{twoDigits(row.rank)}</span>;
   const n = row.rank.replace(/\D/g, "");
   return (
     <span className="text-fg-muted" title={t("repeat", { n })}>
@@ -163,9 +169,9 @@ function spoken(text: string, row: RankRow, locale: string, t: T) {
 }
 
 const th =
-  "label-caps border-b border-fg px-2 py-2 text-start font-semibold text-fg-muted first:ps-0 last:pe-0 lg:px-3";
+  "label-caps border-b-[length:var(--rule-mid)] border-fg px-2 py-2 text-start text-fg first:ps-0 last:pe-0 lg:px-3";
 const td =
-  "border-b border-hair px-2 py-2 align-baseline first:ps-0 last:pe-0 lg:px-3";
+  "border-b border-border px-2 py-2 align-baseline first:ps-0 last:pe-0 lg:px-3";
 
 /**
  * The ranking, result first: rank, result, gap to the leader (bar and figure),
@@ -243,7 +249,7 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
               const iau = (e.IAULabel ?? "").trim().toUpperCase();
               return (
                 <tr key={e.PerfID}>
-                  <td className={cn(td, "text-end text-fg-muted tabular")}>
+                  <td className={cn(td, "text-end font-display text-[1.375rem] leading-none font-extrabold tabular")}>
                     <Rank row={row} t={t} />
                   </td>
                   <td
@@ -335,9 +341,9 @@ export function RankingList({ rows, kind, scale, caption }: ListProps) {
           return (
             <li
               key={e.PerfID}
-              className="grid grid-cols-[1.75rem_minmax(0,1fr)_auto] items-baseline gap-x-2 border-b border-hair py-2"
+              className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-baseline gap-x-2 border-b border-border py-2"
             >
-              <span className="text-end text-sm text-fg-muted tabular">
+              <span className="text-end font-display text-lg leading-none font-extrabold tabular">
                 <Rank row={row} t={t} />
               </span>
               <div className="min-w-0">

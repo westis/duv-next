@@ -28,7 +28,7 @@ export async function PodiumFeed({ rows, className }: { rows: TopRankAbroadRow[]
         return (
           <li key={`${r.EventID}-${r.PersonID}-${r.RankMW}`} className="border-b border-hair py-2.5">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-              <span className="serif-figures min-w-[6.5rem] text-base font-semibold">
+              <span className="min-w-[6.5rem] font-display text-lg font-bold tabular-nums">
                 {formatPerformanceText(r.Performance, locale)}
               </span>
               <Link href={`/runners/${r.PersonID}`} className="font-semibold text-fg">

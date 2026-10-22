@@ -46,7 +46,7 @@ export function RepeatRaces({ rows }: { rows: PersonCompRow[] }) {
   const rest = rows.slice(VISIBLE);
   return (
     <section aria-labelledby="repeat-heading" className="mt-8">
-      <h2 id="repeat-heading" className="label-caps mb-1 text-fg-muted">
+      <h2 id="repeat-heading" className="font-display mb-3 border-b-[length:var(--rule-mid)] border-fg pb-2 text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]">
         {t("heading")}
       </h2>
       <ul>

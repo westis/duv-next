@@ -16,7 +16,7 @@ function OpenRecord({ cell, gender, t, locale }: { cell: BoardCell | null; gende
     <div className="min-w-0 text-sm">
       <p className="label-caps text-fg-muted">{gender === "W" ? t("women") : t("men")}</p>
       <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5">
-        <span className="serif-figures text-lg leading-tight font-semibold">{perfText(cell.perf, cell.dist, locale, t)}</span>
+        <span className="font-display text-2xl leading-tight font-bold tabular-nums">{perfText(cell.perf, cell.dist, locale, t)}</span>
         <CellMarker cell={cell} t={t} locale={locale} context="board" />
       </p>
       <p className="font-medium">
@@ -52,7 +52,7 @@ function AgeMark({ cell, row, gender, t, locale }: { cell: BoardCell | null; row
   return (
     <div className="min-w-0 xl:grid xl:grid-cols-[5.75rem_minmax(0,1.25fr)_minmax(0,1fr)] xl:gap-x-2.5">
       <p className="flex flex-wrap items-center gap-x-1.5 xl:flex-col xl:items-start xl:gap-y-1">
-        <span className="serif-figures font-semibold">{perfText(cell.perf, cell.dist, locale, t)}</span>
+        <span className="font-display text-lg font-bold tabular-nums">{perfText(cell.perf, cell.dist, locale, t)}</span>
         <CellMarker cell={cell} t={t} locale={locale} context="age" holds={row.holds.includes(gender)} />
       </p>
       <div className="min-w-0">
@@ -104,7 +104,7 @@ export async function DistanceDetail({
 
   return (
     <section aria-label={t("detailTitle", { dist: distLabel })} className={className}>
-      <Heading className="font-serif text-xl leading-tight font-semibold md:text-[1.375rem]">
+      <Heading className="font-display text-2xl leading-none font-extrabold uppercase md:text-[1.75rem]">
         {t("detailTitle", { dist: distLabel })}
       </Heading>
 
@@ -132,13 +132,13 @@ export async function DistanceDetail({
               </colgroup>
               <thead>
                 <tr className="border-b border-fg">
-                  <th scope="col" className="label-caps ps-1.5 pb-2 text-fg-muted">
+                  <th scope="col" className="label-caps ps-1.5 pb-2 text-fg">
                     {t("age")}
                   </th>
-                  <th scope="col" className="label-caps px-2 pb-2 text-fg-muted">
+                  <th scope="col" className="label-caps px-2 pb-2 text-fg">
                     {t("women")}
                   </th>
-                  <th scope="col" className="label-caps border-s border-hair px-2 pb-2 text-fg-muted">
+                  <th scope="col" className="label-caps border-s border-border px-2 pb-2 text-fg">
                     {t("men")}
                   </th>
                 </tr>

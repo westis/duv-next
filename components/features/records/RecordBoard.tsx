@@ -27,7 +27,7 @@ function BoardMark({ cell, t, locale }: { cell: BoardCell | null; t: RecordsT; l
   return (
     <div className="min-w-0">
       <p className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-        <span className="serif-figures text-[1.0625rem] leading-tight font-semibold">{perfText(cell.perf, cell.dist, locale, t)}</span>
+        <span className="font-display text-[1.375rem] leading-tight font-bold tabular-nums">{perfText(cell.perf, cell.dist, locale, t)}</span>
         <CellMarker cell={cell} t={t} locale={locale} context="board" />
       </p>
       <p className="truncate text-sm font-medium">
@@ -60,11 +60,11 @@ export async function RecordBoard({ rows, selected, explicit, hrefFor, retryHref
     <table className="w-full table-fixed border-collapse text-left">
       <caption className="sr-only">{t("boardLabel")}</caption>
       <thead>
-        <tr className="border-b border-fg">
-          <th scope="col" className="label-caps w-1/2 ps-2 pe-3 pb-2 text-fg-muted">
+        <tr className="border-b-[length:var(--rule-mid)] border-fg">
+          <th scope="col" className="label-caps w-1/2 ps-2 pe-3 pb-2 text-fg">
             {t("women")}
           </th>
-          <th scope="col" className="label-caps w-1/2 border-s border-hair ps-3 pe-2 pb-2 text-fg-muted">
+          <th scope="col" className="label-caps w-1/2 border-s border-border ps-3 pe-2 pb-2 text-fg">
             {t("men")}
           </th>
         </tr>

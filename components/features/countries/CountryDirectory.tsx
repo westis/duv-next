@@ -87,7 +87,7 @@ export function CountryDirectory({ countries }: { countries: CountryOption[] }) 
           >
             <h2
               id={`${continent}-heading`}
-              className="label-caps flex items-baseline justify-between border-b-2 border-fg pb-1 tracking-[0.1em]"
+              className="label-caps flex items-baseline justify-between border-b-[length:var(--rule-mid)] border-fg pb-1.5"
             >
               {t(`continents.${continent}`)}
               <span className="font-normal text-fg-muted tabular">{list.length}</span>

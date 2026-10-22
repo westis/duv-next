@@ -28,7 +28,7 @@ export function MarkTag({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         className={cn(
-          "relative inline-flex h-[18px] shrink-0 items-center after:absolute after:-inset-1.5 after:content-[''] border px-1 align-[1px] font-sans text-[11px] leading-none font-semibold tracking-[0.04em] tabular",
+          "relative inline-flex h-[18px] shrink-0 items-center after:absolute after:-inset-1.5 after:content-[''] border px-1 align-[1px] font-display text-[0.8125rem] leading-none font-bold tracking-[0.04em] tabular",
           variant === "solid"
             ? "border-brand bg-brand text-brand-fg uppercase"
             : "border-dashed border-fg-muted bg-transparent text-fg-muted lowercase",

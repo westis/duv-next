@@ -55,7 +55,7 @@ export function TrailRaces({ items, href }: { items: TrailResult[]; href: string
   const rest = items.slice(VISIBLE);
   return (
     <section aria-labelledby="trail-heading" className="mt-8">
-      <h2 id="trail-heading" className="label-caps mb-1 text-fg-muted">
+      <h2 id="trail-heading" className="font-display mb-3 border-b-[length:var(--rule-mid)] border-fg pb-2 text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]">
         {t("heading")} <span className="font-normal tracking-normal normal-case">{t("count", { count: items.length })}</span>
       </h2>
       <p className="mb-1 text-xs text-fg-muted">{t("note")}</p>
