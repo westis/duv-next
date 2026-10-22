@@ -215,6 +215,12 @@
     },
     "sameDay": "Same day",
     "finishersByGender": "{count, plural, one {# finisher} other {# finishers}} ({women} women, {men} men)",
+    "podium": {
+      "W": "Women's winner",
+      "M": "Men's winner",
+      "finishers": "Finishers",
+      "byGender": "{women} women · {men} men"
+    },
     "backToRace": "← Back to the full race"
   },
   "states": {

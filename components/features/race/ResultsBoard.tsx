@@ -113,16 +113,16 @@ export function ResultsBoard({ children, counts, ageGroups, nations, labels }: R
   const showSwitch = counts.W > 0 && counts.M > 0;
   const selectClass = (value: string) =>
     cn(
-      "h-11 w-full appearance-none border-0 border-b border-border bg-bg ps-0 pe-6 text-base text-fg hover:border-fg md:h-9 md:text-sm",
+      "h-11 w-full appearance-none border border-control-border bg-bg ps-3 pe-8 text-base text-fg hover:bg-surface-muted md:h-9 md:text-sm [&>option]:bg-surface [&>option]:text-fg",
       value && "border-fg font-semibold"
     );
 
   return (
     <div ref={root} data-view={view} data-bycat={group ? "" : undefined} className="group/board">
-      <div className="-mx-4 md:sticky md:top-[calc(var(--header-h)+2.75rem)] md:z-20 border-b border-hair bg-bg px-4 py-2 md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
+      <div className="-mx-4 md:sticky md:top-[calc(var(--header-h)+2.75rem)] md:z-20 border-b border-border bg-bg px-4 py-2 md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           {showSwitch && (
-            <div role="group" aria-label={labels.show} className="flex w-full items-center gap-1 sm:w-auto xl:hidden">
+            <div role="group" aria-label={labels.show} className="flex w-full items-center gap-1.5 sm:w-auto xl:hidden">
               {(["W", "M"] as const).map((g) => (
                 <button
                   key={g}
@@ -130,17 +130,24 @@ export function ResultsBoard({ children, counts, ageGroups, nations, labels }: R
                   aria-pressed={view === g}
                   onClick={() => set({ view: g })}
                   className={cn(
-                    "inline-flex min-h-11 items-center gap-1.5 px-2 text-sm md:min-h-9",
-                    view === g ? "font-semibold shadow-[inset_0_-2px_0_var(--fg)]" : "hover:underline"
+                    "inline-flex min-h-11 items-center gap-1.5 border px-3 font-display text-base leading-none font-semibold tracking-[0.04em] uppercase md:min-h-9",
+                    view === g ? "border-fg bg-fg text-surface" : "border-control-border text-fg hover:bg-surface-muted"
                   )}
                 >
                   {g === "W" ? labels.women : labels.men}
-                  <span className="font-normal text-fg-muted tabular">{counts[g]}</span>
+                  <span
+                    className={cn(
+                      "font-sans text-sm font-normal tracking-normal normal-case tabular",
+                      view === g ? "opacity-75" : "text-fg-muted"
+                    )}
+                  >
+                    {counts[g]}
+                  </span>
                 </button>
               ))}
             </div>
           )}
-          <div className="grid w-full grid-cols-2 gap-x-5 sm:flex sm:w-auto">
+          <div className="grid w-full grid-cols-2 gap-x-1.5 sm:flex sm:w-auto">
             {ageGroups.length > 1 && (
               <span className="relative inline-flex min-w-0 sm:w-44">
                 <select
@@ -159,7 +166,7 @@ export function ResultsBoard({ children, counts, ageGroups, nations, labels }: R
                 <ChevronDown
                   aria-hidden
                   strokeWidth={1.75}
-                  className="pointer-events-none absolute end-0.5 top-1/2 size-4 -translate-y-1/2 text-fg-muted"
+                  className="pointer-events-none absolute end-2.5 top-1/2 size-4 -translate-y-1/2 text-fg-muted"
                 />
               </span>
             )}
@@ -189,7 +196,7 @@ export function ResultsBoard({ children, counts, ageGroups, nations, labels }: R
               onChange={(e) => set({ query: e.target.value })}
               placeholder={labels.find}
               autoComplete="off"
-              className="h-11 w-full rounded-md border border-border bg-surface ps-8 pe-2 text-base md:h-9 md:text-sm"
+              className="h-11 w-full border border-control-border bg-transparent ps-8 pe-2 text-base md:h-9 md:text-sm"
             />
           </div>
         </div>
@@ -233,7 +240,7 @@ function NationPicker({
           <ChevronDown
             aria-hidden
             strokeWidth={1.75}
-            className="pointer-events-none absolute end-0.5 top-1/2 size-4 -translate-y-1/2 font-normal text-fg-muted"
+            className="pointer-events-none absolute end-2.5 top-1/2 size-4 -translate-y-1/2 font-normal text-fg-muted"
           />
         </button>
       </PopoverTrigger>

@@ -25,8 +25,8 @@ import type { LoadedRace } from "./loadRace";
 import { finishersOf, parseWinnerField, sameDistance, type WinnerRow } from "./raceModel";
 
 const headingClass = "scroll-mt-[calc(var(--header-h)+1rem)]";
-const th = "label-caps py-2 pe-3 font-semibold text-fg-muted";
-const td = "border-b border-hair py-2 pe-3 align-baseline";
+const th = "label-caps py-2 pe-3 text-fg";
+const td = "border-b border-border py-2 pe-3 align-baseline";
 
 // ---- Splits -----------------------------------------------------------------
 
@@ -63,7 +63,7 @@ export async function RaceSplits({ splits, self }: { splits: WinnerRow[]; self: 
       <table className="w-full max-w-3xl border-collapse text-sm md:text-[0.9375rem]">
         <caption className="sr-only">{t("caption")}</caption>
         <thead>
-          <tr className="border-b border-border">
+          <tr className="border-b-[length:var(--rule-mid)] border-fg">
             <th scope="col" className={cn(th, "ps-3 text-start")}>
               {t("at")}
             </th>
@@ -134,7 +134,7 @@ export async function RaceEditions({ race, editions }: { race: LoadedRace; editi
         <table className="w-full border-collapse text-sm md:text-[0.9375rem] lg:order-first">
           <caption className="sr-only">{t("caption")}</caption>
           <thead>
-            <tr className="border-b border-border">
+            <tr className="border-b-[length:var(--rule-mid)] border-fg">
               <th scope="col" className={cn(th, "ps-3 text-start")}>
                 {t("year")}
               </th>
@@ -418,7 +418,7 @@ function FactList({ title, rows }: { title: string; rows: [string, ReactNode][] 
   if (!visible.length) return null;
   return (
     <div>
-      <h3 className="label-caps mb-2 text-fg-muted">{title}</h3>
+      <h3 className="label-caps mb-2 border-b border-fg pb-1.5 text-fg">{title}</h3>
       <dl className="grid grid-cols-[7.5rem_minmax(0,1fr)] content-start gap-x-4 gap-y-2 text-sm md:text-[0.9375rem]">
       {visible.map(([label, value]) => (
         <div key={label} className="contents">

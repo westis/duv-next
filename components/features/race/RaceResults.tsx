@@ -24,8 +24,9 @@ import { gapText, resultText } from "./raceText";
 /** Column styles of a result list, set once on the table instead of on every cell. */
 const SHEET = [
   "w-full border-collapse text-sm md:text-[0.9375rem] xl:text-sm",
-  "[&_td]:py-2 [&_td]:align-baseline [&_tr[data-q]]:border-b [&_tr[data-q]]:border-hair",
-  "[&_td:nth-child(1)]:pe-2 [&_td:nth-child(1)]:text-end [&_td:nth-child(1)]:text-fg-muted [&_td:nth-child(1)]:tabular-nums",
+  "[&_td]:py-2 [&_td]:align-baseline [&_tr[data-q]]:border-b [&_tr[data-q]]:border-border [&_tr[data-q]:hover]:bg-surface-muted",
+  // The place: a two-digit condensed figure, the winner's in brand-ink.
+  "[&_td:nth-child(1)]:pe-3 [&_td:nth-child(1)]:text-end [&_td:nth-child(1)]:font-display [&_td:nth-child(1)]:text-[1.375rem] [&_td:nth-child(1)]:leading-none [&_td:nth-child(1)]:font-extrabold [&_td:nth-child(1)]:tabular-nums [&_td[data-win]]:text-brand-ink",
   "[&_td:nth-child(2)]:pe-3 [&_td:nth-child(2)]:text-end [&_td:nth-child(2)]:font-semibold [&_td:nth-child(2)]:whitespace-nowrap [&_td:nth-child(2)]:tabular-nums",
   "[&_td:nth-child(3)]:hidden sm:[&_td:nth-child(3)]:table-cell [&_td:nth-child(3)]:pe-3 [&_td:nth-child(3)]:text-end [&_td:nth-child(3)]:text-fg-muted [&_td:nth-child(3)]:whitespace-nowrap [&_td:nth-child(3)]:tabular-nums",
   "[&_td:nth-child(4)]:min-w-0 [&_td:nth-child(4)]:pe-2 [&_td_a]:font-medium",
@@ -174,9 +175,9 @@ function ResultList({
         gender === "W" ? "max-xl:group-data-[view=M]/board:hidden" : "max-xl:group-data-[view=W]/board:hidden"
       )}
     >
-      <h2 className="mt-4 flex items-baseline justify-between gap-3 border-b-2 border-fg pb-1.5 font-serif text-lg font-semibold">
+      <h2 className="mt-6 flex items-baseline justify-between gap-3 border-b-[length:var(--rule-mid)] border-fg pb-2 font-display text-[1.625rem] leading-none font-extrabold uppercase md:text-[2rem]">
         {labels.heading}
-        <small className="font-sans text-sm font-normal text-fg-muted">{labels.count}</small>
+        <small className="font-sans text-sm font-normal text-fg-muted normal-case">{labels.count}</small>
       </h2>
       <p data-empty hidden className="mt-3 text-sm text-fg-muted">
         {labels.noMatch}
@@ -184,23 +185,23 @@ function ResultList({
       <table className={SHEET}>
         <caption className="sr-only">{labels.caption}</caption>
         <thead>
-          <tr className="label-caps text-fg-muted">
-            <th scope="col" className="w-9 py-2 pe-2 text-end font-semibold">
+          <tr className="label-caps border-b-[length:var(--rule-mid)] border-fg text-fg">
+            <th scope="col" className="w-12 py-2 pe-3 text-end">
               {labels.place}
             </th>
-            <th scope="col" className="py-2 pe-3 text-end font-semibold">
+            <th scope="col" className="py-2 pe-3 text-end">
               {labels.result}
             </th>
-            <th scope="col" className="hidden py-2 pe-3 text-end font-semibold sm:table-cell">
+            <th scope="col" className="hidden py-2 pe-3 text-end sm:table-cell">
               {labels.gap}
             </th>
-            <th scope="col" className="py-2 pe-2 text-start font-semibold">
+            <th scope="col" className="py-2 pe-2 text-start">
               {labels.runner}
             </th>
-            <th scope="col" className="hidden py-2 pe-2 text-start font-semibold md:table-cell">
+            <th scope="col" className="hidden py-2 pe-2 text-start md:table-cell">
               {labels.nat}
             </th>
-            <th scope="col" className="hidden py-2 text-start font-semibold md:table-cell">
+            <th scope="col" className="hidden py-2 text-start md:table-cell">
               {labels.category}
             </th>
           </tr>
@@ -220,6 +221,12 @@ function ResultList({
       </table>
     </div>
   );
+}
+
+/** "01", "12", "128": places get at least two digits; anything else stays as it is. */
+function twoDigits(place: number | string | null | undefined): string {
+  const text = place === null || place === undefined ? "" : String(place).trim();
+  return /^\d+$/.test(text) ? text.padStart(2, "0") : text;
 }
 
 function ResultRow({
@@ -248,9 +255,9 @@ function ResultRow({
       data-nat={(nat ?? "").toUpperCase()}
       data-group={ageGroupOf(cat)}
     >
-      <td>
-        <span data-gp="">{f.place ?? ""}</span>
-        <span data-cp="">{catRank}</span>
+      <td data-win={f.place === 1 ? "" : undefined}>
+        <span data-gp="">{twoDigits(f.place)}</span>
+        <span data-cp="">{twoDigits(catRank)}</span>
       </td>
       <td>
         {resultText(r.Performance, kind, f.value, locale)}

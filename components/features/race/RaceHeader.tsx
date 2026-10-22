@@ -1,11 +1,21 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { MetaDot, OutLink, PageHeader, TagList } from "@/components/design";
+import { MetaDot, OutLink, PageHeader, StatStrip, StatTile, TagList } from "@/components/design";
 import { toExternalUrl } from "@/components/features/events/eventDetailUtils";
-import { COURSE_SEPARATOR, DateText, cleanDuv, formatClimb, formatStartTime, parseDuvDate } from "@/lib/format";
+import {
+  COURSE_SEPARATOR,
+  DateText,
+  cleanDuv,
+  formatClimb,
+  formatCount,
+  formatRunnerName,
+  formatStartTime,
+  parseDuvDate,
+} from "@/lib/format";
 import { formatRaceLength, raceTags } from "@/lib/tags";
 import type { LoadedRace } from "./loadRace";
-import type { GenderLists, WinnerRow } from "./raceModel";
+import { resultKind, type Finisher, type Gender, type GenderLists, type WinnerRow } from "./raceModel";
+import { resultText } from "./raceText";
 
 export interface RaceHeaderProps {
   race: LoadedRace;
@@ -29,10 +39,11 @@ function editionNumber(value: string | null | undefined): number {
 }
 
 /**
- * The top of the race page, kept short: championship kicker, serif name,
- * date, start and place, tags (length and climb together), one muted line of
- * key facts (race type, time limit, finishers women and men), the website,
- * and the other races of the same day. Everything else is on the Information tab.
+ * The top of the race page, kept short: championship kicker, the name, date,
+ * start and place, tags (length and climb together), one muted line of key
+ * facts (race type, time limit), the website, the other races of the same day,
+ * and the podium strip (women's winner, men's winner, finishers). Everything
+ * else is on the Information tab.
  */
 export async function RaceHeader({ race, lists, parent, parentIsClassification, sameDay }: RaceHeaderProps) {
   const t = await getTranslations("race");
@@ -67,11 +78,53 @@ export async function RaceHeader({ race, lists, parent, parentIsClassification, 
   const facts = [
     !/^(road|trail|track|indoor)( race)?$/i.test(raceType) && raceType,
     timeLimit && t("timeLimit", { time: timeLimit }),
-    finishers > 0 &&
-      (lists.W.length && lists.M.length
-        ? t("finishersByGender", { count: finishers, women: lists.W.length, men: lists.M.length })
-        : t("finishers", { count: finishers })),
   ].filter(Boolean) as string[];
+
+  // The podium strip: women's winner first (never men alone or first), then men's, then finishers.
+  const kind = resultKind([...lists.W, ...lists.M]);
+  const winnerTile = (g: Gender, f: Finisher | undefined) => {
+    if (!f) return null;
+    const r = f.row;
+    const name = formatRunnerName({ first: r.FirstName, last: r.LastName }, locale) || r.AthleteName;
+    const nat = r.Nationality?.trim();
+    return (
+      <StatTile
+        key={g}
+        label={t(`podium.${g}`)}
+        value={
+          <>
+            {resultText(r.Performance, kind, f.value, locale)}
+            {kind === "distance" && <span className="ms-1 text-[1.375rem] font-semibold">km</span>}
+          </>
+        }
+        delta={
+          <>
+            <Link href={`/runners/${r.PersonID}`}>{name}</Link>
+            {nat && <span className="text-fg-muted">{` · ${nat}`}</span>}
+          </>
+        }
+      />
+    );
+  };
+  const podium =
+    finishers > 0 ? (
+      <StatStrip>
+        {winnerTile("W", lists.W[0])}
+        {winnerTile("M", lists.M[0])}
+        <StatTile
+          label={t("podium.finishers")}
+          value={formatCount(finishers, locale)}
+          delta={
+            lists.W.length && lists.M.length
+              ? t("podium.byGender", {
+                  women: formatCount(lists.W.length, locale) ?? "",
+                  men: formatCount(lists.M.length, locale) ?? "",
+                })
+              : undefined
+          }
+        />
+      </StatStrip>
+    ) : undefined;
 
   return (
     <PageHeader
@@ -140,6 +193,7 @@ export async function RaceHeader({ race, lists, parent, parentIsClassification, 
           )}
         </>
       }
+      facts={podium}
     />
   );
 }
