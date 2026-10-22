@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Source_Serif_4 } from "next/font/google";
+import { Archivo, Barlow_Condensed } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Providers } from "@/components/layout/Providers";
@@ -8,16 +8,16 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { localeDirection } from "@/i18n/config";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin", "latin-ext", "cyrillic", "greek"], variable: "--font-inter" });
-// Titles, section headings and big figures (Almanac look). Variable weight and optical size,
-// so 44 px titles and 20 px figures both look right. Only Latin is preloaded; the other
-// scripts load when a page uses them. Italic is for edition lines ("10th edition").
-const sourceSerif = Source_Serif_4({
-  subsets: ["latin"],
+// DUV Swiss Grid type (design-system/README.md): Barlow Condensed for titles, headings, labels and
+// big figures, Archivo for body text and data. Neither has Cyrillic or Greek; those scripts fall
+// back to the system sans. Only Latin is preloaded.
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin", "latin-ext"],
+  weight: ["500", "600", "700", "800"],
   style: ["normal", "italic"],
-  axes: ["opsz"],
-  variable: "--font-source-serif",
+  variable: "--font-barlow-condensed",
 });
+const archivo = Archivo({ subsets: ["latin", "latin-ext"], variable: "--font-archivo" });
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("site");
@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
   const t = await getTranslations("site");
   return (
-    <html lang={locale} dir={localeDirection(locale)} className={`${inter.variable} ${sourceSerif.variable}`} suppressHydrationWarning>
+    <html lang={locale} dir={localeDirection(locale)} className={`${barlowCondensed.variable} ${archivo.variable}`} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <a
           href="#main"

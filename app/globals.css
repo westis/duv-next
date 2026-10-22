@@ -78,10 +78,11 @@
   --radius-3xl: 0px;
   --radius-4xl: 0px;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
-  --font-heading: var(--font-source-serif), Georgia, "Times New Roman", serif;
-  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-serif: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --font-heading: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --font-display: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+  --font-body: var(--font-archivo), system-ui, sans-serif;
 }
 
 /*
@@ -255,21 +256,22 @@
   font-feature-settings: "tnum", "cv11";
 }
 
-/* Serif figures (facts, podium results) keep lining, tabular digits. */
+/* Display figures (facts, podium results, in Barlow Condensed) keep lining, tabular digits. */
 @utility serif-figures {
   font-family: var(--font-serif);
   font-variant-numeric: lining-nums tabular-nums;
 }
 
 /*
-  The Almanac label: 11 px, semibold, capitals tracked +0.08 em. Breadcrumbs,
-  fact labels, table heads, tags and rail headings all use it.
+  The Swiss Grid label: Barlow Condensed 14 px bold, capitals tracked +0.06 em.
+  Breadcrumbs, fact labels, table heads, tags and rail headings all use it.
 */
 @utility label-caps {
-  font-size: 0.6875rem;
+  font-family: var(--font-display);
+  font-size: 0.875rem;
   line-height: 1.2;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
