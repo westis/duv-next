@@ -326,6 +326,8 @@
       "nation": "Nat.",
       "nationFull": "Country",
       "label": "Label",
+      "distance": "Distance",
+      "type": "Type",
       "results": "Results",
       "raceCount": "{count, plural, one {# race} other {# races}}"
     },

@@ -32,6 +32,8 @@ export interface CalendarRow {
   surface: Surface | null;
   /** Best IAU label among the distances: G, S, B or T. */
   iau: "G" | "S" | "B" | "T" | null;
+  /** DUV cup the race counts for ("DUV Ultra Cup"), or null. */
+  cup: string | null;
   formats: RowFormat[];
 }
 
@@ -169,6 +171,7 @@ export function groupRows(
       enddate: ends.length ? ends[ends.length - 1] : null,
       surface: surfaceOf(lead.EventType),
       iau,
+      cup: group.map((r) => (r.Cupname ?? "").trim()).find(Boolean) ?? null,
       formats: sorted.map((r) => {
         const results = (r.Results ?? "").trim().toUpperCase();
         return {

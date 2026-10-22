@@ -42,8 +42,8 @@ function Row({ item }: { item: RunningRow }) {
   const locale = useLocale();
   const { row, state } = item;
   return (
-    <li className="border-b border-hair py-2 lg:grid lg:grid-cols-[9rem_minmax(0,1fr)_12rem_16rem_7rem] lg:items-center lg:gap-4">
-      <span className="hidden text-end font-semibold tabular lg:block">
+    <li className="border-b border-border py-2 lg:grid lg:grid-cols-[9rem_minmax(0,1fr)_12rem_16rem_7rem] lg:items-center lg:gap-4">
+      <span className="hidden text-end font-display text-lg font-bold tabular lg:block">
         <Format row={row} />
       </span>
       <div className="flex items-baseline justify-between gap-2 lg:block">
@@ -88,7 +88,7 @@ export function RunningNow({ items, today }: { items: RunningRow[]; today: strin
   const shown = items.slice(0, SHOWN);
   const rest = items.slice(SHOWN);
   return (
-    <section aria-labelledby="running-now" className="mt-6 border-t-2 border-fg">
+    <section aria-labelledby="running-now" className="mt-6 border-t-[length:var(--rule-heavy)] border-fg">
       <h2 id="running-now" className="mt-2 mb-1 flex flex-wrap items-baseline gap-x-2">
         <span aria-hidden className="size-2 self-center rounded-full bg-brand" />
         <span className="label-caps text-fg">{t("title")}</span>
