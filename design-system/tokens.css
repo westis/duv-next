@@ -1,0 +1,79 @@
+/* DUV Swiss Grid — tokens for duv-next. Light on :root, dark on .dark (next-themes). Generated from tokens.json. */
+
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --surface-muted: #eef1f5;
+  --highlight: #e3ecf8;
+  --header: #0e1726;
+  --header-fg: #ffffff;
+  --header-muted: #c9d0da;
+  --fg: #0e1726;
+  --fg-muted: #556070;
+  --border: #c9d0da;
+  --control-border: #0e1726;
+  --brand: #c51e21;
+  --brand-fg: #ffffff;
+  --brand-ink: #c51e21;
+  --link: #1f4fa3;
+  --focus: var(--brand);
+  --success: #137738;
+  --warning: #8e5400;
+  --danger: #b7191c;
+  --cr: #006d69;
+  --cr-fg: #ffffff;
+  --pb: #8e5400;
+  --medal-gold: #eab532;
+  --medal-silver: #a9afb4;
+  --medal-bronze: #c27c4a;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --radius-none: 0px;
+  --radius-dot: 999px;
+  --rule-heavy: 6px;
+  --rule-mid: 3px;
+  --rule-hair: 1px;
+  --container-max: 1280px;
+  --grid-columns: 12;
+  --grid-gutter: 24px;
+  --header-height: 52px;
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: Archivo, system-ui, sans-serif;
+}
+
+.dark {
+  --bg: #0a101b;
+  --surface: #111926;
+  --surface-muted: #162030;
+  --highlight: #1c2a40;
+  --header: #05090f;
+  --header-fg: #e8edf4;
+  --header-muted: #9aa7ba;
+  --fg: #e8edf4;
+  --fg-muted: #9aa7ba;
+  --border: #2a3649;
+  --control-border: #6b7a90;
+  --brand: #d42b26;
+  --brand-fg: #ffffff;
+  --brand-ink: #ff6b5f;
+  --link: #8db4ff;
+  --focus: var(--brand-ink);
+  --success: #6cc581;
+  --warning: #dea052;
+  --danger: #ff8579;
+  --cr: #6ccac4;
+  --cr-fg: #0a101b;
+  --pb: #ebb25f;
+  --medal-gold: #eebc4a;
+  --medal-silver: #b3b8be;
+  --medal-bronze: #cf8d60;
+}
