@@ -11,15 +11,16 @@ export interface FilterLinkItem {
 }
 
 /**
- * A few mutually exclusive filters as plain text links (All · Women · Men),
- * Almanac look: the current one bold with an ink underline. Each is a URL, so
+ * A few mutually exclusive filters (All · Women · Men) as a row of square chips,
+ * Swiss Grid look (design-system/components/FilterChips.md): a hairline in
+ * control-border, the current one filled with ink. Each is a URL, so
  * the view can be shared and works before JavaScript loads. For many options
  * use `FilterBar`'s selects instead.
  */
 export function FilterLinks({ items, label, className }: { items: FilterLinkItem[]; label: string; className?: string }) {
   return (
     <nav aria-label={label} className={className}>
-      <ul className="flex flex-wrap items-center gap-x-5 text-sm">
+      <ul className="flex flex-wrap items-center gap-1.5">
         {items.map((item) => (
           <li key={item.href}>
             <Link
@@ -27,12 +28,18 @@ export function FilterLinks({ items, label, className }: { items: FilterLinkItem
               scroll={false}
               aria-current={item.current ? "true" : undefined}
               className={cn(
-                "nav-link inline-flex min-h-11 items-center gap-1.5 hover:bg-transparent md:min-h-9",
-                item.current ? "font-semibold shadow-[inset_0_-2px_0_var(--fg)]" : "hover:underline"
+                "nav-link inline-flex min-h-11 items-center gap-1.5 border px-3 font-display text-base leading-none font-semibold tracking-[0.04em] uppercase md:min-h-9",
+                item.current
+                  ? "border-fg bg-fg text-surface hover:bg-fg hover:text-surface"
+                  : "border-control-border text-fg hover:bg-surface-muted"
               )}
             >
               {item.label}
-              {item.count !== undefined && <span className="font-normal text-fg-muted tabular">{item.count}</span>}
+              {item.count !== undefined && (
+                <span className={cn("font-sans text-sm font-normal tracking-normal normal-case tabular", item.current ? "opacity-75" : "text-fg-muted")}>
+                  {item.count}
+                </span>
+              )}
             </Link>
           </li>
         ))}
