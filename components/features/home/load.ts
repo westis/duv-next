@@ -1,6 +1,7 @@
 import "server-only";
 
-import { getCalendar, getEventResults, getIntBestList } from "@/lib/duv";
+import { getCalendar, getEventResults } from "@/lib/duv";
+import { loadRanking } from "@/components/features/rankings/load";
 import type {
   CalendarRace,
   EventResultRow,
@@ -207,16 +208,28 @@ const BEST_LISTS: { dist: string; gender: "M" | "W" }[] = [
   { dist: "24h", gender: "M" },
 ];
 
-/** The year's top three from DUV's rankings; a list that comes back empty is left out. */
+/**
+ * The year's top three from DUV's rankings, women first. They load like the
+ * rankings page (`loadRanking`), which rebuilds a list from its age groups when
+ * DUV's server fails on it (2026 100 km women). A distance is shown only with
+ * its women's list: never the men's list alone.
+ */
 export async function loadBestOfYear(year: string): Promise<BestList[]> {
   const lists = await Promise.all(
     BEST_LISTS.map(async ({ dist, gender }) => {
       try {
-        const data = await getIntBestList(
-          { year, dist, gender, perpage: 3, plain: true },
-          { revalidate: 3600 },
-        );
-        const entries = (data?.RankingList ?? []).slice(0, 3);
+        const ranking = await loadRanking({
+          year,
+          dist,
+          gender,
+          cat: "all",
+          nat: "all",
+          iau: false,
+          net: false,
+          view: "all",
+          page: 1,
+        });
+        const entries = ranking.entries.slice(0, 3);
         return entries.length ? { dist, gender, entries } : null;
       } catch {
         return null;
@@ -224,12 +237,11 @@ export async function loadBestOfYear(year: string): Promise<BestList[]> {
     }),
   );
   const found = lists.filter((l): l is BestList => l !== null);
-  // DUV has answered a women's list with the men's one when it ignored the gender: drop such copies.
-  const key = (l: BestList) =>
-    `${l.dist}|${l.entries.map((e) => e.PerfID).join(",")}`;
-  return found.filter(
-    (l) =>
-      l.gender === "M" ||
-      !found.some((m) => m.gender === "M" && key(m) === key(l)),
+  // DUV has answered a women's list with the men's one when it ignored the gender: such a copy is no women's list.
+  const key = (l: BestList) => `${l.dist}|${l.entries.map((e) => e.PerfID).join(",")}`;
+  const women = found.filter(
+    (l) => l.gender === "W" && !found.some((m) => m.gender === "M" && key(m) === key(l)),
   );
+  const withWomen = new Set(women.map((l) => l.dist));
+  return found.filter((l) => withWomen.has(l.dist) && (l.gender === "M" || women.includes(l)));
 }
